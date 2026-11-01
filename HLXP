@@ -1,0 +1,763 @@
+-- HL XP: GoldSrc (HL / CS 1.3) movement + surf. Executor / LocalScript. RightShift hides the panel.
+-- Re-running replaces the previous run (old one is shut down first).
+--
+-- Roblox's own physics does all collision: a friction-free cylinder hull is welded to the root part and the
+-- character's real parts stop colliding. This script only owns the velocity each frame: GoldSrc ground
+-- friction/accelerate, air accelerate (strafe + surf), jump, and step-up for stairs.
+-- Animations: your own Roblox animation assets (see ANIMS below), played client-side on your Animator.
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("RunService")
+local TS = game:GetService("TweenService")
+local player = Players.LocalPlayer
+
+local BASE_SPEED = 16         -- studs/s that equal GoldSrc's 250 u/s run speed (use your game's WalkSpeed)
+local UNIT = BASE_SPEED / 250 -- studs per GoldSrc unit
+local FEET, HEAD, WIDTH = 3, 2, 2 -- hull: feet/head distance from root, diameter
+
+-- your animation assets. ref = horizontal studs/s at which the clip plays at 1x (clip speed scales with your
+-- real speed). Leave ref out for clips that should always play at normal speed.
+local ANIMS = {
+    idle = {id = 133701744573489},
+    walk = {id = 70900360481405, ref = 130 * UNIT},
+    run  = {id = 100654766820262, ref = BASE_SPEED},
+    jump = {id = 99648731475556},
+}
+
+-- GoldSrc units. surfangle: slopes steeper than this are ramps (no friction, air accelerate), not ground
+local GAME = "Game default" -- physics mode that leaves the game's own movement alone
+local S = {enabled = true, speed = 1, friction = 4, edgefriction = 2, stopspeed = 100, accel = 10, airaccel = 10, aircap = 30,
+    stepsize = 18, jump = 268, gravity = 800, maxvel = 2000, surfangle = 45.5, autohop = false, facecam = false, wheeljump = false, antifall = false,
+    mode = GAME, osd = false, osdalpha = 0.9, hlanim = true, voidsafe = true}
+local DEFAULTS = table.clone(S)
+-- per-mode physics presets; "Reset mode" restores the active mode's preset (nothing else). Add Source / CS:GO here.
+local PRESETS = {
+    GoldSrc = {speed = 1, friction = 4, edgefriction = 2, stopspeed = 100, accel = 10, airaccel = 10, aircap = 30, stepsize = 18,
+        jump = 268, gravity = 800, maxvel = 2000, surfangle = 45.5, autohop = false},
+    -- CS 1.3/1.6 on GoldSrc: sv_accelerate 5, sv_stopspeed 75 (GoldSrc above = Half-Life's own 10 / 100)
+    ["CS 1.6"] = {speed = 1, friction = 4, edgefriction = 2, stopspeed = 75, accel = 5, airaccel = 10, aircap = 30,
+        stepsize = 18, jump = 268, gravity = 800, maxvel = 2000, surfangle = 45.5, autohop = false},
+    -- CS:S / HL2 engine values (sv_accelerate 5, sv_stopspeed 75, jump = sqrt(2*800*57), sv_maxvelocity 3500)
+    Source = {speed = 1, friction = 4, edgefriction = 2, stopspeed = 75, accel = 5, airaccel = 10, aircap = 30,
+        stepsize = 18, jump = 302, gravity = 800, maxvel = 3500, surfangle = 45.6, autohop = false},
+    -- CS:GO matchmaking-style values (sv_accelerate 5.5, sv_airaccelerate 12, sv_friction 5.2, sv_stopspeed 80)
+    ["CS:GO"] = {speed = 1, friction = 5.2, edgefriction = 2, stopspeed = 80, accel = 5.5, airaccel = 12, aircap = 30,
+        stepsize = 18, jump = 302, gravity = 800, maxvel = 3500, surfangle = 45.6, autohop = false},
+}
+
+-- ===== persistence (executor file API) =====
+local HttpService = game:GetService("HttpService")
+local FILE, savedPos = "HLXP_settings.json", nil
+local modeVals = {} -- each physics mode remembers its own tweaked values
+pcall(function()
+    if isfile and readfile and isfile(FILE) then
+        local d = HttpService:JSONDecode(readfile(FILE))
+        for k, v in pairs(d.S or {}) do
+            if k ~= "enabled" and type(v) == type(DEFAULTS[k]) then S[k] = v end
+        end
+        savedPos = d.pos
+        for m, t in pairs(d.modes or {}) do
+            if PRESETS[m] and type(t) == "table" then modeVals[m] = t end
+        end
+    end
+end)
+
+-- ===== single instance =====
+local ENV = (getgenv and getgenv()) or _G
+local KEY = "__HLXP_SHUTDOWN"
+if type(ENV[KEY]) == "function" then pcall(ENV[KEY]) end
+local playerGui = player:WaitForChild("PlayerGui")
+local host = playerGui
+do
+    local ok, h = pcall(function() return gethui and gethui() end)
+    if ok and h then
+        host = h
+    elseif pcall(function() return game:GetService("CoreGui"):GetChildren() end) then
+        host = game:GetService("CoreGui")
+    end
+    for _, c in ipairs({playerGui, host}) do
+        for _, nm in ipairs({"HLXP", "HLXPOSD"}) do
+            local old = c:FindFirstChild(nm)
+            if old then old:Destroy() end
+        end
+    end
+end
+
+-- ===== state =====
+local conns, setters = {}, {}
+local osdGui
+local hum, root, chr, owned, gui, hull, align, att, g0, controls, cmd
+local rot = CFrame.identity
+local oldJump, wheel, walkY = false, false, 0.7
+local lastJump, hsave = 0, nil
+local grounded, resetAnim = true, nil
+local footSize = Vector3.new(WIDTH - 0.1, 0.1, WIDTH - 0.1)
+local saved = {} -- character parts whose CanCollide we turned off
+local safePos = nil -- last grounded position (void protection)
+local release
+
+local function on(signal, fn)
+    local c = signal:Connect(fn)
+    conns[#conns + 1] = c
+    return c
+end
+
+local function shutdown()
+    if ENV[KEY] == shutdown then ENV[KEY] = nil end
+    for _, c in ipairs(conns) do c:Disconnect() end
+    table.clear(conns)
+    if owned then release() end
+    if gui then gui:Destroy() end
+    if osdGui then osdGui:Destroy() end
+end
+ENV[KEY] = shutdown
+
+-- ===== queries (only used for ground check + step-up; the engine does the actual collision) =====
+local params = RaycastParams.new()
+params.FilterType = Enum.RaycastFilterType.Exclude
+params.RespectCanCollide = true
+params.IgnoreWater = true
+local castSize, hullOff = Vector3.one, Vector3.zero
+
+local function cast(p, d) return workspace:Blockcast(CFrame.new(p + hullOff), castSize, d, params) end
+
+-- shapecast normals are diagonal on part edges; a ray at the contact point gives the real face normal
+local function normalOf(hit)
+    local n = hit.Normal
+    if n.Magnitude < 0.5 then return nil end
+    local r = workspace:Raycast(hit.Position + n * 0.1, -n * 0.3, params)
+    return (r and r.Instance == hit.Instance and r.Normal:Dot(n) > 0.3) and r.Normal or n
+end
+
+-- ===== GoldSrc pieces =====
+local function friction(v, pos, dt) -- PM_Friction + edge friction
+    local speed = v.Magnitude
+    if speed < 0.1 * UNIT then return Vector3.zero end
+    local f = S.friction
+    local ahead = pos + v / speed * (16 * UNIT)
+    if not workspace:Raycast(Vector3.new(ahead.X, pos.Y - FEET + 0.05, ahead.Z), Vector3.new(0, -34 * UNIT, 0), params) then
+        f *= S.edgefriction
+    end
+    return v * (math.max(speed - math.max(speed, S.stopspeed * UNIT) * f * dt, 0) / speed)
+end
+
+-- PM_Accelerate / PM_AirAccelerate (air passes cap = 30 units: that cap is what makes strafing and surfing work)
+local function accelerate(v, dir, wishspeed, rate, cap, dt)
+    local add = math.min(wishspeed, cap) - v:Dot(dir)
+    if add > 0 then v += dir * math.min(rate * dt * wishspeed, add) end
+    return v
+end
+
+-- walk up stairs: if the hull is blocked by a non-walkable face but is free one step higher with floor to land
+-- on, lift the character. Step height = stepsize slider.
+local function stepUp(pos, v, dt)
+    local hv = Vector3.new(v.X, 0, v.Z)
+    local sp = hv.Magnitude
+    if sp < 1 then return end
+    local d = hv.Unit * (sp * dt + 0.25)
+    local blk = cast(pos, d)
+    local bn = blk and normalOf(blk)
+    if not bn or bn.Y > 0.3 then return end -- only near-vertical risers, never ramps
+    local up = Vector3.new(0, S.stepsize * UNIT, 0)
+    if cast(pos, up) or cast(pos + up, d) then return end
+    local dn = cast(pos + up + d, -up)
+    local dnn = dn and normalOf(dn)
+    if dnn and dnn.Y >= walkY then
+        local rise = up.Y - dn.Distance
+        if rise > 0.05 then root.CFrame += Vector3.new(0, rise + 0.03, 0) end
+    end
+end
+
+-- ===== character binding =====
+local function take()
+    owned, saved = true, {}
+    g0 = workspace.Gravity
+    local lv = root.CFrame.LookVector
+    local flat = Vector3.new(lv.X, 0, lv.Z)
+    rot = CFrame.lookAt(Vector3.zero, flat.Magnitude > 1e-3 and flat or Vector3.zAxis)
+
+    hull = Instance.new("Part") -- vertical cylinder: yaw-invariant, so the cast box matches it
+    hull.Name, hull.Shape, hull.Transparency = "HLXPHull", Enum.PartType.Cylinder, 1
+    hull.Size = Vector3.new(FEET + HEAD, WIDTH, WIDTH)
+    hull.CFrame = root.CFrame * CFrame.new(hullOff) * CFrame.Angles(0, 0, math.pi / 2)
+    hull.CustomPhysicalProperties = PhysicalProperties.new(0.5, 0, 0, 100, 100) -- no friction / bounce: we do that
+    hull.CollisionGroup = root.CollisionGroup
+    hull.Parent = chr
+    local w = Instance.new("WeldConstraint")
+    w.Part0, w.Part1, w.Parent = root, hull, hull
+
+    att = Instance.new("Attachment")
+    att.Parent = root
+    align = Instance.new("AlignOrientation") -- keeps the body upright, faces where we say
+    align.Mode, align.RigidityEnabled, align.Attachment0, align.CFrame = Enum.OrientationAlignmentMode.OneAttachment, true, att, rot
+    align.Parent = root
+    hum.PlatformStand = true
+    hsave = {hum.JumpPower, hum.JumpHeight}
+    hum.JumpPower, hum.JumpHeight = 0, 0 -- the game's own jump must not exist while we're on
+    cmd = root.AssemblyLinearVelocity
+    local pm = player:FindFirstChild("PlayerScripts") and player.PlayerScripts:FindFirstChild("PlayerModule")
+    if pm then -- stop the game's ControlModule from driving the Humanoid (Jump / Move)
+        pcall(function() controls = require(pm):GetControls() controls:Disable() end)
+    end
+end
+
+function release()
+    owned = false
+    if resetAnim then resetAnim(true) end
+    if g0 then workspace.Gravity = g0 end
+    if hull then hull:Destroy() end
+    if align then align:Destroy() end
+    if att then att:Destroy() end
+    for p in pairs(saved) do
+        if p.Parent then p.CanCollide = true end
+    end
+    saved, cmd, safePos = {}, nil, nil
+    if hsave and hum and hum.Parent then hum.JumpPower, hum.JumpHeight = hsave[1], hsave[2] end
+    hsave = nil
+    if controls then pcall(function() controls:Enable() end) controls = nil end
+    if hum and hum.Parent then
+        hum.PlatformStand = false
+        hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+    end
+end
+
+local function bind(char)
+    if owned then release() end
+    local h = char:WaitForChild("Humanoid")
+    local r = char:WaitForChild("HumanoidRootPart")
+    chr, hum, root = char, h, r
+    FEET = h.RigType == Enum.HumanoidRigType.R6 and 3 or h.HipHeight + r.Size.Y / 2
+    castSize = Vector3.new(WIDTH - 0.04, FEET + HEAD - 0.04, WIDTH - 0.04)
+    hullOff = Vector3.new(0, (HEAD - FEET) / 2, 0)
+    params.FilterDescendantsInstances = {char}
+    params.CollisionGroup = r.CollisionGroup
+end
+on(player.CharacterAdded, bind)
+if player.Character then task.spawn(bind, player.Character) end
+
+-- Stepped runs before physics; the Humanoid re-enables collisions, so this has to run every frame
+on(RS.Stepped, function()
+    if not (owned and chr) then return end
+    hum.PlatformStand = true
+    hum.JumpPower, hum.JumpHeight = 0, 0 -- games reset these
+    local st = hum:GetState()
+    if S.antifall then -- Physics state: the game never sees FreeFall/Landed, so state-based fall damage can't trigger
+        if st ~= Enum.HumanoidStateType.Physics then hum:ChangeState(Enum.HumanoidStateType.Physics) end
+    elseif st == Enum.HumanoidStateType.Physics then
+        hum:ChangeState(Enum.HumanoidStateType.PlatformStanding)
+    end
+    if cmd then root.AssemblyLinearVelocity = cmd end
+    for _, d in ipairs(chr:GetDescendants()) do
+        if d:IsA("BasePart") and d ~= hull and d.CanCollide then
+            saved[d] = true
+            d.CanCollide = false
+        end
+    end
+end)
+
+-- ===== input + main loop =====
+local function inputDir() -- camera-relative (keyboard fallback: MoveDirection can be 0 while PlatformStanded)
+    local c = workspace.CurrentCamera.CFrame
+    local f, r = Vector3.new(c.LookVector.X, 0, c.LookVector.Z), Vector3.new(c.RightVector.X, 0, c.RightVector.Z)
+    if f.Magnitude < 0.01 or r.Magnitude < 0.01 then return Vector3.zero end
+    f, r = f.Unit, r.Unit
+    local d = Vector3.zero
+    if UIS:IsKeyDown(Enum.KeyCode.W) then d += f end
+    if UIS:IsKeyDown(Enum.KeyCode.S) then d -= f end
+    if UIS:IsKeyDown(Enum.KeyCode.D) then d += r end
+    if UIS:IsKeyDown(Enum.KeyCode.A) then d -= r end
+    return d.Magnitude > 0.01 and d.Unit or Vector3.zero
+end
+
+on(RS.Heartbeat, function(dt)
+    local live = S.enabled and S.mode ~= GAME and hum and root and hum.Parent and root.Parent and hum.Health > 0 and not hum.SeatPart
+    if not live then
+        if owned then release() end
+        return
+    end
+    if not owned then take() end
+    dt = math.min(dt, 0.05)
+    workspace.Gravity = S.gravity * UNIT -- the engine applies gravity; we never touch it in the maths below
+    walkY = math.cos(math.rad(S.surfangle))
+
+    local pos, vel = root.Position, root.AssemblyLinearVelocity -- vel already has the engine's collision response
+    if S.voidsafe and safePos and pos.Y < workspace.FallenPartsDestroyHeight + 80 then
+        pos, vel = safePos + Vector3.new(0, 4, 0), Vector3.zero
+        root.CFrame = CFrame.new(pos) * (root.CFrame - root.Position)
+        root.AssemblyLinearVelocity = vel
+    end
+    local move = inputDir()
+    local wishdir = move.Magnitude > 0.01 and move.Unit or Vector3.zero
+    local wishspeed = math.min(move.Magnitude * 1.6, 1) * 250 * UNIT * S.speed
+    local jumpBtn = UIS:IsKeyDown(Enum.KeyCode.Space) or wheel
+    wheel = false
+
+    local probe = S.antifall and 0.21 or 0.1 -- wide probe softens landings
+    if jumpBtn and vel.Y < 0 then probe = math.max(probe, -vel.Y * dt * 1.2) end -- catch the floor before we hit it
+    -- thin foot-level box that starts 0.4 above the feet: landing penetration can no longer start it inside the
+    -- floor (that returned nothing, so you counted as airborne and slid with no friction)
+    local feet = pos - Vector3.new(0, FEET, 0)
+    local hit = workspace:Blockcast(CFrame.new(feet + Vector3.new(0, 0.4, 0)), footSize, Vector3.new(0, -(0.4 + probe), 0), params)
+    local n = hit and normalOf(hit)
+    local gap = hit and hit.Distance - 0.35 or math.huge -- feet-to-floor distance (negative = sunk into it)
+    local onGround = n ~= nil and n.Y >= walkY and gap <= probe and vel:Dot(n) < S.jump * 0.5 * UNIT
+        and os.clock() - lastJump > 0.12
+
+    local jumping = false
+    if jumpBtn then
+        jumping = onGround and (not oldJump or S.autohop) -- must release jump between hops unless auto-hop
+        oldJump = true
+    else
+        oldJump = false
+    end
+    if jumping then
+        onGround = false
+        -- take off from exactly floor level, so hops start identical to a standing jump (no impact/push-out boost)
+        root.CFrame += Vector3.new(0, -math.clamp(gap - 0.01, -0.35, probe), 0)
+        lastJump = os.clock()
+        vel = Vector3.new(vel.X, S.jump * UNIT, vel.Z)
+    end
+
+    if onGround then
+        vel += Vector3.new(0, workspace.Gravity * dt, 0) -- undo this frame's gravity so slopes don't creep
+        vel -= n * vel:Dot(n)                           -- ride the floor plane at full speed
+        vel = friction(vel, pos, dt)
+        local wd = wishdir - n * wishdir:Dot(n)
+        if wd.Magnitude > 1e-3 then vel = accelerate(vel, wd.Unit, wishspeed, S.accel, math.huge, dt) end
+    elseif wishdir ~= Vector3.zero then
+        vel = accelerate(vel, wishdir, wishspeed, S.airaccel, S.aircap * UNIT, dt)
+    end
+
+    if vel ~= vel then vel = Vector3.zero end
+    local m = S.maxvel * UNIT
+    vel = Vector3.new(math.clamp(vel.X, -m, m), math.clamp(vel.Y, -m, m), math.clamp(vel.Z, -m, m))
+    if onGround and wishspeed > 0 then stepUp(pos, vel, dt) end
+    grounded = onGround
+    if onGround then safePos = root.Position end
+    cmd = vel
+    root.AssemblyLinearVelocity = vel
+
+    local face
+    if S.facecam then
+        local lv = workspace.CurrentCamera.CFrame.LookVector
+        face = Vector3.new(lv.X, 0, lv.Z)
+    else
+        face = Vector3.new(vel.X, 0, vel.Z)
+        if face.Magnitude < 2 then face = Vector3.zero end
+    end
+    if face.Magnitude > 1e-3 then rot = rot:Lerp(CFrame.lookAt(Vector3.zero, face), 1 - math.exp(-16 * dt)) end
+    align.CFrame = rot
+end)
+
+-- ===== animations (your Roblox assets, played client-side on the local Animator) =====
+-- The game's own Animate script is switched off while this is on, and its idle/walk/movement tracks are stopped,
+-- so only your four clips play. Animator tracks started by the client replicate to everyone else.
+local tracks, mine = {}, {} -- clip name -> AnimationTrack, and the reverse set
+local animDisabled, animStatusLbl, lastStatus, animWarned
+local ap = {clip = nil, air = 0}
+local function status(msg) -- shown under the animation switch
+    if msg ~= lastStatus and animStatusLbl then
+        lastStatus = msg
+        animStatusLbl.Text = msg
+    end
+end
+
+local function loadTracks()
+    local an = hum:FindFirstChildOfClass("Animator") or Instance.new("Animator", hum)
+    for name, a in pairs(ANIMS) do
+        local anim = Instance.new("Animation")
+        anim.AnimationId = "rbxassetid://" .. a.id
+        local ok, tr = pcall(function() return an:LoadAnimation(anim) end)
+        if ok and tr then
+            tr.Priority = Enum.AnimationPriority.Movement
+            tr.Looped = name ~= "jump"
+            tracks[name], mine[tr] = tr, true
+        else
+            warn("[HLXP anim] could not load " .. name .. " (" .. a.id .. "): " .. tostring(tr))
+        end
+    end
+end
+
+function resetAnim(unload) -- stop our clips; give the game's Animate script back
+    for _, tr in pairs(tracks) do
+        pcall(function() tr:Stop(0.1) end)
+        if unload then pcall(function() tr:Destroy() end) end
+    end
+    if unload then tracks, mine = {}, {} end
+    ap.clip, ap.air = nil, 0
+    if animDisabled then
+        local a = chr and chr:FindFirstChild("Animate")
+        if a then a.Disabled = false end
+        animDisabled = false
+    end
+end
+
+local LOW = {[Enum.AnimationPriority.Core] = true, [Enum.AnimationPriority.Idle] = true,
+    [Enum.AnimationPriority.Movement] = true}
+
+local function animUpdate(dt)
+    local live = owned and chr and hum and root and hum.Parent
+    if not (S.hlanim and live) then
+        if animDisabled or ap.clip then resetAnim() end
+        status(live and "anim: off" or "anim: waiting - pick a physics mode and turn Enabled on")
+        return
+    end
+
+    local a = chr:FindFirstChild("Animate") -- silence the game's own animations
+    if a and not a.Disabled then a.Disabled = true animDisabled = true end
+    if not next(tracks) then loadTracks() end
+    local an = hum:FindFirstChildOfClass("Animator")
+    if an then
+        for _, tr in ipairs(an:GetPlayingAnimationTracks()) do
+            if not mine[tr] and LOW[tr.Priority] then tr:Stop(0) end -- leave tool / action animations alone
+        end
+    end
+
+    local hs = cmd and Vector3.new(cmd.X, 0, cmd.Z).Magnitude or 0
+    ap.air = grounded and 0 or ap.air + dt
+    local run = 250 * UNIT
+    local want = ap.air > 0.08 and "jump" or hs < 0.05 * run and "idle" or hs < 0.62 * run and "walk" or "run"
+    if want ~= ap.clip then
+        local old, new = tracks[ap.clip], tracks[want]
+        if old then old:Stop(0.12) end
+        if new then new:Play(0.12) end
+        ap.clip = want
+    end
+
+    local tr = tracks[want]
+    if tr then
+        local ref = ANIMS[want].ref
+        if ref then
+            tr:AdjustSpeed(math.clamp(hs / ref, 0.4, 3)) -- clip speed follows real speed
+        elseif want == "jump" and tr.Length > 0 and tr.TimePosition >= tr.Length - 0.05 then
+            tr:AdjustSpeed(0) -- hold the last frame until we land
+        end
+        status(tr.Length > 0 and string.format("anim: %s playing (%s)", want, hum.RigType.Name)
+            or string.format("anim: %s loading / failed (check the asset id + ownership)", want))
+    else
+        status("anim: " .. want .. " track missing")
+    end
+end
+
+on(RS.RenderStepped, function(dt)
+    local ok, err = pcall(animUpdate, dt)
+    if not ok then
+        status("anim ERROR: " .. tostring(err))
+        if not animWarned then
+            animWarned = true
+            warn("[HLXP anim] " .. tostring(err))
+        end
+    end
+end)
+
+-- ===== UI (dark see-through panel, square corners, monospace, blue accent) =====
+local BG, TEXT, MUTED = Color3.fromRGB(23, 22, 22), Color3.new(1, 1, 1), Color3.fromRGB(150, 150, 150)
+local BTN, ACCENT = Color3.fromRGB(62, 60, 55), Color3.fromRGB(91, 155, 213)
+local OFF, KNOB_OFF, KNOB_ON = Color3.fromRGB(17, 17, 17), Color3.fromRGB(207, 207, 207), Color3.fromRGB(222, 235, 246)
+local BLACK = Color3.new(0, 0, 0)
+
+-- FONT: built-in fallback, loads instantly. Code = fixed-width, closest built-in to a bitmap font.
+-- Alternatives: Enum.Font.Legacy (the old Roblox UI font, not monospace) or Enum.Font.Arcade (pixel, caps only).
+-- ProggyClean: drop ProggyClean.ttf into your executor's workspace folder and it is used automatically
+-- (local file, so no loading delay). It is a 13px bitmap font, so text sizes below are 13 (26 = 2x) to stay sharp.
+local FONT, FONT_FILE, FONTFACE = Enum.Font.Code, "ProggyClean.ttf", nil
+pcall(function()
+    if isfile and writefile and getcustomasset and isfile(FONT_FILE) then
+        writefile("HLXP_font.json", HttpService:JSONEncode({name = "ProggyClean", faces = {
+            {name = "Regular", weight = 400, style = "normal", assetId = getcustomasset(FONT_FILE)}}}))
+        FONTFACE = Font.new(getcustomasset("HLXP_font.json"))
+    end
+end)
+
+local function new(class, props, parent)
+    local i = Instance.new(class)
+    for k, v in pairs(props) do i[k] = v end
+    if FONTFACE and (i:IsA("TextLabel") or i:IsA("TextButton")) then i.FontFace = FONTFACE end
+    i.Parent = parent
+    return i
+end
+local function outline(i, color)
+    new("UIStroke", {Color = color, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, i)
+end
+local function label(parent, str, props)
+    local p = {BackgroundTransparency = 1, Text = str, TextColor3 = TEXT, Font = FONT, TextSize = 13,
+        TextXAlignment = Enum.TextXAlignment.Left}
+    for k, v in pairs(props or {}) do p[k] = v end
+    return new("TextLabel", p, parent)
+end
+local function isPress(i)
+    return i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch
+end
+
+gui = new("ScreenGui", {Name = "HLXP", ResetOnSpawn = false, ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    DisplayOrder = 2147483647, IgnoreGuiInset = true}, host) -- above Roblox UI and the game's
+local W, H, HEADER = 300, 620, 32
+local main = new("Frame", {Size = UDim2.fromOffset(W, H), Position = UDim2.new(0, 40, 0.5, -H / 2),
+    BackgroundColor3 = BG, BackgroundTransparency = 0.2, BorderSizePixel = 0, ClipsDescendants = true}, gui)
+new("UIStroke", {Color = BLACK, Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, main)
+
+if savedPos then main.Position = UDim2.new(savedPos[1], savedPos[2], savedPos[3], savedPos[4]) end
+local ready, pending, applying = false, false, false
+local function save() -- remembers the active mode's values; debounced file write, no-op until the UI is built
+    if applying then return end
+    local pm = PRESETS[S.mode]
+    if pm then
+        local t = modeVals[S.mode] or {}
+        modeVals[S.mode] = t
+        for k in pairs(pm) do t[k] = S[k] end
+    end
+    if not ready or pending or not writefile then return end
+    pending = true
+    task.delay(0.5, function()
+        pending = false
+        local p = main.Position
+        pcall(writefile, FILE, HttpService:JSONEncode({S = S, modes = modeVals, pos = {p.X.Scale, p.X.Offset, p.Y.Scale, p.Y.Offset}}))
+    end)
+end
+
+local header = new("Frame", {Size = UDim2.new(1, 0, 0, HEADER), BackgroundTransparency = 1}, main)
+label(header, '<font color="rgb(91,155,213)">&gt;</font>KL // HL XP',
+    {Position = UDim2.fromOffset(12, 0), Size = UDim2.new(1, -80, 1, 0), RichText = true})
+new("Frame", {Position = UDim2.new(0, 0, 1, -1), Size = UDim2.new(1, 0, 0, 1), BackgroundColor3 = TEXT,
+    BorderSizePixel = 0}, header)
+-- flat header buttons with drawn glyphs (no font dependence): hover shows a fill, close goes red
+local function headBtn(x, hover)
+    local b = new("TextButton", {AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, x, 0.5, -1),
+        Size = UDim2.fromOffset(22, 22), BackgroundColor3 = hover, BackgroundTransparency = 1, Text = "",
+        AutoButtonColor = false, BorderSizePixel = 0}, header)
+    b.MouseEnter:Connect(function() b.BackgroundTransparency = 0 end)
+    b.MouseLeave:Connect(function() b.BackgroundTransparency = 1 end)
+    return b
+end
+local function bar(parent, w, h, rotation)
+    return new("Frame", {AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+        Size = UDim2.fromOffset(w, h), Rotation = rotation or 0, BackgroundColor3 = TEXT, BorderSizePixel = 0}, parent)
+end
+local closeBtn, minBtn = headBtn(-6, Color3.fromRGB(190, 55, 55)), headBtn(-32, BTN)
+bar(closeBtn, 13, 2, 45)
+bar(closeBtn, 13, 2, -45)
+bar(minBtn, 10, 2)
+local plus = bar(minBtn, 2, 10) -- shown while minimized (click = restore)
+plus.Visible = false
+
+local body = new("ScrollingFrame", {Position = UDim2.fromOffset(0, HEADER), Size = UDim2.new(1, 0, 1, -HEADER),
+    BackgroundTransparency = 1, BorderSizePixel = 0, ScrollBarThickness = 4, ScrollBarImageColor3 = TEXT,
+    CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.Y,
+    ScrollingDirection = Enum.ScrollingDirection.Y}, main)
+new("UIListLayout", {Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder}, body)
+new("UIPadding", {PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 14), PaddingTop = UDim.new(0, 10),
+    PaddingBottom = UDim.new(0, 10)}, body)
+
+local order = 0
+local function row(h)
+    order += 1
+    return new("Frame", {Size = UDim2.new(1, 0, 0, h), BackgroundTransparency = 1, LayoutOrder = order}, body)
+end
+local function caption(str, size, color)
+    label(row(14), str, {Size = UDim2.fromScale(1, 1), TextSize = size or 13, TextColor3 = color or MUTED})
+end
+
+-- one active drag (window or slider); mouse wheel = jump pulse (classic HL mwheel bhop)
+local drag
+on(UIS.InputChanged, function(i)
+    if i.UserInputType == Enum.UserInputType.MouseWheel then
+        wheel = S.wheeljump
+    elseif drag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+        drag(i.Position)
+    end
+end)
+on(UIS.InputEnded, function(i)
+    if isPress(i) then
+        if drag then save() end
+        drag = nil
+    end
+end)
+header.InputBegan:Connect(function(i)
+    if not isPress(i) then return end
+    local s0, p0 = i.Position, main.Position
+    drag = function(p)
+        local d = p - s0
+        main.Position = UDim2.new(p0.X.Scale, p0.X.Offset + d.X, p0.Y.Scale, p0.Y.Offset + d.Y)
+    end
+end)
+
+local function addSlider(name, key, min, max, stepSize, fmt)
+    local r = row(44)
+    label(r, name, {Size = UDim2.new(1, -64, 0, 18)})
+    local box = new("Frame", {AnchorPoint = Vector2.new(1, 0), Position = UDim2.fromScale(1, 0),
+        Size = UDim2.fromOffset(58, 18), BackgroundColor3 = BLACK, BackgroundTransparency = 0.5,
+        BorderSizePixel = 0}, r)
+    local val = label(box, "", {Size = UDim2.new(1, -6, 1, 0), TextXAlignment = Enum.TextXAlignment.Right})
+    local track = new("Frame", {Position = UDim2.fromOffset(6, 29), Size = UDim2.new(1, -12, 0, 4),
+        BackgroundColor3 = BLACK, BorderSizePixel = 0}, r)
+    local fill = new("Frame", {Size = UDim2.fromScale(0, 1), BackgroundColor3 = TEXT, BorderSizePixel = 0}, track)
+    local knob = new("Frame", {AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(12, 12),
+        Position = UDim2.fromScale(0, 0.5), BackgroundColor3 = TEXT, BorderSizePixel = 0, ZIndex = 2}, track)
+    outline(knob, Color3.fromRGB(127, 127, 127))
+    local hit = new("TextButton", {Size = UDim2.new(1, 12, 0, 24), Position = UDim2.new(0, -6, 0.5, -12),
+        BackgroundTransparency = 1, Text = "", ZIndex = 3}, track)
+
+    local function set(v)
+        v = math.clamp(math.floor(v / stepSize + 0.5) * stepSize, min, max)
+        v = math.floor(v * 1000 + 0.5) / 1000
+        S[key] = v
+        local a = (v - min) / (max - min)
+        fill.Size, knob.Position = UDim2.fromScale(a, 1), UDim2.fromScale(a, 0.5)
+        val.Text = string.format(fmt, v)
+        save()
+    end
+    local function fromPos(p)
+        set(min + math.clamp((p.X - track.AbsolutePosition.X) / track.AbsoluteSize.X, 0, 1) * (max - min))
+    end
+    hit.InputBegan:Connect(function(i)
+        if isPress(i) then drag = fromPos; fromPos(i.Position) end
+    end)
+    setters[key] = set
+    set(S[key])
+end
+
+local function addSwitch(name, key)
+    local r = row(22)
+    label(r, name, {Size = UDim2.new(1, -44, 1, 0)})
+    local sw = new("TextButton", {AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.fromScale(1, 0.5),
+        Size = UDim2.fromOffset(36, 18), BackgroundColor3 = OFF, Text = "", AutoButtonColor = false,
+        BorderSizePixel = 0}, r)
+    local knob = new("Frame", {Size = UDim2.fromOffset(18, 18), BackgroundColor3 = KNOB_OFF, BorderSizePixel = 0}, sw)
+    local function set(v)
+        S[key] = v
+        local t = TweenInfo.new(0.12)
+        TS:Create(sw, t, {BackgroundColor3 = v and ACCENT or OFF}):Play()
+        TS:Create(knob, t, {Position = UDim2.fromOffset(v and 18 or 0, 0),
+            BackgroundColor3 = v and KNOB_ON or KNOB_OFF}):Play()
+        save()
+    end
+    sw.MouseButton1Click:Connect(function() set(not S[key]) end)
+    setters[key] = set
+    set(S[key])
+end
+
+local function addDropdown(items, onPick)
+    local r = row(24)
+    local head = new("TextButton", {Size = UDim2.new(1, 0, 0, 24), BackgroundColor3 = BTN, Text = "", AutoButtonColor = false,
+        BorderSizePixel = 0}, r)
+    outline(head, TEXT)
+    local cur = label(head, "", {Position = UDim2.fromOffset(8, 0), Size = UDim2.new(1, -28, 1, 0)})
+    label(head, "v", {Position = UDim2.new(1, -22, 0, 0), Size = UDim2.fromOffset(16, 24), TextColor3 = MUTED,
+        TextXAlignment = Enum.TextXAlignment.Center})
+    local list = new("Frame", {Position = UDim2.fromOffset(0, 26), Size = UDim2.new(1, 0, 0, #items * 22),
+        BackgroundColor3 = BTN, BorderSizePixel = 0, Visible = false}, r)
+    outline(list, TEXT)
+    local btns = {}
+    local function pick(name, apply)
+        cur.Text = name
+        for n, b in pairs(btns) do b.TextColor3 = n == name and ACCENT or TEXT end
+        onPick(name, apply)
+    end
+    local function close() list.Visible = false r.Size = UDim2.new(1, 0, 0, 24) end
+    for i, name in ipairs(items) do
+        local b = new("TextButton", {Position = UDim2.fromOffset(0, (i - 1) * 22), Size = UDim2.new(1, 0, 0, 22),
+            BackgroundTransparency = 1, Text = "  " .. name, TextColor3 = TEXT, Font = FONT, TextSize = 13,
+            TextXAlignment = Enum.TextXAlignment.Left, BorderSizePixel = 0}, list)
+        btns[name] = b
+        b.MouseButton1Click:Connect(function() pick(name, true) close() end)
+    end
+    head.MouseButton1Click:Connect(function()
+        list.Visible = not list.Visible
+        r.Size = UDim2.new(1, 0, 0, list.Visible and 28 + #items * 22 or 24)
+    end)
+    pick(S.mode, false)
+end
+
+addSwitch("Enabled", "enabled")
+
+caption("// physics mode (Game default = off)")
+addDropdown({GAME, "GoldSrc", "CS 1.6", "Source", "CS:GO"}, function(name, apply)
+    S.mode = name
+    local pm = PRESETS[name]
+    if apply and pm then -- restore what you last had in this mode (preset only the first time)
+        local vals = table.clone(modeVals[name] or pm)
+        applying = true
+        for k, v in pairs(pm) do setters[k](type(vals[k]) == type(v) and vals[k] or v) end
+        applying = false
+    end
+    save()
+end)
+
+caption("// movement")
+addSlider("Max speed", "speed", 0.5, 3, 0.05, "%.2fx")
+addSlider("Friction", "friction", 0, 10, 0.1, "%.1f")
+addSlider("Edge friction", "edgefriction", 1, 5, 0.5, "%.1f")
+addSlider("Stop speed", "stopspeed", 10, 300, 10, "%.0f")
+addSlider("Accelerate", "accel", 1, 20, 0.1, "%.1f")
+addSlider("Air accelerate", "airaccel", 1, 100, 1, "%.0f")
+addSlider("Air speed cap", "aircap", 10, 300, 5, "%.0f")
+addSlider("Step size", "stepsize", 0, 36, 1, "%.0f")
+
+caption("// surf (steeper than this = ramp)")
+addSlider("Surf angle", "surfangle", 20, 85, 0.1, "%.1f deg")
+
+caption("// jump / world")
+addSlider("Jump velocity", "jump", 100, 600, 1, "%.0f")
+addSlider("Gravity", "gravity", 100, 1600, 10, "%.0f")
+addSlider("Max velocity", "maxvel", 500, 5000, 100, "%.0f")
+addSwitch("Auto-hop (hold jump)", "autohop")
+addSwitch("Mouse wheel jump", "wheeljump")
+addSwitch("Anti fall damage", "antifall")
+addSwitch("Void protection", "voidsafe")
+addSwitch("Custom animations (local)", "hlanim")
+animStatusLbl = label(row(40), "anim: off", {Size = UDim2.fromScale(1, 1), TextColor3 = MUTED,
+    TextWrapped = true, TextYAlignment = Enum.TextYAlignment.Top})
+addSwitch("Face camera", "facecam")
+
+caption("// speed osd")
+addSwitch("Speed OSD", "osd")
+addSlider("OSD opacity", "osdalpha", 0.1, 1, 0.05, "%.2f")
+
+local resetBtn = new("TextButton", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = BTN, Text = "Reset mode defaults",
+    TextColor3 = TEXT, Font = FONT, TextSize = 13, BorderSizePixel = 0}, row(26))
+outline(resetBtn, TEXT)
+resetBtn.MouseButton1Click:Connect(function()
+    for k, v in pairs(PRESETS[S.mode] or {}) do setters[k](v) end
+end)
+
+caption("RightShift hide")
+
+local mini = false
+minBtn.MouseButton1Click:Connect(function()
+    mini = not mini
+    plus.Visible = mini
+    body.Visible = not mini
+    main.Size = UDim2.fromOffset(W, mini and HEADER or H)
+end)
+
+on(UIS.InputBegan, function(i, gp)
+    if not gp and i.KeyCode == Enum.KeyCode.RightShift then gui.Enabled = not gui.Enabled end
+end)
+
+-- speed OSD: own gui so it stays visible when the panel is hidden; sits just under the screen-centre crosshair
+osdGui = new("ScreenGui", {Name = "HLXPOSD", ResetOnSpawn = false, IgnoreGuiInset = true,
+    DisplayOrder = 2147483646}, host)
+local osd = new("Frame", {AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0.5, 26),
+    Size = UDim2.fromOffset(100, 24), BackgroundTransparency = 1, Visible = false}, osdGui)
+local osdNum = label(osd, "", {Size = UDim2.new(1, 0, 0, 15), TextXAlignment = Enum.TextXAlignment.Center, TextSize = 13})
+osdNum.TextStrokeColor3 = BLACK
+local barBg = new("Frame", {AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 18),
+    Size = UDim2.fromOffset(70, 3), BackgroundColor3 = BLACK, BorderSizePixel = 0}, osd)
+local barStroke = new("UIStroke", {Color = BLACK, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}, barBg)
+local barFill = new("Frame", {Size = UDim2.fromScale(0, 1), BackgroundColor3 = TEXT, BorderSizePixel = 0}, barBg)
+local shown = 0
+on(RS.RenderStepped, function(dt)
+    osd.Visible = S.osd
+    if not S.osd then return end
+    local t = 1 - S.osdalpha -- opacity applied per element (works everywhere, no CanvasGroup)
+    osdNum.TextTransparency, osdNum.TextStrokeTransparency = t, t
+    barBg.BackgroundTransparency, barStroke.Transparency, barFill.BackgroundTransparency = 1 - S.osdalpha * 0.5, t, t
+    local v = (root and root.Parent) and root.AssemblyLinearVelocity or Vector3.zero
+    shown += (Vector3.new(v.X, 0, v.Z).Magnitude - shown) * (1 - math.exp(-20 * dt)) -- horizontal studs/s, smoothed
+    osdNum.Text = string.format("%d u/s", math.floor(shown + 0.5))
+    barFill.Size = UDim2.fromScale(math.clamp(shown / (BASE_SPEED * 3), 0, 1), 1) -- full bar = 3x run speed
+end)
+
+ready = true
+closeBtn.MouseButton1Click:Connect(shutdown)
