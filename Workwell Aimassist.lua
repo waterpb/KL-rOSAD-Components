@@ -24,7 +24,7 @@ local CUSTOM_TORSO_IDS = {
 --         (the regular Head / Top part is not used as a fallback).
 -- false = custom head preferred, regular head used when no custom one is found.
 -- Ignored while no custom head is configured (empty ID list and no head names in the CUSTOM PARTS panel).
-local IGNORE_REGULAR_HEADS = true
+local IGNORE_REGULAR_HEADS = false
 
 -- TARGET SCOPE: auto-detects everything under workspace.Players; you pick which ones to detect / lock onto
 -- from the panel (MAIN > TARGET SCOPE). Functions are defined further down, once `settings` exists.
