@@ -1,30 +1,41 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py). Markers use "--" (Lua), not "//".
--- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), unload previous run | VERSION, DIR, env | deps: none | L82-90
--- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L92-213
--- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L215-292
--- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L294-439
--- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L441-925
--- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L927-1672
--- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart | deps: CMD_CORE | L1674-3503
--- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L3505-3851
--- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L3853-4272
--- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade) | deps: UI_SHARED | L4274-4406
--- [PG_HOME] Home page (stats+icon centered, experience name carry) | stats loop, bio, ctx.curExp | deps: UI_PANEL | L4408-4503
--- [PG_PLAYERS] Players page (3x2 buttons, Listen) | render(), copyable() | deps: UI_PANEL | L4505-4621
--- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L4623-4653
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L4655-4732
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L4734-4763
--- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L4765-4784
--- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L4786-4907
--- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L4909-5115
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L5117-5200
--- [PG_PREFS] Preferences page | refresh() | deps: PG_FLOW | L5202-5225
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L5227-5343
+-- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), unload previous run | VERSION, DIR, env | deps: none | L93-101
+-- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L103-224
+-- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L226-308
+-- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L310-455
+-- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L457-941
+-- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L943-1695
+-- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart | deps: CMD_CORE | L1697-3727
+-- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L3729-4082
+-- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L4084-4503
+-- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade) | deps: UI_SHARED | L4505-4637
+-- [PG_HOME] Home page (stats+icon centered, experience name carry) | stats loop, bio, ctx.curExp | deps: UI_PANEL | L4639-4734
+-- [PG_PLAYERS] Players page (3x2 buttons, Listen, Hide) | render(), copyable() | deps: UI_PANEL | L4736-4856
+-- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L4858-4888
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L4890-4967
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L4969-4998
+-- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L5000-5019
+-- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L5021-5142
+-- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L5144-5370
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L5372-5457
+-- [PG_PREFS] Preferences page | refresh() | deps: PG_FLOW | L5459-5482
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L5484-5600
 
 --[[
 	KL rOSAD v1.1  |  open-source admin/dev panel  |  client-side only
 
 	CHANGELOG (newest first; every change adds a line here and updates the NAV INDEX, then navfix)
+	v1.1  Players page: a button whose effect is on (Unview, Unmute, Unlisten, Unhide) is drawn in the accent selected style like the other toggle buttons
+	v1.1  Fix: ;hide / the Hide button no longer mutes the player's voice and chat (that is ;mute / the Mute button). Hide still removes the avatar and silences every sound inside their character
+	v1.1  Placeholder1: base animation speed is now 1 (the Module Cfg value still multiplies it, default 1)
+	v1.1  New ;hidecursor / ;hidemouse and ;unhidecursor / ;unhidemouse: keeps the Roblox cursor hidden (it still shows whenever the panel or command bar is open)
+	v1.1  Crosshair (fixed at center mode): the Roblox cursor is now hidden ONLY while the mouse is locked to the center (shift lock / first person); any time it is not locked you can see it. The fullscreen check is gone
+	v1.1  Placeholder1: the animation now ping-pongs (plays forward, then backwards, and repeats). Module Cfg "Animation speed" is a multiplier (default 1 = real speed 0.5)
+	v1.1  New ;placeholder1 / ;unplaceholder1 (ported from the Infinite Yield command): gives you a tool that plays an animation on your character while it is equipped; the unplaceholder command removes it. Animation speed is in Module Cfg (Placeholder1)
+	v1.1  New ;hide <player> / ;unhide <player|all> and a Hide / Unhide button on the Players page: hides the avatar (parts, face, accessories, tools, name tag, effects) and silences every sound inside that player's character plus their voice and chat, client side only
+	v1.1  Persistence: the autoexec loader now tries SELF_URL first (so the GitHub version wins over an old local copy), then the saved copies, and shows an error notification when it fails. SELF_URL also accepts a normal github.com/.../blob/... page link. Aliases made with ;alias are saved and come back on the next start; new ;unalias <alias>
+	v1.1  Keybinds: tabs can be renamed (Tab name box; Default too). Keycaps are neutral until you hover, click or they wait for a key; text boxes get their accent edge on hover and focus only
+	v1.1  Auto execute fix: the script can't read its own source, so ;keeposad now finds the file you saved in the workspace (.lua, .txt or .luau, any name, 3 folders deep), remembers it (selfPath) and keeps a copy in KLOSAD. The loader runs your file first, so a patched script is picked up on the next start instead of a stale copy. Toasts now say what was really written (the autoexec path, or what to copy once)
 	v1.1  New ;refreshaudio / ;refreshdevices: re-scans the mic and speaker drivers and re-selects the default one, for when the audio settings only show "NoSound Driver"
 	v1.1  Autoexec fix: the script now waits for the game, LocalPlayer and the camera before starting, so dropping KL_rOSAD.lua itself into the executor's autoexec folder works (it used to run too early and error out). Buttons: subtler sheen gradient, a bit darker fill
 	v1.1  ;removebaseplate only removes the tiles ;baseplate added; the game's own baseplate can no longer be removed
@@ -220,7 +231,10 @@ local S = setmetatable({ cons = {}, sel = 1, cur = {}, launched = {}, alive = tr
 	if ok then t[k] = v; return v end
 end })
 -- >>> SELF_URL (optional): if you host this script on GitHub, put its raw link here. Auto execute uses it when there is no local copy.
-local SELF_URL = ""
+local SELF_URL = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/refs/heads/main/!%20KL%20rOSAD%20Main.lua"
+
+-- accept the github.com/.../blob/... page link too: the loader needs the raw file
+SELF_URL = (SELF_URL:match("^%s*(.-)%s*$"):gsub("^https://github%.com/([^/]+)/([^/]+)/blob/", "https://raw.githubusercontent.com/%1/%2/"))
 
 local ui = {}
 
@@ -233,7 +247,7 @@ local DEFAULTS = {
 	theme = "Dark", opacity = 0.8, accent = "#FFFF00", anim = 1, scale = 1,
 	lines = 12, blur = 1, pos = "Center", barKey = "Semicolon", panelKey = "RightShift",
 	toasts = true, bio = "", binds = {}, autoExec = false, avc = false, mod = {}, exp = {}, hist = {}, startBar = true, autostart = {},
-	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false,
+	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false, selfPath = "", aliases = {}, kbDefName = "Default",
 }
 local cfg = {}
 for k, v in pairs(DEFAULTS) do cfg[k] = v end
@@ -244,6 +258,7 @@ cfg.hist = {}
 cfg.kbTabs = {}
 cfg.expIcon = {}
 cfg.carry = {}
+cfg.aliases = {}
 cfg.autostart = { onExec = true, items = {} }
 
 local function save()
@@ -277,6 +292,7 @@ local MODDEF = {
 	chStyle = "Cross", chLen = 6, chGap = 4, chThick = 2, chOutline = 1, chOutlineAlpha = 1, chColor = "#00FF00", chCursor = false,
 	headDist = 1.5, headHeight = 1.5, headSide = 0, headSweep = true, headSweepAmp = 0.5, headSweepSpeed = 10,
 	backDist = 1.2, backHeight = 0.5, backSide = 0, backSweep = true, backSweepAmp = 0.5, backSweepSpeed = 20,
+	ph1Mult = 1,
 }
 for k, v in pairs(MODDEF) do
 	if type(cfg.mod[k]) ~= type(v) then cfg.mod[k] = v end
@@ -744,10 +760,10 @@ local TOGGLES = {
 	antivoid = "unantivoid", antiteleport = "unantiteleport", antiknockback = "unantiknockback", antiattach = "unantiattach",
 	antiearrape = "unantiearrape", antiblur = "unantiblur", antiafk = "unantiafk", antispam = "unantispam",
 	antifreeze = "unantifreeze", blink = "unblink", ghost = "unghost", streamer = "unstreamer", name = "unname",
-	lockmouse = "unlockmouse", ctrllock = "unctrllock", showfps = "unshowfps",
+	lockmouse = "unlockmouse", ctrllock = "unctrllock", showfps = "unshowfps", hide = "unhide all", placeholder1 = "unplaceholder1", hidecursor = "unhidecursor",
 }
 -- commands that flip themselves on and off and keep state.active up to date on their own
-local SELF = { float = true, blink = true, ghost = true }
+local SELF = { float = true, blink = true, ghost = true, hide = true }
 
 function ctx.resetAll()
 	state.loopGen = state.loopGen + 1
@@ -858,15 +874,15 @@ local CATS = {
 	Movement = "float unfloat cfly uncfly fly unfly jesus unjesus tpwalk untpwalk hheight follow unfollow sit unsit ragdoll unragdoll spin unspin speed jumppower goto tpto mousetp freeze thaw infjump uninfjump noclip clip blink unblink ghost gravity clear",
 	Defense = "antifling unantifling antisit unantisit antivoid unantivoid antiteleport unantiteleport antiknockback unantiknockback antiattach unantiattach antiearrape unantiearrape antiblur unantiblur antiafk unantiafk antispam unantispam antifreeze unantifreeze",
 	Offense = "backpack baby headsit heada backa unattach",
-	Players = "view unview userinfo copyid profile players friend unfriend block unblock",
+	Players = "view unview userinfo copyid profile players friend unfriend block unblock hide unhide",
 	Voice = "mute unmute listen unlisten nostereo stereo refreshaudio arjvc",
-	Camera = "fov maxzoom minzoom freecam lockmouse unlockmouse enableshiftlock ctrllock unctrllock toggleshiftlock crosshair removecrosshair",
+	Camera = "fov maxzoom minzoom freecam lockmouse unlockmouse enableshiftlock ctrllock unctrllock toggleshiftlock crosshair removecrosshair hidecursor unhidecursor",
 	Visuals = "fullbright unfullbright esp unesp xray unxray nofog time showfps unshowfps baseplate removebaseplate",
-	Character = "reset anim noanim invisible visible",
+	Character = "reset anim noanim invisible visible placeholder1 unplaceholder1",
 	Privacy = "streamer unstreamer name unname",
 	Server = "serverhop smallserver serverinfo rejoin jobid placeid",
 	Tools = "hlxp liu dex cobalt kelsec rspy alogger workwell tetris untetris workwellpf properties tooleditor klpfxp kill saveinstance freezesave tools console",
-	rOSAD = "ui exit cmds config keeposad unkeeposad alias bind unbind loop unloop breakloop prefix fpscap gamedefault text stopall reload panel selftest",
+	rOSAD = "ui exit cmds config keeposad unkeeposad alias unalias bind unbind loop unloop breakloop prefix fpscap gamedefault text stopall reload panel selftest",
 }
 ctx.catOf = {}
 for cat, names in pairs(CATS) do
@@ -1620,7 +1636,14 @@ return function(ctx)
 		names = { "alias" },
 		run = function(new, target)
 			local canon = target and Aliases[target:lower()]
-			if new and canon then Aliases[new:lower()] = canon else ctx.notify("Usage: alias <new> <command>") end
+			if new and canon then
+				Aliases[new:lower()] = canon
+				cfg.aliases[new:lower()] = canon -- saved: comes back on the next start
+				save()
+				ctx.notify("alias " .. new:lower() .. " = " .. canon)
+			else
+				ctx.notify("Usage: alias <new> <command>")
+			end
 		end,
 	}
 end
@@ -2862,6 +2885,154 @@ do
 	end)
 end
 
+-- ===== HIDE: a player's avatar and every sound from them, client side only =====
+-- Avatar: parts / decals / name tag / effects under their character are made invisible. Sounds: every Sound in their character
+-- (footsteps, held guns) is moved into a silent SoundGroup, All of it is put back by ;unhide. Voice and chat are not touched (that is ;mute).
+-- shortcut: only sounds that live inside the character are caught (a sound a game plays from a part elsewhere is not), when to upgrade: tag sounds by nearest hidden character position
+do
+	local H = {} -- uid -> { rec = { instance -> { prop -> { original } } } }
+	local grp
+	local function group()
+		if not (grp and grp.Parent) then
+			grp = Instance.new("SoundGroup")
+			grp.Name, grp.Volume, grp.Parent = "_klHide", 0, S.SoundService
+		end
+		return grp
+	end
+	local function setp(h, inst, prop, val)
+		local ok, old = pcall(function() return inst[prop] end)
+		if not ok then return end
+		local r = h.rec[inst]
+		if not r then r = {}; h.rec[inst] = r end
+		if r[prop] == nil then r[prop] = { old } end -- boxed, so an original of nil still counts as stored
+		pcall(function() inst[prop] = val end)
+	end
+	local function cover(h, o)
+		if o:IsA("BasePart") then setp(h, o, "LocalTransparencyModifier", 1)
+		elseif o:IsA("Decal") or o:IsA("Texture") then setp(h, o, "Transparency", 1)
+		elseif o:IsA("BillboardGui") or o:IsA("SurfaceGui") or o:IsA("ParticleEmitter") or o:IsA("Trail") or o:IsA("Beam") or o:IsA("Highlight") then setp(h, o, "Enabled", false)
+		elseif o:IsA("Humanoid") then setp(h, o, "DisplayDistanceType", Enum.HumanoidDisplayDistanceType.None)
+		elseif o:IsA("Sound") then setp(h, o, "SoundGroup", group())
+		elseif o:IsA("AudioPlayer") then setp(h, o, "Volume", 0) end
+	end
+	local function watch(p, h)
+		local key = "hide_" .. p.UserId
+		local function char(c)
+			if not c then return end
+			for _, o in ipairs(c:GetDescendants()) do cover(h, o) end
+			ctx.connect(key .. "d", c.DescendantAdded, function(o) cover(h, o) end) -- tools, sounds and accessories added later
+		end
+		char(p.Character)
+		ctx.connect(key, p.CharacterAdded, function(c) task.defer(char, c) end)
+	end
+	function ctx.isHidden(uid) return H[uid] ~= nil end
+	function ctx.hidePlayer(uid, on)
+		local h = H[uid]
+		if not on then
+			if not h then return false end
+			H[uid] = nil
+			ctx.disconnect("hide_" .. uid); ctx.disconnect("hide_" .. uid .. "d")
+			for inst, props in pairs(h.rec) do
+				for prop, box in pairs(props) do pcall(function() inst[prop] = box[1] end) end
+			end
+			-- (voice and chat are separate: ;mute / ;unmute)
+			if not next(H) and grp then pcall(function() grp:Destroy() end); grp = nil end
+			state.active.hide = next(H) and true or nil
+			return true
+		end
+		local p = S.Players:GetPlayerByUserId(uid)
+		if h or not p or p == lp then return false end
+		h = { rec = setmetatable({}, { __mode = "k" }) }
+		H[uid] = h
+		-- voice and chat are not touched: that is ;mute
+		watch(p, h)
+		state.active.hide = true
+		return true
+	end
+	ctx.connect("hideLeave", Players.PlayerRemoving, function(p) ctx.hidePlayer(p.UserId, false) end)
+	def({ "hide" }, "<player>", "Hide a player's avatar and silence every sound from their character (voice and chat are separate: ;mute)", "hide invisible mute footsteps audio avatar gun", function(q)
+		if not q then return ctx.notify("Usage: hide <player>") end
+		local n = 0
+		for _, p in ipairs(ctx.findPlayers(q)) do
+			if ctx.hidePlayer(p.UserId, true) then n = n + 1 end
+		end
+		ctx.notify(n > 0 and ("Hid " .. n .. " player(s)") or "Nobody to hide")
+	end)
+	def({ "unhide" }, "<player|all>", "Show a hidden player again (no name = everyone)", "hide show visible unmute", function(q)
+		local n = 0
+		if not q or q:lower() == "all" then
+			for uid in pairs(H) do
+				if ctx.hidePlayer(uid, false) then n = n + 1 end
+			end
+		else
+			for _, p in ipairs(ctx.findPlayers(q)) do
+				if ctx.hidePlayer(p.UserId, false) then n = n + 1 end
+			end
+		end
+		ctx.notify(n > 0 and ("Unhid " .. n .. " player(s)") or "Nobody was hidden")
+	end)
+end
+
+-- ===== PLACEHOLDER1: a tool that plays an animation while equipped (ported from an Infinite Yield command) =====
+-- Fixes vs the original: no global flag, no endless busy loop (it stops on unequip / death / ;unplaceholder1), speed is live from Module Cfg.
+do
+	local P = {}
+	local function stopAnim()
+		P.run = nil
+		if P.track then pcall(function() P.track:Stop(0) end); P.track = nil end
+	end
+	local function startAnim()
+		local h = ctx.hum()
+		if not h then return end
+		local token = {}
+		P.run = token
+		task.spawn(function()
+			local r15 = h.RigType == Enum.HumanoidRigType.R15
+			local a = Instance.new("Animation")
+			a.AnimationId = r15 and "rbxassetid://698251653" or "rbxassetid://72042024"
+			local ok, track = pcall(function() return (h:FindFirstChildOfClass("Animator") or h):LoadAnimation(a) end)
+			if not ok or not track then return ctx.notify("Placeholder1: couldn't load the animation") end
+			if P.run ~= token then return end
+			P.track = track
+			local lo, hi = 0.6, r15 and 0.7 or 0.65
+			track.Priority = Enum.AnimationPriority.Action
+			track:Play(0)
+			track:AdjustSpeed(0) -- the time position is driven by hand below, so it can run backwards too
+			local t, dir = lo, 1
+			while P.run == token and S.alive do
+				local dt = task.wait()
+				t = t + dir * math.max(tonumber(mod.ph1Mult) or 1, 0.05) * dt -- base speed 1; the Module Cfg value multiplies it, read live
+				if t >= hi then t, dir = hi, -1 elseif t <= lo then t, dir = lo, 1 end
+				track.TimePosition = t
+			end
+			pcall(function() track:Stop(0) end)
+		end)
+	end
+	local function strip()
+		stopAnim()
+		for _, k in ipairs({ "ph1Eq", "ph1Un", "ph1Died" }) do ctx.disconnect(k) end
+		for _, root in ipairs({ lp:FindFirstChildOfClass("Backpack"), ctx.char() }) do
+			for _, t in ipairs(root and root:GetChildren() or {}) do
+				if t:IsA("Tool") and t.Name == "Placeholder1" then t:Destroy() end
+			end
+		end
+		P.tool = nil
+	end
+	def({ "placeholder1" }, "", "Get the Placeholder1 tool: equip it to play the animation (speed in Module Cfg)", "tool animation hand gesture", function()
+		local bp, h = lp:FindFirstChildOfClass("Backpack"), ctx.hum()
+		if not (bp and h) then return end
+		if P.tool and P.tool.Parent then return ctx.notify("Placeholder1 is already in your inventory") end
+		local t = Instance.new("Tool")
+		t.Name, t.ToolTip, t.RequiresHandle, t.CanBeDropped = "Placeholder1", "Placeholder1", false, false
+		t.Parent = bp
+		P.tool = t
+		ctx.connect("ph1Eq", t.Equipped, function() stopAnim(); startAnim() end)
+		ctx.connect("ph1Un", t.Unequipped, stopAnim)
+		ctx.connect("ph1Died", h.Died, stopAnim)
+	end)
+	def({ "unplaceholder1" }, "", "Remove the Placeholder1 tool from your inventory", "tool animation remove", strip)
+end
+
 -- ===== MOUSE =====
 local UISv = UIS
 def({ "lockmouse" }, "", "Lock the mouse to the centre, like shift lock", "shiftlock cursor camera", function()
@@ -2909,7 +3080,7 @@ def({ "toggleshiftlock", "shiftlock", "shl" }, "", "Toggle shift lock (for when 
 end)
 
 -- ===== CROSSHAIR: static CS style crosshair, look is set in Module Cfg (mode, length, gap, thickness, outline, colour) =====
--- "Replace Roblox cursor" on: the crosshair follows the mouse and the real cursor is hidden. Off: fixed at the screen center, and the real cursor is hidden while fullscreen and not locked to the center.
+-- "Replace Roblox cursor" on: the crosshair follows the mouse and the real cursor is hidden. Off: fixed at the screen center, and the real cursor is hidden only while the mouse is locked to the center (otherwise you see it).
 do
 	local CH = { gui = nil, root = nil, prevIcon = nil }
 	local function rect(parent, x, y, w, h, color, alpha, z)
@@ -2941,10 +3112,7 @@ do
 		for _, r in ipairs(rects) do rect(CH.root, r[1], r[2], r[3], r[4], col, 1, 2) end
 	end
 	local GuiService = game:GetService("GuiService")
-	local function inFull() -- false if the engine refuses the call
-		local ok, v = pcall(function() return UserSettings():GetService("UserGameSettings"):InFullScreen() end)
-		return ok and v == true
-	end
+	-- the real cursor is hidden only while the mouse is locked to the center (LockCenter): shift lock, first person
 	local function place()
 		ctx.disconnect("chFollow")
 		if cfg.mod.chCursor then
@@ -2957,11 +3125,11 @@ do
 		else
 			CH.root.Position = UDim2.fromScale(0.5, 0.5)
 			ctx.connect("chFollow", RS.RenderStepped, function() -- the cursor would only sit next to the fixed crosshair
-				local hide = inFull() and UIS.MouseBehavior ~= Enum.MouseBehavior.LockCenter and not S.mouseFree and not GuiService.MenuIsOpen
+				local hide = UIS.MouseBehavior == Enum.MouseBehavior.LockCenter and not S.mouseFree and not GuiService.MenuIsOpen
 				if hide then
 					if CH.prevIcon == nil then CH.prevIcon = UIS.MouseIconEnabled end
 					UIS.MouseIconEnabled = false
-				elseif CH.prevIcon ~= nil then
+				elseif CH.prevIcon ~= nil and not ctx.cursorOff then
 					UIS.MouseIconEnabled = CH.prevIcon; CH.prevIcon = nil
 				end
 			end)
@@ -2997,6 +3165,25 @@ def({ "removecrosshair", "nocrosshair", "uncrosshair" }, "", "Remove the crossha
 	ctx.crosshair(false)
 	ctx.notify("Crosshair removed")
 end)
+
+-- ===== HIDE CURSOR: keeps the Roblox cursor hidden; ui.syncMouse shows it again while the panel or command bar is open =====
+do
+	local prev
+	function ctx.hideCursor(on)
+		ctx.disconnect("hideCursor")
+		ctx.cursorOff = on and true or false
+		if not on then
+			if prev ~= nil then UIS.MouseIconEnabled = prev; prev = nil end
+			return
+		end
+		if prev == nil then prev = UIS.MouseIconEnabled end
+		ctx.connect("hideCursor", RS.RenderStepped, function()
+			if not S.mouseFree then UIS.MouseIconEnabled = false end
+		end)
+	end
+	def({ "hidecursor", "hidemouse" }, "", "Hide the Roblox cursor (it still shows while the panel or command bar is open)", "mouse pointer cursor hide invisible", function() ctx.hideCursor(true) end)
+	def({ "unhidecursor", "unhidemouse" }, "", "Show the Roblox cursor again", "mouse pointer cursor show", function() ctx.hideCursor(false) end)
+end
 
 -- ===== PERFORMANCE / DISPLAY =====
 def({ "showfps", "showperf", "showping" }, "", "Show FPS and ping in a corner (corner set in Module Cfg)", "performance frame rate latency overlay", function()
@@ -3329,37 +3516,59 @@ end)
 def({ "cmds", "cmd", "commands" }, "", "Open the Commands tab", "help list", function() ctx.openTab("Commands") end)
 
 -- ===== AUTO FEATURES =====
--- The loader that gets queued / dropped in the autoexec folder. It runs KLOSAD/KL_rOSAD.lua, or SELF_URL if there is no local copy.
+-- Persistence: the script can't read its own source, so it finds the file you saved in the workspace (cfg.selfPath) and keeps a copy in KLOSAD/.
+-- The loader (queued for teleports, dropped in autoexec) runs that file first (patched versions are picked up on the next start), then the copy, then SELF_URL.
 local function loaderLine()
-	return ('if not game:IsLoaded() then game.Loaded:Wait() end task.wait(1) local ok, e = pcall(function() local p = "%s/KL_rOSAD.lua" if isfile and isfile(p) then loadstring(readfile(p))() elseif "%s" ~= "" then loadstring(game:HttpGet("%s"))() else error("no copy of KL_rOSAD.lua in " .. p) end end) if not ok then warn("[KLOSAD autoexec] " .. tostring(e)) end'):format(DIR, SELF_URL, SELF_URL)
+	local paths = {}
+	if cfg.selfPath ~= "" then paths[#paths + 1] = ("%q"):format(cfg.selfPath) end
+	paths[#paths + 1] = ("%q"):format(DIR .. "/KL_rOSAD.lua")
+	-- link first (the GitHub file is the newest), then the saved copies; a failure is shown as a notification, not only in the console
+	return ('if not game:IsLoaded() then game.Loaded:Wait() end task.wait(1) local ok, e = pcall(function() if "%s" ~= "" then local okh, src = pcall(game.HttpGet, game, "%s") local fn = okh and type(src) == "string" and loadstring(src) if fn then fn() return end end for _, p in ipairs({%s}) do if isfile and isfile(p) then loadstring(readfile(p))() return end end error("no copy of KL_rOSAD.lua found (and the link did not load)") end) if not ok then warn("[KLOSAD autoexec] " .. tostring(e)) pcall(function() game:GetService("StarterGui"):SetCore("SendNotification", { Title = "KL rOSAD autoexec", Text = tostring(e):sub(1, 180), Duration = 12 }) end) end'):format(SELF_URL, SELF_URL, table.concat(paths, ", "))
 end
--- The loader needs this script on disk. If KLOSAD/KL_rOSAD.lua is missing, look for a copy anywhere in the workspace and put it there.
-local function ensureCopy()
+local function isSelf(body)
+	return type(body) == "string" and body:find("KL rOSAD v", 1, true) and body:find("open-source admin/dev panel", 1, true) and body:find("local BUILTIN", 1, true) and true or false
+end
+-- refresh (manual ;keeposad): re-read the saved script and renew the KLOSAD copy. Otherwise any copy that exists is enough.
+local function ensureCopy(refresh)
 	local path = DIR .. "/KL_rOSAD.lua"
 	if not (isfile and writefile and readfile and listfiles and isfolder) then return false end
-	if isfile(path) then return true end
-	local checked = 0
+	if not refresh and (isfile(path) or (cfg.selfPath ~= "" and isfile(cfg.selfPath))) then return true end
+	local src, checked = nil, 0
+	local function try(f)
+		local ok, body = pcall(readfile, f)
+		if ok and isSelf(body) then src = { f = f, body = body } end
+		return src ~= nil
+	end
 	local function scan(dir, depth)
 		local ok, files = pcall(listfiles, dir)
-		if not ok then return false end
+		if not ok then return end
 		for _, f in ipairs(files) do
+			if src then return end
 			if isfolder(f) then
-				if depth < 2 and scan(f, depth + 1) then return true end
-			elseif f:sub(-4) == ".lua" and checked < 300 then
-				checked = checked + 1
-				local rok, body = pcall(readfile, f)
-				if rok and type(body) == "string" and body:find("KL rOSAD v", 1, true) and body:find("open-source admin/dev panel", 1, true) and body:find("local BUILTIN", 1, true) then
-					pcall(function()
-						if makefolder and not isfolder(DIR) then makefolder(DIR) end
-						writefile(path, body)
-					end)
-					return isfile(path)
+				if depth < 2 then scan(f, depth + 1) end
+			else
+				local ext = f:lower():match("%.(%w+)$")
+				local norm = f:gsub("\\", "/")
+				-- skip our own KLOSAD copy: selfPath must point at the file the user keeps
+				if (ext == "lua" or ext == "luau" or ext == "txt") and norm:sub(-#path) ~= path and checked < 300 then
+					checked = checked + 1
+					try(f)
 				end
 			end
 		end
-		return false
 	end
-	return scan("", 0) or scan(".", 0)
+	if not (cfg.selfPath ~= "" and isfile(cfg.selfPath) and try(cfg.selfPath)) then
+		scan("", 0)
+		if not src then scan(".", 0) end
+	end
+	if not src then return isfile(path) end
+	cfg.selfPath = src.f
+	save()
+	pcall(function()
+		if makefolder and not isfolder(DIR) then makefolder(DIR) end
+		writefile(path, src.body)
+	end)
+	return true
 end
 local AUTOPATHS = { "../autoexec/KLOSAD_autoload.lua", "autoexec/KLOSAD_autoload.lua", "../../autoexec/KLOSAD_autoload.lua",
 	"../autoexecute/KLOSAD_autoload.lua", "autoexecute/KLOSAD_autoload.lua", "../Autoexecute/KLOSAD_autoload.lua", "../Autoexec/KLOSAD_autoload.lua" }
@@ -3368,32 +3577,32 @@ function ctx.setAutoExec(on, quiet)
 	save()
 	ctx.disconnect("autoTp")
 	if on then
-		local have = ensureCopy() or SELF_URL ~= ""
+		local have = ensureCopy(not quiet) or SELF_URL ~= ""
 		local line = loaderLine()
 		local queued = queue_on_teleport and pcall(queue_on_teleport, line) -- covers server hops, rejoins and teleports
 		-- queue_on_teleport only lasts for the next teleport and some executors drop it: queue again the moment a teleport starts
 		if queue_on_teleport then
 			ctx.connect("autoTp", lp.OnTeleport, function() pcall(queue_on_teleport, loaderLine()) end)
 		end
-		local placed = false -- covers joining from the website: the executor's own autoexec folder
+		local placed = {} -- covers opening Roblox fresh: the executor's own autoexec folder. Most executors only let scripts write inside the workspace, so this can stay empty
 		if writefile then
 			pcall(function()
 				if makefolder and isfolder and not isfolder(DIR) then makefolder(DIR) end
 				writefile(DIR .. "/KLOSAD_autoload.lua", line)
 			end)
 			for _, p in ipairs(AUTOPATHS) do
-				if pcall(writefile, p, line) then placed = true end
+				if pcall(writefile, p, line) and isfile and isfile(p) then placed[#placed + 1] = p end
 			end
 		end
 		if quiet and have then return end
 		if not have then
-			ctx.notify("Auto execute can't find a copy of this script. Save it as " .. DIR .. "/KL_rOSAD.lua, or set SELF_URL", 8)
-		elseif queued and placed then
-			ctx.notify("Auto execute on: it runs after hops, rejoins and joins")
+			ctx.notify("Can't find a copy of this script to load next time. Save it once in your executor's workspace folder (.lua or .txt, any name), then run ;keeposad again", 10)
+		elseif #placed > 0 then
+			ctx.notify("Auto execute on. Loader written to " .. placed[1] .. ", it runs on join, hops and rejoins", 7)
 		elseif queued then
-			ctx.notify("Auto execute on for hops and teleports. To also run on join, copy " .. DIR .. "/KLOSAD_autoload.lua into your executor's autoexec folder", 9)
+			ctx.notify("Auto execute on for hops and teleports. This executor can't write to its autoexec folder: copy " .. DIR .. "/KLOSAD_autoload.lua into it once so rOSAD also starts when you open Roblox", 10)
 		else
-			ctx.notify("This executor has no queue_on_teleport. Copy " .. DIR .. "/KLOSAD_autoload.lua into its autoexec folder", 8)
+			ctx.notify("This executor can't write to its autoexec folder and has no queue_on_teleport: copy " .. DIR .. "/KLOSAD_autoload.lua into the autoexec folder once", 10)
 		end
 	elseif not quiet then
 		ctx.notify("Auto execute off")
@@ -3500,6 +3709,21 @@ end
 
 -- extra command files from KLOSAD/commands (same format, override built-ins with the same name)
 ctx.loadFolder(DIR .. "/commands")
+-- aliases made with ;alias are saved in the settings; restored here, after every command (including the command files) exists
+for a, canon in pairs(cfg.aliases) do
+	if ctx.Commands[canon] then ctx.Aliases[a] = canon end
+end
+ctx.register(function()
+	return { names = { "unalias" }, args = "<alias>", desc = "Remove an alias made with alias", tags = "shortcut remove delete", run = function(a)
+		a = a and a:lower()
+		if a and cfg.aliases[a] then
+			cfg.aliases[a] = nil; ctx.Aliases[a] = nil; save()
+			ctx.notify("Removed alias " .. a)
+		else
+			ctx.notify("No saved alias called " .. tostring(a))
+		end
+	end }
+end)
 -- [/CMD_EXTRA]
 
 -- [UI_SHARED]
@@ -3617,8 +3841,15 @@ local function input(parent, ph, x, y, w, h, pt, fillKey, tr, props)
 	local o = new("TextBox", mix({ BackgroundTransparency = 1, BorderSizePixel = 0, Text = "", PlaceholderText = ph, ClearTextOnFocus = false, Font = FONT,
 		TextSize = fs(pt or 11), TextXAlignment = Enum.TextXAlignment.Left, Position = UDim2.fromOffset(10, 0), Size = UDim2.new(1, -20, 1, 0) }, props), f)
 	paint(o, "TextColor3", "text"); paint(o, "PlaceholderColor3", "hint")
-	o.Focused:Connect(function() paint(stroke, "Color", "accent") end)
-	o.FocusLost:Connect(function() paint(stroke, "Color", "edge") end)
+	-- the edge turns accent only while the mouse is over the box or it has focus
+	local focused, hv = false, { f = false, o = false }
+	local function edge() tw(stroke, { Color = col((focused or hv.f or hv.o) and "accent" or "edge") }, 0.1) end
+	o.Focused:Connect(function() focused = true; edge() end)
+	o.FocusLost:Connect(function() focused = false; edge() end)
+	for k, g in pairs({ f = f, o = o }) do
+		g.MouseEnter:Connect(function() hv[k] = true; edge() end)
+		g.MouseLeave:Connect(function() hv[k] = false; edge() end)
+	end
 	return o
 end
 local function scroller(parent, x, y, w, h)
@@ -4575,7 +4806,7 @@ do
 				if p == lp then
 					btn(r, "Respawn", 439, 27, 81, 23, "btnFill", BTN_OFF, function() ctx.Run("reset") end)
 				else
-					btn(r, state.viewing == p and "Unview" or "View", 265, 12, 81, 23, nil, nil, function()
+					btn(r, state.viewing == p and "Unview" or "View", 265, 12, 81, 23, state.viewing == p and "ctrlOn" or nil, state.viewing == p and BTN_ON or nil, function()
 						ctx.Run(state.viewing == p and "unview" or ("view " .. p.Name))
 						render()
 					end)
@@ -4590,14 +4821,18 @@ do
 						greyOut(fb, friends[p.UserId])
 					end
 					btn(r, "Go to", 352, 12, 81, 23, nil, nil, function() ctx.Run("goto " .. p.Name) end)
-					btn(r, state.listen[p.UserId] and "Unlisten" or "Listen", 352, 41, 81, 23, nil, nil, function()
+					btn(r, state.listen[p.UserId] and "Unlisten" or "Listen", 352, 41, 81, 23, state.listen[p.UserId] and "ctrlOn" or nil, state.listen[p.UserId] and BTN_ON or nil, function()
 						local on = not state.listen[p.UserId]
 						if on and state.muted[p.UserId] then ctx.setMuted(p.UserId, false) end
 						local ok, why = ctx.setListen(p.UserId, on)
 						if on and not ok then return ctx.notify(why, 5) end
 						render()
 					end)
-					btn(r, state.muted[p.UserId] and "Unmute" or "Mute", 265, 41, 81, 23, nil, nil, function(b)
+					btn(r, ctx.isHidden(p.UserId) and "Unhide" or "Hide", 439, 41, 81, 23, ctx.isHidden(p.UserId) and "ctrlOn" or nil, ctx.isHidden(p.UserId) and BTN_ON or nil, function()
+						ctx.Run((ctx.isHidden(p.UserId) and "unhide " or "hide ") .. p.Name)
+						render()
+					end)
+					btn(r, state.muted[p.UserId] and "Unmute" or "Mute", 265, 41, 81, 23, state.muted[p.UserId] and "ctrlOn" or nil, state.muted[p.UserId] and BTN_ON or nil, function(b)
 						local on = not state.muted[p.UserId]
 						ctx.setMuted(p.UserId, on)
 						b.Text = on and "Unmute" or "Mute"
@@ -4914,9 +5149,11 @@ do
 		local t = fr(row, x, 0, 241, 54, "row", 0.9, 5, "edge", 1, 0.6)
 		txt(t, cap, 9, "dim", 12, 8, 200, 12, { Font = FONT_B })
 		txt(t, "click, then press a key", 9, "hint", 130, 28, 106, 14)
-		return btn(t, "", 12, 24, 110, 23, "ctrlOn", BTN_ON, function(b)
+		return btn(t, "", 12, 24, 110, 23, "ctrlOff", BTN_OFF, function(b)
 			b.Text = "press a key..."
+			setFill(b, "ctrlOn", BTN_ON) -- colored only while it waits for a key
 			S.capture = function(kc)
+				setFill(b, "ctrlOff", BTN_OFF)
 				if kc ~= Enum.KeyCode.Escape then cfg[key] = kc.Name; save() end
 				ui.apply()
 			end
@@ -4962,6 +5199,16 @@ do
 		return b
 	end
 	local CENTER = Enum.TextYAlignment.Center
+	-- "Tab name" box: Enter or click away renames (empty or unchanged reverts)
+	local function renameRow(cur, set)
+		local g = frow(area, "Tab name", 180)
+		local nb = input(g, "tab name", 0, 0, 180, 23, 9, "ctrlOff", BTN_OFF, { Text = cur, TextXAlignment = Enum.TextXAlignment.Center })
+		nb.FocusLost:Connect(function()
+			if not nb.Parent then return end -- page was rebuilt
+			local v = nb.Text:match("^%s*(.-)%s*$"):sub(1, 20)
+			if v ~= "" and v ~= cur then set(v); save(); ui.refreshKeys() else nb.Text = cur end
+		end)
+	end
 
 	function ui.refreshKeys()
 		barBtn.Text, panelBtn.Text = "[ " .. keyStr(cfg.barKey) .. " ]", "[ " .. keyStr(cfg.panelKey) .. " ]"
@@ -4979,7 +5226,7 @@ do
 			end)
 			b.LayoutOrder = nx()
 		end
-		tabBtn("none", "No Keybinds"); tabBtn("default", "Default")
+		tabBtn("none", "No Keybinds"); tabBtn("default", cfg.kbDefName)
 		for _, x in ipairs(cfg.kbTabs) do tabBtn(x.id, x.name) end
 		btn(strip, "+ New tab", 0, 0, 76, 23, nil, nil, function()
 			local n = 1
@@ -4994,8 +5241,12 @@ do
 			txt(area, "Keybinds are off. Pick Default or a tab to use your binds.", 10, "sub", 0, 0, 440, 22, { LayoutOrder = nx() })
 			return
 		end
-		if cfg.kbActive == "default" then txt(area, "Default tab: its binds work in every experience.", 9, "dim", 0, 0, 440, 14, { LayoutOrder = nx() }) end
-		if t then -- custom tab: experience specific option + delete (No Keybinds and Default can't be deleted)
+		if cfg.kbActive == "default" then
+			renameRow(cfg.kbDefName, function(v) cfg.kbDefName = v end)
+			txt(area, "Default tab: its binds work in every experience.", 9, "dim", 0, 0, 440, 14, { LayoutOrder = nx() })
+		end
+		if t then -- custom tab: rename, experience specific option + delete (No Keybinds and Default can't be deleted)
+			renameRow(t.name, function(v) t.name = v end)
 			seg(frow(area, "Experience specific", 102), 0, { 0, 55 }, 47, { { "On", true }, { "Off", false } }, "es", function() ui.refreshKeys() end, t)
 			if t.es then
 				local g = frow(area, "Experience ID", 250)
@@ -5035,14 +5286,16 @@ do
 		txt(hd, "Add a bind", 11, "text2", 0, 0, 80, 23, { Font = FONT_B, TextYAlignment = CENTER })
 		txt(hd, "click the key box, press a key, type a command", 9, "dim", 86, 0, 360, 23, { TextYAlignment = CENTER })
 		local a = line(nb)
-		btn(a, "set key", 0, 0, 96, 23, "ctrlOn", BTN_ON, function(b)
+		btn(a, "set key", 0, 0, 96, 23, "ctrlOff", BTN_OFF, function(b)
 			b.Text = "press a key..."
+			setFill(b, "ctrlOn", BTN_ON)
 			local function cap(kc, name)
 				if kc ~= Enum.KeyCode.Escape then
 					if ctx.MODS[kc.Name] then S.capture = cap; return end -- modifier alone: keep waiting, so Ctrl+G works
 					newKey = name
 				end
 				b.Text = newKey and keyStr(newKey) or "set key"
+				setFill(b, newKey and "ctrlOn" or "ctrlOff", newKey and BTN_ON or BTN_OFF) -- a chosen key counts as selected
 			end
 			S.capture = cap
 		end, 10)
@@ -5063,7 +5316,8 @@ do
 			local c = card(area)
 			local h = line(c)
 			local w = math.max(34, #keyStr(k) * 8 + 16)
-			btn(h, keyStr(k), 0, 0, w, 23, "ctrlOn", BTN_ON, function(b) -- click, then press the new key (Ctrl/Shift/Alt combos work)
+			btn(h, keyStr(k), 0, 0, w, 23, "ctrlOff", BTN_OFF, function(b)
+				setFill(b, "ctrlOn", BTN_ON) -- click, then press the new key (Ctrl/Shift/Alt combos work)
 				b.Text = "..."
 				local function cap(kc, name)
 					if kc ~= Enum.KeyCode.Escape then
@@ -5077,6 +5331,7 @@ do
 						end
 					end
 					b.Text = keyStr(k)
+					setFill(b, "ctrlOff", BTN_OFF)
 				end
 				S.capture = cap
 			end, 11)
@@ -5188,6 +5443,8 @@ do
 		end)
 	end
 	togRow("Replace Roblox cursor (off = screen center)", "chCursor")
+	fhdr(pg, "Placeholder1 (;placeholder1)")
+	numRow("Animation speed (1 = default)", "ph1Mult")
 	fhdr(pg, "Defense")
 	togRow("Defense notifications", "defNotify")
 	numRow("Anti fling: radius", "afRadius"); numRow("Anti fling: velocity threshold", "afThreshold"); numRow("Anti fling: restore time (s)", "afRestore")
