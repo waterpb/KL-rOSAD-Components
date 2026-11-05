@@ -1,30 +1,39 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py). Markers use "--" (Lua), not "//".
--- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), unload previous run | VERSION, DIR, env | deps: none | L109-117
--- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L119-240
--- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L242-325
--- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L327-473
--- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L475-1046
--- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1048-1817
--- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart | deps: CMD_CORE | L1819-4362
--- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L4364-4767
--- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L4769-5188
--- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade) | deps: UI_SHARED | L5190-5322
--- [PG_HOME] Home page (stats+icon centered, experience name carry) | stats loop, bio, ctx.curExp | deps: UI_PANEL | L5324-5419
--- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, voice indicator, volume slider, 3x2 buttons; Servers page (region per server, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L5421-5789
--- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L5791-5821
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L5823-5900
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L5902-5931
--- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L5933-5952
--- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L5954-6075
--- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L6077-6303
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L6305-6400
--- [PG_PREFS] Preferences page | refresh() | deps: PG_FLOW | L6402-6428
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L6430-6550
+-- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), unload previous run | VERSION, DIR, env | deps: none | L118-131
+-- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L133-254
+-- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L256-339
+-- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L341-487
+-- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L489-1060
+-- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1062-1831
+-- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart | deps: CMD_CORE | L1833-4406
+-- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L4408-4819
+-- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L4821-5240
+-- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade) | deps: UI_SHARED | L5242-5374
+-- [PG_HOME] Home page (stats+icon centered, experience name carry) | stats loop, bio, ctx.curExp | deps: UI_PANEL | L5376-5471
+-- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L5473-5859
+-- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L5861-5891
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L5893-5970
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L5972-6001
+-- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L6003-6022
+-- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L6024-6145
+-- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L6147-6373
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L6375-6470
+-- [PG_PREFS] Preferences page | refresh() | deps: PG_FLOW | L6472-6498
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L6500-6620
 
 --[[
 	KL rOSAD v1.1  |  open-source admin/dev panel  |  client-side only
 
 	CHANGELOG (newest first; every change adds a line here and updates the NAV INDEX, then navfix)
+	v1.1  Servers tab: the Sort button is now a drop down menu (Ping / Players / Region / Age)
+	v1.1  Servers tab: the cookie field is gone (the cookie is handled by region-relay.py); sort buttons moved up into its row
+	v1.1  Servers tab: scanned regions are cached on disk (KLOSAD/servers.json, 6 h) and shown with "scanned x min ago", so a rejoin does not rescan. New Sort button (Ping / Players / Region / Age) and Ascending / Descending, saved
+	v1.1  Fix: start-up now destroys a leftover KLOSAD gui / blur and unbinds leftover render steps from a previous run, so re-executing does not stack them
+	v1.1  Click a notification (toast) to copy its full text to the clipboard
+	v1.1  A gamejoin reply without a server address now shows its status and raw body (unless it holds a joinScript) so the reason is visible
+	v1.1  Region lookup tries a local relay first (region-relay.py, localhost 47653): Python sends the gamejoin request with your cookie and csrf, the executor never sees the cookie
+	v1.1  Cookie check shows Roblox's error code.subcode per way of attaching the cookie (missing vs invalid cookie)
+	v1.1  Servers tab cookie field decodes %7C/%3A and adds the fixed _|WARNING prefix when the paste lacks it (Roblox answered 401 "Authentication token is missing" without it)
 	v1.1  Region lookup via the executor request now tries the cookie as Cookie header, Cookies field or both and keeps the one Roblox accepts; the cookie check reports each, the cookie length, a missing _|WARNING prefix and whether the executor drops the Cookie header
 	v1.1  Servers tab cookie field takes the value from any paste format: .ROBLOSECURITY:"value", .ROBLOSECURITY=value, "value" or the bare value
 	v1.1  Region lookup errors now include the reply from Roblox and a cookie check (users.roblox.com authenticated), the cookie is also sent in the Cookies field some executors use
@@ -114,6 +123,11 @@ local env = (getgenv and getgenv()) or _G
 if not game:IsLoaded() then game.Loaded:Wait(); task.wait(1) end
 repeat task.wait() until game:GetService("Players").LocalPlayer and workspace.CurrentCamera
 if env.KLOSAD and env.KLOSAD.Unload then pcall(env.KLOSAD.Unload) end
+-- a run that errored before the end, or lost env.KLOSAD, leaves its gui, blur and render steps behind; they stack with this run and eat fps
+for _, n in ipairs({ "KLSync", "KLSpiderCam", "KLOSAD_Mouse" }) do pcall(function() game:GetService("RunService"):UnbindFromRenderStep(n) end) end
+for _, get in ipairs({ function() return game:GetService("CoreGui") end, function() return game:GetService("Players").LocalPlayer.PlayerGui end, function() return game:GetService("Lighting") end }) do
+	pcall(function() for _, o in ipairs(get():GetChildren()) do if o.Name == "KLOSAD" or o.Name == "KLOSAD_Blur" then o:Destroy() end end end)
+end
 -- [/BOOT]
 
 -- [DATA]
@@ -263,7 +277,7 @@ local DEFAULTS = {
 	theme = "Dark", opacity = 0.8, accent = "#FFFF00", anim = 1, scale = 1,
 	lines = 12, blur = 1, pos = "Center", barKey = "Semicolon", panelKey = "RightShift",
 	toasts = true, bio = "", binds = {}, autoExec = false, avc = false, mod = {}, exp = {}, hist = {}, startBar = true, autostart = {},
-	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false, selfPath = "", aliases = {}, kbDefName = "Default", listenPad = 0, srvRegion = "",
+	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false, selfPath = "", aliases = {}, kbDefName = "Default", listenPad = 0, srvRegion = "", srvSort = "Ping", srvDesc = false,
 }
 local cfg = {}
 for k, v in pairs(DEFAULTS) do cfg[k] = v end
@@ -3219,7 +3233,7 @@ do
 	end
 	local function viaRequest(body)
 		SRV.cookie = SRV.cookie or cookie()
-		if not SRV.cookie then return nil, "needs your cookie (Servers tab, cookie field)" end
+		if not SRV.cookie then return nil, "needs your cookie (start region-relay.py)" end
 		local res
 		for _, how in ipairs(SRV.how and { SRV.how } or HOW) do
 			for _ = 1, 2 do
@@ -3235,13 +3249,18 @@ do
 		local c, out = tostring(SRV.cookie), {}
 		for _, how in ipairs(HOW) do
 			local r = send({ Url = "https://users.roblox.com/v1/users/authenticated", Method = "GET" }, how, c)
-			out[#out + 1] = how .. "=" .. (r and tostring(r.StatusCode) or "fail")
+			local b = r and tostring(r.Body) or ""
+			out[#out + 1] = how .. "=" .. (r and (tostring(r.StatusCode) .. "/" .. (b:match('"code":(%d+)') or "-") .. "." .. (b:match('"subcode":(%d+)') or "-")) or "fail")
 		end
 		local e = send({ Url = "https://httpbin.org/headers", Method = "GET" }, "header", "TEST")
 		return "cookie check: " .. table.concat(out, " ") .. " | len " .. #c .. (c:find("_|WARNING", 1, true) and "" or " | no _|WARNING prefix")
 			.. (e and (tostring(e.Body):find("ROBLOSECURITY=TEST", 1, true) and " | executor sends the Cookie header" or " | executor DROPS the Cookie header") or " | echo test failed")
 	end
-	local MODES, ORDER = { internal = viaInternal, api = viaApi, request = viaRequest }, { "internal", "api", "request" }
+	local function viaRelay(body) -- region-relay.py on this PC does the gamejoin call with your cookie (proper cookie + csrf); nil when it is not running
+		local ok, r = pcall(request, { Url = "http://127.0.0.1:47653/join", Method = "POST", Headers = { ["Content-Type"] = "application/json" }, Body = body })
+		if ok and type(r) == "table" then return { StatusCode = r.StatusCode, Body = r.Body } end
+	end
+	local MODES, ORDER = { relay = viaRelay, internal = viaInternal, api = viaApi, request = viaRequest }, { "relay", "internal", "api", "request" }
 	local function resolve(placeId, jobId)
 		local body = S.HttpService:JSONEncode({ placeId = placeId, isTeleport = false, gameId = jobId, gameJoinAttemptId = S.HttpService:GenerateGUID(false) })
 		local notes = {}
@@ -3258,10 +3277,12 @@ do
 					local ip = (ep and ep.Address) or (js and js.MachineAddress)
 					if type(ip) == "string" and not ip:match("^10%.") then
 						SRV.mode = m
-						SRV.byId[jobId] = { ip = ip }
+						SRV.byId[jobId] = { ip = ip, t = os.time() }
 						return SRV.byId[jobId]
 					end
-					notes[#notes + 1] = m .. ": " .. ((d and d.message) or "reply has no server address")
+					-- a reply with a joinScript can carry a login ticket, so the raw body is only shown when there is none
+					local raw = (d and d.joinScript) and "" or (" | status " .. tostring(d and d.status) .. " " .. (tostring(res.Body or ""):gsub("%s+", " ")):sub(1, 160))
+					notes[#notes + 1] = m .. ": " .. ((d and d.message) or "reply has no server address") .. raw
 				else
 					local extra = ((tostring(res.Body or ""):gsub("%s+", " "))):sub(1, 90)
 					if m == "request" and res.StatusCode == 401 then
@@ -3297,6 +3318,28 @@ do
 		return next(SRV.ip) ~= nil
 	end
 
+	-- persistent cache: server id -> { ip, scan time } and ip -> region, so a rejoin or re-exec does not rescan
+	local FILE, TTL = DIR .. "/servers.json", 6 * 3600 -- shortcut: servers close on their own, so ids older than 6 h are dropped; raise TTL if you scan rarely
+	function SRV.save()
+		if not (HAS_FS and writefile) then return end
+		local ids, ips, now = {}, {}, os.time()
+		for id, e in pairs(SRV.byId) do
+			if e.ip and e.t and now - e.t < TTL then ids[id] = e; ips[e.ip] = SRV.ip[e.ip] end
+		end
+		pcall(function()
+			if not isfolder(DIR) then makefolder(DIR) end
+			writefile(FILE, S.HttpService:JSONEncode({ ids = ids, ips = ips }))
+		end)
+	end
+	pcall(function()
+		if not (HAS_FS and isfile and isfile(FILE)) then return end
+		local d, now = jdec(readfile(FILE)), os.time()
+		if not d then return end
+		for id, e in pairs(d.ids or {}) do
+			if type(e) == "table" and type(e.ip) == "string" and type(e.t) == "number" and now - e.t < TTL then SRV.byId[id] = e end
+		end
+		for ip, r in pairs(d.ips or {}) do if type(r) == "table" and r.label and r.key then SRV.ip[ip] = r end end
+	end)
 	function SRV.region(id) local e = SRV.byId[id]; return e and SRV.ip[e.ip] end
 	function SRV.match(id, q) local r = SRV.region(id); return r and r.key:find(q, 1, true) ~= nil end
 	function SRV.list(placeId, pages)
@@ -3357,6 +3400,7 @@ do
 				if onChunk and onChunk(chunk) then break end
 			end
 			SRV.busy = false
+			SRV.save()
 			if onChunk then onChunk(nil) end
 		end)
 		return true
@@ -4538,11 +4582,19 @@ do
 	new("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14), PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 8) }, t)
 	new("UISizeConstraint", { MaxSize = Vector2.new(520, 300) }, t)
 	ui.toastScale = new("UIScale", {}, t)
-	local id = 0
+	local id, lastMsg, COPIED = 0, "", "Copied to clipboard"
+	t.Active = true -- click the toast to copy its text
+	t.InputBegan:Connect(function(i)
+		if (i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch) and t.Visible and lastMsg ~= "" and t.Text ~= COPIED and setclipboard then
+			pcall(setclipboard, lastMsg)
+			ui.toast(COPIED, 1.5)
+		end
+	end)
 	function ui.toast(msg, secs)
 		id = id + 1
 		local my = id
 		t.Text = msg
+		if msg ~= COPIED then lastMsg = msg end
 		t.Visible = true
 		t.Position = UDim2.new(0.5, 0, 1, -50)
 		t.BackgroundTransparency, t.TextTransparency = 1, 1
@@ -5702,24 +5754,14 @@ do
 	local SR = ctx.SRV
 	local box = input(pg, "Region (city, country or code)…", 9, 10, 299, 32, 11)
 	box.Text = cfg.srvRegion or ""
-	-- the cookie is only kept in memory (SRV.cookie): never saved, never in the command history, and the box is emptied as soon as it is taken
-	local ck = input(pg, "Roblox cookie (session only)…", 9, 46, 299, 26, 10)
-	ck.FocusLost:Connect(function()
-		local raw = ck.Text
-		local c = raw:match('"(.-)"') or raw:match("'(.-)'") or raw -- whatever is between the quotes, else the whole text
-		c = c:gsub("%s+", ""):gsub("^%.?ROBLOSECURITY[:=]", ""):gsub(";$", "")
-		if #c < 50 then return end
-		ck.Text = ""
-		SR.cookie, SR.mode, SR.how, SR.err, SR.authNote = c, nil, nil, nil, nil
-		ck.PlaceholderText = "Cookie set for this session (paste again to replace)"
-		ctx.notify("Cookie taken (kept in memory only). Press Scan regions", 4)
-	end)
+	
 	local stat = txt(pg, "", 9, "sub", 316, 46, 207, 26, { TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Center, TextTruncate = Enum.TextTruncate.AtEnd })
 	local list = scroller(pg, 0, 78, 532, 301)
 	list.AutomaticCanvasSize = Enum.AutomaticSize.None
 	new("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, list)
 	new("UIPadding", { PaddingLeft = UDim.new(0, 9), PaddingRight = UDim.new(0, 12), PaddingTop = UDim.new(0, 2), PaddingBottom = UDim.new(0, 8) }, list)
-	local servers, listErr, sched, scanBtn = {}, nil, false, nil
+	local function ago(t) local m = math.floor((os.time() - t) / 60); return m < 1 and "just now" or m < 60 and (m .. " min ago") or (math.floor(m / 60) .. " h ago") end
+	local servers, listErr, sched, scanBtn, menu = {}, nil, false, nil, nil
 	local render
 	local function visible() return S.panelOpen and ui.tab == "Servers" end
 	local function later()
@@ -5736,16 +5778,27 @@ do
 			if r then known = known + 1 end
 			if q == "" or (r and r.key:find(q, 1, true)) then rows[#rows + 1] = { s = s, r = r } end
 		end
-		table.sort(rows, function(a, b) -- known regions first (A to Z), then by ping
-			if (a.r ~= nil) ~= (b.r ~= nil) then return a.r ~= nil end
-			if a.r and b.r and a.r.label ~= b.r.label then return a.r.label < b.r.label end
-			return (a.s.ping or 9e9) < (b.s.ping or 9e9)
+		local key, desc, now = cfg.srvSort, cfg.srvDesc, os.time()
+		local function val(x) -- nil (unknown) always sorts last, whatever the direction
+			if key == "Players" then return x.s.playing or 0 end
+			if key == "Region" then return x.r and x.r.label end
+			if key == "Age" then local e = SR.byId[x.s.id]; return e and e.t and now - e.t end
+			return x.s.ping
+		end
+		table.sort(rows, function(a, b)
+			local va, vb = val(a), val(b)
+			if (va == nil) ~= (vb == nil) then return va ~= nil end
+			if va ~= vb then if desc then return va > vb else return va < vb end end
+			local pa, pb = a.s.ping or 9e9, b.s.ping or 9e9
+			if pa ~= pb then return pa < pb end
+			return a.s.id < b.s.id
 		end)
 		for i, row in ipairs(rows) do
 			local s, r = row.s, row.r
 			local c = fr(list, 0, 0, 511, 46, "row", 0.85, 8, "edge", 1, 0.55)
 			c.Size, c.LayoutOrder = UDim2.new(1, 0, 0, 46), i
-			txt(c, r and r.label or "Not scanned yet", 10, r and "text2" or "sub", 14, 7, 330, 16, { Font = FONT_B })
+			local e = SR.byId[s.id]
+			txt(c, r and (r.label .. (e and e.t and ("  ·  scanned " .. ago(e.t)) or "")) or "Not scanned yet", 10, r and "text2" or "sub", 14, 7, 330, 16, { Font = FONT_B })
 			txt(c, ("%d/%d players  ·  %s  ·  %s"):format(s.playing or 0, s.maxPlayers or 0, s.ping and (s.ping .. " ms") or "ping ?", s.fps and (math.floor(s.fps + 0.5) .. " fps") or "fps ?"),
 				8, "sub", 14, 26, 330, 13)
 			local cur = s.id == game.JobId
@@ -5783,8 +5836,25 @@ do
 		ctx.Run("region " .. q)
 	end)
 	box:GetPropertyChangedSignal("Text"):Connect(function() render() end)
+	local SORTS = { "Ping", "Players", "Region", "Age" } -- Age = time since the region was scanned
+	local sortBtn
+	menu = fr(pg, 9, 74, 120, #SORTS * 28 + 4, "ctrlOff", 0, 5, "edge", 1, 0.3)
+	menu.ZIndex, menu.Visible = 20, false
+	for i, v in ipairs(SORTS) do
+		btn(menu, v, 2, 2 + (i - 1) * 28, 116, 26, nil, nil, function()
+			cfg.srvSort, menu.Visible = v, false
+			sortBtn.Text = "Sort: " .. v .. "  ▾"
+			save(); render()
+		end)
+	end
+	sortBtn = btn(pg, "Sort: " .. tostring(cfg.srvSort) .. "  ▾", 9, 46, 120, 26, nil, nil, function() menu.Visible = not menu.Visible end)
+	btn(pg, cfg.srvDesc and "Descending" or "Ascending", 135, 46, 100, 26, nil, nil, function(b)
+		cfg.srvDesc = not cfg.srvDesc
+		b.Text = cfg.srvDesc and "Descending" or "Ascending"
+		save(); render()
+	end)
 	box.FocusLost:Connect(function() cfg.srvRegion = box.Text; save() end)
-	onShow["Servers"] = function() render(); refresh() end
+	onShow["Servers"] = function() menu.Visible = false; render(); refresh() end
 end
 -- [/PG_PLAYERS]
 
