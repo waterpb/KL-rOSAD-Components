@@ -1,12 +1,33 @@
+-- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py). Markers use "--" (Lua), not "//".
+-- [BOOT] scale, services, single-instance guard, bind/px/new/tween | S, bind(), px(), new(), tween() | deps: none | L27-74
+-- [THEME] colors, fonts, panel/inner/outline tokens | WHITE, ACCENT, PANEL, INNER, OUTLINE, F_* | deps: BOOT | L76-96
+-- [SETTINGS] settings file load/save | settings, save(), box, fullText | deps: BOOT | L100-123
+-- [GUIROOT] ScreenGui root, screenSize, zTop, overFrame | gui, screenSize(), front(), overFrame() | deps: SETTINGS | L125-146
+-- [PANELS] panel frame, pop/fade, drag | newPanel(), setTL(), popOpen(), fadeClose(), makeDrag() | deps: GUIROOT | L148-249
+-- [WIDGETS] box2, label, icon, inner, window buttons, scrollbar | box2(), label(), inner(), xButton(), minButton(), scrollbar() | deps: PANELS | L251-381
+-- [HIGHLIGHT] Lua syntax highlighter | highlight() | deps: none | L383-444
+-- [LOGSTATE] log queue, unread dot | emit(), updateDot(), stamp() | deps: WIDGETS | L446-477
+-- [KEEP] keep executor after teleport, auto re-join, server hop | queueSelf(), findServer() | deps: LOGSTATE, SETTINGS | L479-544
+-- [EXEC_PANEL] executor panel, title morph, header, window buttons | ex, titleMorph(), minBtn, closeBtn | deps: PANELS, WIDGETS | L546-594
+-- [WINMODEL] windowed editor text helpers, unit tested | lineStart(), cut() | deps: none | L596-620
+-- [EDITOR] windowed code editor: TextBox holds ~180 lines, scrolling moves the window | box, sf, setWindow(), rehighlight(), updateCaret() | deps: EXEC_PANEL, HIGHLIGHT, WINMODEL | L622-844
+-- [EXEC_BTNS] bottom row buttons settings / logs / run | gearBtn, logsBtn, runBtn, dot | deps: EXEC_PANEL | L846-853
+-- [LOGS] logs panel, log list, LogService hook | logsP, pushLine() | deps: WIDGETS, LOGSTATE | L855-927
+-- [SETTINGS_UI] settings panel with its toggles | setP | deps: WIDGETS, SETTINGS | L929-969
+-- [PLACE] open / place panels | place(), toggleLogs(), toggleSettings() | deps: LOGS, SETTINGS_UI | L971-995
+-- [RUN] run the script | run() | deps: EDITOR | L997-1015
+-- [WINDOW] minimize / restore / close, header drag | minimize(), restore(), closeExecutor(), api | deps: all | L1017-1088
+-- [ENTRY] startup | popOpen(ex) | deps: all | L1090-1094
+
 --// >kelsec v1.0.0 : LocalScript executor
 --// All sizes are the deck's 1080p pixels (1 slide inch = 144 px).
 --// Save this file as "kelsec.lua" in your executor's workspace folder if you want
 --// "Keep executor between sessions" to work (it re-loads that file after a teleport).
 
+-- [BOOT]
 local S = 1 -- UI scale. 1 = exact deck size on a 1080p screen
 
--- optional: your own uploaded images ("rbxassetid://123"). empty = use the deck's icons
-local ICON_GEAR, ICON_LOGS = "", ""
+
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -50,70 +71,33 @@ local function tween(o, dur, props, style, dir, delay)
 	t:Play()
 	return t
 end
+-- [/BOOT]
 
+-- [THEME]
+-- KL rOSAD dark theme, same values: panel 80% opaque, recessed areas 50%, 1px edges, yellow accent
 local WHITE = Color3.new(1, 1, 1)
-local BLACK = Color3.new(0, 0, 0)
-local ACCENT = Color3.fromRGB(0x5B, 0x9B, 0xD5)
-local CYAN = Color3.fromRGB(0x4F, 0xE3, 0xF0)
-local GREEN = Color3.fromRGB(0x15, 0xD9, 0x7C)
-local SCROLL = Color3.fromRGB(0x73, 0x73, 0x73)
+local ACCENT = Color3.fromRGB(255, 255, 0)
+local CYAN = Color3.fromRGB(0x4F, 0xE3, 0xF0) -- logs: what the executor itself says
+local GREEN = Color3.fromRGB(0x15, 0xD9, 0x7C) -- logs: game output
 local LOG_TXT = Color3.fromRGB(0xD6, 0xD6, 0xDB)
 local LOG_WARN = Color3.fromRGB(0xFF, 0xC9, 0x6B)
 local LOG_ERR = Color3.fromRGB(0xFF, 0x6B, 0x6B)
 
 local F_CODE, F_MONO, F_UI = Enum.Font.Code, Enum.Font.RobotoMono, Enum.Font.SourceSans
-local F_GLYPH = Enum.Font.GothamMedium
 
--- flat dark-grey theme (about 10% lightness)
-local PANEL, PANEL_T = Color3.fromRGB(26, 26, 26), 0.12
-local INNER, INNER_T = Color3.fromRGB(14, 14, 14), 0.2
-local SEL = Color3.fromRGB(0x26, 0x4F, 0x78)
-local OUTLINE = Color3.fromRGB(58, 58, 58)    -- <<< window outline colour (panels + minimized bubble)
-local INNER_EDGE = Color3.fromRGB(42, 42, 42) -- outline of the recessed editor / log / settings areas
-local CTRL_EDGE = Color3.fromRGB(88, 88, 88)  -- outline of the checkboxes and the clear button
+local PANEL, PANEL_T = Color3.fromRGB(13, 13, 13), 0.2 -- window fill
+local INNER, INNER_T = Color3.fromRGB(24, 23, 23), 0.5 -- recessed editor / log / settings areas
+local OUTLINE = Color3.fromRGB(70, 67, 67) -- window outline
+local EDGE = Color3.fromRGB(88, 84, 84) -- button outline
+local BTN_FILL, CTRL_ON, CTRL_OFF = Color3.fromRGB(66, 63, 63), Color3.fromRGB(118, 113, 113), Color3.fromRGB(52, 50, 50)
+local BTN_ON, BTN_OFF = 0.2, 0.4 -- fill transparency of a selected / normal button
+local SCROLL = Color3.fromRGB(118, 113, 113)
+local SEL = Color3.fromRGB(0x26, 0x4F, 0x78) -- editor selection
+-- [/THEME]
 
----------------------------------------------------------------- icon assets (from the deck)
-local GEAR_B64 = "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"
-local LOGS_B64 = "iVBORw0KGgoAAAANSUhEUgAAADgAAAAqCAYAAADmmJiOAAAAwklEQVR42u3aQQrCQAyF4T9jreBG8Fae2HN4EfeljHEhrcFu3fh82RSy+0iaDNNGZiavWJ4qEQDDZ0ItKvAMTCKuA3AHiNKiu4h4KOgyswEdoJX8XqgzV0tDPOSBdciM79fx52NcV8MyZCJCak0srqEkbkLLPjYV9JARGDIXYBbag9e/GzJHsbPopkV7RHSR6nUf1Qw00EADDTTQQAMNNNBAAw000EADDTTwG8BZyLVa6r3oKTPlLn7lvy7VCkr+CPQE2f5DKwfEIDwAAAAASUVORK5CYII="
-local X_B64 = "iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAABgklEQVR42q2WzUoDMRRG70wrVl0UQdoKghsR9KX0Ldz4SoIvIIoLUemydSMUV9WFgrioxYLHhTc1ExonPw2Um9LMPc1M5vCJWAMotRaSOUwPby8LVqk5MLf3ItgR0Ae6+r2RADO91oFr4LTyJ4BSP8fAF79jAPRioQ7skr9xAqwApQG2gKH+ONE6jIF6YJ9a34AtoLAXbuvO7IVBUA9sqnUMHFSepXVBz9ppELQG9gwc+g5OIxYaAWv6bk0wNBuWAC2yYYHQgZ645lJgNVDTuA9cLA1WA51ZL7SZv2TDFkA7wB3wraCZzh+B/VBYGcakEJF3EfkQEdf+ExF5NWtzd2cf/at/bulDintjDPJkaXCa4t5YN+4Bm7EaTIHNj36qe1NF3ExxbzIsR/jZ1o+Alm66aqW6McC9nTlUI0YbuM9xY417R8DOPGIAG8C59UKPU9zoQAdWvxtVY1nJkMCZBp5kETvQEXALrLlR0TzHVWA3S1FVaBdo+zJN4U3Kmenbnv8A07M/uG75KaMAAAAASUVORK5CYII="
-local CHEV_B64 = "iVBORw0KGgoAAAANSUhEUgAAADgAAAA4CAYAAACohjseAAAC80lEQVR42t2bP2gUQRSHZzcHERIJpAjCWQRMYwpNFYRUCsJZXZVKrNIpCOm0kAOLiI1VsLrG2FkFEbRJbNIEBUWIRRoJRGOKgMR/0dvzs3AGhuEUd3eW+yUD4SYwHPNmfrz3zXvvDHAd+Maf0SH/6AI/gNvGDqBmlAZwDnhrN5wBv3Ia6dY/AerOSCBRMG7Afg4DbW/TWU4j3fqPQNN+ZwKkMkba+RywX1Cy/qHcc1KVkKw9bXebk8B6Qcl27R/AGnDaHaKKZN2pD9pbKCpZd/ufgCu91NJPI1NvPgvsRpBsGxhSk6y7zXFgpYcE/9fDOkPfANOSkrXzVgTJHgDzcpJ1sgUawJa36bwOyI1HwJgUGHiSHQOWPQnmlay7zXfAhfAQlWLmvLfZTkHJArSkMM8nFGAG2CgRM936FWBcDfOcZEeApQgOaBeY7RWulDDvSyTMG1TFvLPAi4KS9WPmOjCpjHmLESS7D8ypxcyBAPP2Ikh2CRhRxbwJYDUC5m0AM17MlJJsCtz5SwzMI9mOKuYldn4J2C6BeW79sjLm1YHHETBvC2gop0ZulMA83wEteFRVU5Gsj3mbJSTrbn8VmFDFvFHgYYSYuaeOeVeB7xEkuwgcU8W8KeB1kEwuEjNfAWfUsutOskPAXeBnTg8bSvYzcCtVstEYY5Ik+WqM+eD+LzCcgxk2xpxUw7o68KyERN3tbQMX1SinCewUdDIh5Zzou5Px6xYBp2aHmlN7vDTWKnhppP0yzo97l4/UWzEIA/ePzGv/H4H88OdrKkIxjYxbBTCtkTON/BzSynpHfNDq1S0qSEloVJ4C3GqUTCpp1Q6DtOBChLTggSpuxUrsTqvFtlip+TZwXEmSsYorGj00Ectjel1QFRY4a0qSjFWi3pHoRKyoyeCpRC9pBW0iXeCmRMmrgkafTeC8Cm7FaNXKAtwaVXAkviRbJXAr83DrmoQkvU2cAp4XxC0/SfsSmOp7bAuMawLvS/6soAs8kGp4teM33tJJGvFR/EgAAAAASUVORK5CYII="
 
-local B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-local function b64decode(s)
-	local map = {}
-	for i = 1, 64 do map[B64:byte(i)] = i - 1 end
-	local out, buf, bits = {}, 0, 0
-	for i = 1, #s do
-		local v = map[s:byte(i)]
-		if v then
-			buf = buf * 64 + v
-			bits += 6
-			if bits >= 8 then
-				bits -= 8
-				local p = 2 ^ bits
-				out[#out + 1] = string.char(math.floor(buf / p) % 256)
-				buf = buf % p
-			end
-		end
-	end
-	return table.concat(out)
-end
 
-local function customAsset(id, fileName, b64)
-	if id ~= "" then return id end
-	if not (writefile and getcustomasset) then return nil end
-	local ok, res = pcall(function()
-		if not (isfile and isfile(fileName)) then writefile(fileName, b64decode(b64)) end
-		return getcustomasset(fileName)
-	end)
-	if ok and res and res ~= "" then return res end
-end
-
-local A_GEAR = customAsset(ICON_GEAR, "kelsec_gear_v2.png", GEAR_B64)
-local A_LOGS = customAsset(ICON_LOGS, "kelsec_logs_v2.png", LOGS_B64)
-local A_X = customAsset("", "kelsec_x_v1.png", X_B64)
-local A_CHEV = customAsset("", "kelsec_chev_v1.png", CHEV_B64)
-
+-- [SETTINGS]
 ---------------------------------------------------------------- settings / files
 local SETTINGS_FILE, SELF_FILE = "kelsec_settings.json", "kelsec.lua"
 local SAMPLE = 'print("Hello, World!")'
@@ -130,13 +114,15 @@ end
 
 if settings.code == OLD_SAMPLE then settings.code = nil end -- old starter -> new starter
 
-local box -- editor TextBox (assigned below)
+local box, head, tail, fullText -- editor TextBox; head / tail = the script lines outside its window (assigned below)
 local function save()
 	if not writefile then return end
-	if box then settings.code = box.Text end
+	if fullText then settings.code = fullText() end
 	pcall(writefile, SETTINGS_FILE, HttpService:JSONEncode(settings))
 end
+-- [/SETTINGS]
 
+-- [GUIROOT]
 ---------------------------------------------------------------- gui root
 local gui = new("ScreenGui", {
 	Name = HttpService:GenerateGUID(false), ResetOnSpawn = false, IgnoreGuiInset = true,
@@ -157,7 +143,9 @@ local function overFrame(f)
 	local m, p, s = UIS:GetMouseLocation(), f.AbsolutePosition, f.AbsoluteSize
 	return m.X >= p.X and m.X <= p.X + s.X and m.Y >= p.Y and m.Y <= p.Y + s.Y
 end
+-- [/GUIROOT]
 
+-- [PANELS]
 ---------------------------------------------------------------- panels
 -- Root (top-left anchored, integer px)
 --   Glass   : flat fill, rounded
@@ -258,7 +246,9 @@ local function makeDrag(handle, get, set, onClick, gate)
 		end
 	end)
 end
+-- [/PANELS]
 
+-- [WIDGETS]
 ---------------------------------------------------------------- small widgets
 local function box2(parent, x, y, w, h, props)
 	props = props or {}
@@ -276,41 +266,46 @@ local function label(parent, text, x, y, w, h, font, size, color, align)
 	}, parent)
 end
 
-local function icon(parent, asset, x, y, w, h)
-	return new("ImageLabel", { BackgroundTransparency = 1, Image = asset, Position = UDim2.fromOffset(px(x), px(y)), Size = UDim2.fromOffset(px(w), px(h)), ZIndex = 11 }, parent)
-end
+local function fs(pt) return math.floor(pt * 4 / 3 * 1.08 + 0.5) end -- rOSAD point sizes -> design px
 
 -- recessed rounded area used for the editor, log list and settings list
 local function inner(parent, x, y, w, h)
 	local f = box2(parent, x, y, w, h, { BackgroundColor3 = INNER, BackgroundTransparency = INNER_T, ClipsDescendants = true })
-	new("UICorner", { CornerRadius = UDim.new(0, px(4)) }, f)
-	new("UIStroke", { Color = INNER_EDGE, Thickness = 1 }, f)
+	new("UICorner", { CornerRadius = UDim.new(0, px(8)) }, f)
 	return f
 end
 
--- window buttons: 28px square clickbox, 14px glyph
-local function windowButton(parent, cx, cy)
-	return new("TextButton", {
-		Text = "", AutoButtonColor = false, BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(px(cx - 14), px(cy - 14)), Size = UDim2.fromOffset(px(28), px(28)), ZIndex = 10,
+-- rOSAD button: 3px corners, 1px edge, fades lighter on hover and press. fill nil = the normal button look
+local function btn(parent, str, x, y, w, h, fill, tr, cb, pt)
+	local b = new("TextButton", {
+		Text = str, Font = F_UI, TextSize = px(fs(pt or 9)), TextColor3 = WHITE, AutoButtonColor = false, BorderSizePixel = 0,
+		BackgroundColor3 = fill or BTN_FILL, BackgroundTransparency = tr or BTN_OFF,
+		Position = UDim2.fromOffset(px(x), px(y)), Size = UDim2.fromOffset(px(w), px(h)), ZIndex = 10,
 	}, parent)
-end
-
-local function xButton(parent, cx, cy)
-	local b = windowButton(parent, cx, cy)
-	if A_X then
-		icon(b, A_X, 7, 7, 14, 14)
-	else
-		b.Text, b.Font, b.TextSize, b.TextColor3 = "×", F_GLYPH, px(24), WHITE
-	end
+	b:SetAttribute("base", b.BackgroundTransparency)
+	new("UICorner", { CornerRadius = UDim.new(0, 3) }, b)
+	new("UIStroke", { Color = EDGE, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, b)
+	local function shade(d, t) tween(b, t, { BackgroundTransparency = math.max(b:GetAttribute("base") - d, 0) }) end
+	b.MouseEnter:Connect(function() shade(0.15, 0.1) end)
+	b.MouseLeave:Connect(function() shade(0, 0.12) end)
+	b.MouseButton1Down:Connect(function() shade(0.3, 0.05) end)
+	b.MouseButton1Click:Connect(function()
+		shade(0.15, 0.1)
+		if cb then cb(b) end
+	end)
 	return b
 end
 
-local function minButton(parent, cx, cy)
-	local b = windowButton(parent, cx, cy)
-	box2(b, 7, 13, 14, 2, { BackgroundColor3 = WHITE })
-	return b
+-- selected / normal look of a button (the On / Off pairs)
+local function fill(b, on)
+	b.BackgroundColor3 = on and CTRL_ON or CTRL_OFF
+	b.BackgroundTransparency = on and BTN_ON or BTN_OFF
+	b:SetAttribute("base", b.BackgroundTransparency)
 end
+
+-- window buttons: 28 x 26 boxes centred on cx, cy
+local function xButton(parent, cx, cy) return btn(parent, "×", cx - 14, cy - 13, 28, 26, CTRL_OFF, BTN_OFF, nil, 13) end
+local function minButton(parent, cx, cy) return btn(parent, "–", cx - 14, cy - 13, 28, 26, CTRL_OFF, BTN_OFF, nil, 13) end
 
 -- custom scrollbar: hidden when not needed, 80% opacity, 50% on hover
 local function scrollbar(sf, vertical, host)
@@ -383,7 +378,9 @@ local function scrollbar(sf, vertical, host)
 	task.defer(refresh)
 	return refresh
 end
+-- [/WIDGETS]
 
+-- [HIGHLIGHT]
 ---------------------------------------------------------------- lua highlighter
 local function set(t) local s = {} for _, v in ipairs(t) do s[v] = true end return s end
 local KW = set({ "and", "break", "do", "else", "elseif", "end", "false", "for", "function", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while", "continue" })
@@ -444,7 +441,9 @@ local function highlight(src)
 	end
 	return table.concat(out)
 end
+-- [/HIGHLIGHT]
 
+-- [LOGSTATE]
 ---------------------------------------------------------------- logs state (ui built later)
 local logsP, setP, ex -- panels
 local logSF, logCount, logOrder = nil, 0, 0
@@ -475,7 +474,9 @@ local function emit(msg, color, byExec, silent)
 		updateDot()
 	end
 end
+-- [/LOGSTATE]
 
+-- [KEEP]
 ---------------------------------------------------------------- keep executor / rejoin
 local STUB = [[
 local ok, s = pcall(function()
@@ -540,10 +541,12 @@ bind(GuiService.ErrorMessageChanged, function()
 		pcall(TeleportService.Teleport, TeleportService, game.PlaceId, player)
 	end)
 end)
+-- [/KEEP]
 
+-- [EXEC_PANEL]
 ---------------------------------------------------------------- EXECUTOR PANEL  (648 x 312)
 -- grid: 12px outer margin, 40px header, 28px square window buttons, 36px square bottom buttons
-ex = newPanel("Executor", 648, 312, 10)
+ex = newPanel("Executor", 648, 312, 9)
 ex.state, ex.busy = "open", false
 ex.tl = V2(px(311), px(244))
 applyPos(ex)
@@ -554,7 +557,7 @@ local content = ex.content
 -- title ">kelsec" built from single chars so it can morph into ">kl"
 local titleGroup = new("CanvasGroup", { Name = "TitleGroup", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, GroupTransparency = 1, ZIndex = 5 }, ex.root)
 ex.groups[2] = titleGroup
-local fsE = px(24) -- same size minimized and not
+local fsE = px(19) -- same size minimized and not
 local function measure(t, size) return TextService:GetTextSize(t, size, F_CODE, V2(10000, 10000)) end
 local mE = measure(">", fsE)
 local cwE, lhE = math.ceil(mE.X), math.ceil(mE.Y)
@@ -582,19 +585,47 @@ local function titleMorph(toMin)
 	end
 end
 
-label(content, "v1.0.0", 14 + 7 * cwE / S + 5, 17, 60, 15, F_MONO, 12, Color3.fromRGB(0xB4, 0xB4, 0xB9))
+label(content, "v1.0.0", 14 + 7 * cwE / S + 5, 17, 60, 15, F_CODE, 11, Color3.fromRGB(128, 128, 128))
 local header = box2(content, 0, 0, 560, 40, { BackgroundTransparency = 1 })
 
 -- window controls
 local minBtn = minButton(content, 590, 20)
 local closeBtn = xButton(content, 622, 20)
+-- [/EXEC_PANEL]
 
--- editor
+-- [WINMODEL]
+-- pure text helpers of the windowed editor (no Roblox objects, so test_winmodel.lua can run them on their own)
+local function lineStart(s, a) -- byte where line a starts; stops at the last line if the script has fewer
+	local pos, ln = 1, 1
+	while ln < a do
+		local p = s:find("\n", pos, true)
+		if not p then break end
+		pos, ln = p + 1, ln + 1
+	end
+	return pos, ln
+end
+
+-- splits s into head / window / tail, the window being the n lines that start at line a (head .. window .. tail == s).
+-- Returns head, window, tail and the number of lines in head. The tail starts with the newline that ends the window.
+local function cut(s, a, n)
+	local from, la = lineStart(s, a)
+	local stop, q = nil, from
+	for _ = 1, math.max(n, 1) do
+		stop = s:find("\n", q, true)
+		if not stop then break end
+		q = stop + 1
+	end
+	return s:sub(1, from - 1), s:sub(from, (stop or #s + 1) - 1), stop and s:sub(stop) or "", la - 1
+end
+-- [/WINMODEL]
+
+-- [EDITOR]
 local ebox = inner(content, 12, 40, 624, 228)
 local GUT = px(31)
+local VW, VH = px(624) - GUT - 1, px(228) -- visible text area
 local gclip = new("Frame", { Size = UDim2.new(0, GUT, 1, 0), BackgroundTransparency = 1, ClipsDescendants = true }, ebox)
 local fsC = px(13)
-local TX, TY = px(10), px(6) -- text origin inside the scroll area
+local TX, TY = px(10), px(6) -- text origin inside the window frame
 local gutter = new("TextLabel", {
 	Position = UDim2.fromOffset(0, TY), Size = UDim2.new(0, px(25), 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
 	BackgroundTransparency = 1, Font = F_MONO, TextSize = fsC, TextColor3 = Color3.fromRGB(0x78, 0x78, 0x80),
@@ -602,49 +633,120 @@ local gutter = new("TextLabel", {
 }, gclip)
 new("Frame", { Position = UDim2.fromOffset(GUT, 0), Size = UDim2.new(0, 1, 1, 0), BackgroundColor3 = WHITE, BackgroundTransparency = 0.88, BorderSizePixel = 0 }, ebox)
 
+-- The TextBox only holds a window of lines (head .. box.Text .. tail is the whole script), so a huge script never becomes
+-- one giant text object (that is what broke selecting and clicking lines). Scrolling moves the window: the canvas is as tall
+-- as the whole script, "win" sits at the window's line, and the TextBox / highlight / selection / caret all live inside it.
 local sf = new("ScrollingFrame", {
 	Position = UDim2.fromOffset(GUT + 1, 0), Size = UDim2.new(1, -(GUT + 1), 1, 0), BackgroundTransparency = 1, BorderSizePixel = 0,
-	ScrollBarThickness = 0, CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.XY,
+	ScrollBarThickness = 0, CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.None,
 	ScrollingDirection = Enum.ScrollingDirection.XY, ElasticBehavior = Enum.ElasticBehavior.Never,
 }, ebox)
-box = new("TextBox", {
-	Position = UDim2.fromOffset(TX, TY), Size = UDim2.new(1, -TX, 1, -TY), AutomaticSize = Enum.AutomaticSize.XY,
-	BackgroundTransparency = 1, ClearTextOnFocus = false, MultiLine = true, TextWrapped = false, Font = F_MONO, TextSize = fsC,
-	TextColor3 = WHITE, TextTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top,
-	Text = type(settings.code) == "string" and settings.code or SAMPLE,
-}, sf)
-local hl = new("TextLabel", {
-	Position = box.Position, Size = UDim2.new(), AutomaticSize = Enum.AutomaticSize.XY, BackgroundTransparency = 1, RichText = true,
-	Font = F_MONO, TextSize = fsC, TextColor3 = Color3.fromRGB(0xD4, 0xD4, 0xD4), TextWrapped = false,
-	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 3,
-}, sf)
+local win = new("Frame", { Name = "Window", Size = UDim2.new(), BackgroundTransparency = 1 }, sf)
+
 -- exact font metrics (measured over long strings so rounding can't drift on long lines / many lines)
 local ADV = TextService:GetTextSize(("A"):rep(200), fsC, F_MONO, V2(100000, 100000)).X / 200
 local PITCH = TextService:GetTextSize(("A\n"):rep(100) .. "A", fsC, F_MONO, V2(100000, 100000)).Y / 101
 local lineH = math.floor(PITCH + 0.5)
-local caret = new("Frame", { Name = "Caret", Size = UDim2.fromOffset(2, lineH), BackgroundColor3 = WHITE, BorderSizePixel = 0, Visible = false, ZIndex = 4 }, sf)
+local function textW(s) return (utf8.len(s) or #s) * ADV end
+local function rnd(n) return math.floor(n + 0.5) end
+local function count(s) return select(2, s:gsub("\n", "")) end
+
+-- lines kept above / below the view, window size that forces a re-cut (a paste), margin before the view reaches the window edge
+local WIN_BUF, WIN_MAX, WIN_MARGIN = 80, 400, 30
+local ROWS = math.ceil(VH / PITCH) + 1 -- lines in view
+-- the saved script may hold tabs / CRLF from an older version or a paste: normalise it like typing does
+local startText = (type(settings.code) == "string" and settings.code or SAMPLE):gsub("\r\n?", "\n"):gsub("\t", "    ")
+local h0, w0, tl0, hN0 = cut(startText, 1, ROWS + 2 * WIN_BUF)
+head, tail = h0, tl0
+local hN, tN, wN, winY = hN0, count(tl0), count(w0) + 1, 0 -- lines above / below / inside the window, window top in the canvas
+
+box = new("TextBox", {
+	Position = UDim2.fromOffset(TX, TY), Size = UDim2.fromOffset(VW - TX, VH - TY), AutomaticSize = Enum.AutomaticSize.XY,
+	BackgroundTransparency = 1, ClearTextOnFocus = false, MultiLine = true, TextWrapped = false, Font = F_MONO, TextSize = fsC,
+	TextColor3 = WHITE, TextTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top,
+	Text = w0,
+}, win)
+fullText = function() return head .. box.Text .. tail end
+local hl = new("TextLabel", {
+	Position = box.Position, Size = UDim2.new(), AutomaticSize = Enum.AutomaticSize.XY, BackgroundTransparency = 1, RichText = true,
+	Font = F_MONO, TextSize = fsC, TextColor3 = Color3.fromRGB(0xD4, 0xD4, 0xD4), TextWrapped = false,
+	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 3,
+}, win)
+local caret = new("Frame", { Name = "Caret", Size = UDim2.fromOffset(2, lineH), BackgroundColor3 = WHITE, BorderSizePixel = 0, Visible = false, ZIndex = 4 }, win)
 
 local barHost = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 5 }, ebox)
 scrollbar(sf, true, barHost)
 scrollbar(sf, false, barHost)
 
-local lastN, hlPending = 0, false
+local setWindow
+local hlPending, lastKey = false, ""
+
+-- window frame, canvas size (whole script tall, longest window line wide) and gutter follow the window
+local function layout()
+	winY = rnd(hN * PITCH)
+	win.Position = UDim2.fromOffset(0, winY)
+	local m = 0
+	for line in (box.Text .. "\n"):gmatch("(.-)\n") do
+		if #line > m then m = #line end
+	end
+	sf.CanvasSize = UDim2.fromOffset(math.max(VW, TX + rnd(m * ADV) + px(24)), 2 * TY + rnd((hN + wN + tN) * PITCH))
+	gutter.Position = UDim2.fromOffset(0, winY + TY - sf.CanvasPosition.Y)
+end
+
 local function rehighlight()
 	hlPending = false
 	if not alive then return end
 	local txt = box.Text
+	wN = count(txt) + 1
+	if wN > WIN_MAX then -- a paste made the window huge: cut it again around the caret
+		local cl = hN + count(txt:sub(1, math.max(box.CursorPosition, 1) - 1)) + 1
+		return setWindow(cl - WIN_BUF, 2 * WIN_BUF + 1)
+	end
+	-- shortcut: a block comment / long string that starts above the window is not coloured, when to upgrade: carry the lexer state into the window
 	hl.Text = highlight(txt)
-	local n = select(2, txt:gsub("\n", "")) + 1
-	if n ~= lastN then
-		lastN = n
-		local t = table.create(n)
-		for k = 1, n do t[k] = k end
+	local key = hN .. ":" .. wN
+	if key ~= lastKey then
+		lastKey = key
+		local t = table.create(wN)
+		for k = 1, wN do t[k] = hN + k end
 		gutter.Text = table.concat(t, "\n")
 	end
+	layout()
 end
 
-local function textW(s) return (utf8.len(s) or #s) * ADV end
-local function rnd(n) return math.floor(n + 0.5) end
+-- re-cuts the window to n lines from line a. The caret and selection stay on the same text; if they would fall outside
+-- the new window (you scrolled far away) the box simply loses focus.
+-- shortcut: a selection can't span more than the window (Ctrl+A selects the window), when to upgrade: draw the selection ourselves
+setWindow = function(a, n)
+	local focused, cp, ss = box:IsFocused(), box.CursorPosition, box.SelectionStart
+	local nh, nw, nt, nhN = cut(head .. box.Text .. tail, a, n)
+	local ncp, nss
+	if focused then
+		local shift = #head - #nh
+		ncp = cp + shift
+		nss = ss > 0 and ss + shift or ncp
+		if ncp < 1 or ncp > #nw + 1 or nss < 1 or nss > #nw + 1 then focused = false end
+	end
+	head, tail, hN, tN = nh, nt, nhN, count(nt)
+	box.Text = nw
+	if focused then
+		box.CursorPosition = ncp
+		box.SelectionStart = nss
+	else
+		box:ReleaseFocus()
+	end
+	rehighlight()
+end
+
+-- scrolling: keep the view well inside the window, otherwise re-cut it around the view
+local function onScroll()
+	gutter.Position = UDim2.fromOffset(0, winY + TY - sf.CanvasPosition.Y)
+	local top = math.floor((sf.CanvasPosition.Y - TY) / PITCH) + 1
+	if (hN > 0 and top - WIN_MARGIN < hN + 1) or (tN > 0 and top + ROWS + WIN_MARGIN > hN + wN) then
+		setWindow(top - WIN_BUF, ROWS + 2 * WIN_BUF)
+	end
+end
+bind(sf:GetPropertyChangedSignal("CanvasPosition"), onScroll)
 
 -- selection highlight (drawn by us, behind the text)
 local selPool = {}
@@ -664,7 +766,7 @@ local function updateSelection()
 					used += 1
 					local f = selPool[used]
 					if not f then
-						f = new("Frame", { BackgroundColor3 = SEL, BorderSizePixel = 0, ZIndex = 1 }, sf)
+						f = new("Frame", { BackgroundColor3 = SEL, BorderSizePixel = 0, ZIndex = 1 }, win)
 						selPool[used] = f
 					end
 					f.Position = UDim2.fromOffset(TX + rnd(x1), TY + rnd(lineNo * PITCH))
@@ -694,11 +796,11 @@ local function updateCaret()
 	local cx, cy = TX + rnd(textW(colText)), TY + rnd(lines * PITCH)
 	caret.Position = UDim2.fromOffset(cx, cy)
 	lastMove = os.clock()
-	local view, pos = sf.AbsoluteWindowSize, sf.CanvasPosition
-	if cy < pos.Y then pos = V2(pos.X, cy)
-	elseif cy + lineH > pos.Y + view.Y then pos = V2(pos.X, cy + lineH - view.Y) end
+	local gy, pos = winY + cy, sf.CanvasPosition -- gy = caret line in the canvas
+	if gy < pos.Y then pos = V2(pos.X, gy)
+	elseif gy + lineH > pos.Y + VH then pos = V2(pos.X, gy + lineH - VH) end
 	if cx < pos.X then pos = V2(math.max(0, cx - px(20)), pos.Y)
-	elseif cx + px(20) > pos.X + view.X then pos = V2(cx + px(20) - view.X, pos.Y) end
+	elseif cx + px(20) > pos.X + VW then pos = V2(cx + px(20) - VW, pos.Y) end
 	if pos ~= sf.CanvasPosition then sf.CanvasPosition = pos end
 end
 
@@ -718,8 +820,19 @@ end)
 bind(box.FocusLost, function() caret.Visible = false cCP = nil updateSelection() save() end)
 rehighlight()
 
-bind(sf:GetPropertyChangedSignal("CanvasPosition"), function()
-	gutter.Position = UDim2.fromOffset(0, TY - sf.CanvasPosition.Y)
+-- every frame: redraw caret + selection when they moved, blink the caret
+bind(RunService.Heartbeat, function()
+	if box:IsFocused() and ex.state == "open" then
+		local cp, ss, n = box.CursorPosition, box.SelectionStart, #box.Text
+		if cp ~= cCP or ss ~= cSS or n ~= cN then
+			cCP, cSS, cN = cp, ss, n
+			updateCaret()
+		end
+		caret.Visible = (os.clock() - lastMove) % 1.06 < 0.53
+	else
+		caret.Visible = false
+		cCP = nil
+	end
 end)
 
 -- shift + wheel scrolls sideways
@@ -728,43 +841,25 @@ bind(UIS.InputChanged, function(i)
 		sf.CanvasPosition = V2(math.max(0, sf.CanvasPosition.X - i.Position.Z * 60), sf.CanvasPosition.Y)
 	end
 end)
+-- [/EDITOR]
 
--- bottom row (y 268..312): settings, logs, run. 36px square buttons, 28px icons
-local function bottomButton(x)
-	return new("TextButton", { Text = "", AutoButtonColor = false, BackgroundTransparency = 1, Position = UDim2.fromOffset(px(x), px(272)), Size = UDim2.fromOffset(px(36), px(36)), ZIndex = 10 }, content)
-end
-
-local gearBtn = bottomButton(12)
-if A_GEAR then icon(gearBtn, A_GEAR, 4, 4, 28, 28)
-else new("TextLabel", { BackgroundTransparency = 1, Text = "⚙", Font = Enum.Font.SourceSansBold, TextSize = px(28), TextColor3 = WHITE, Size = UDim2.fromScale(1, 1) }, gearBtn) end
-
-local logsBtn = bottomButton(52)
-local logsIcon = new("Frame", { BackgroundTransparency = 1, Position = UDim2.fromOffset(px(4), px(8)), Size = UDim2.fromOffset(px(28), px(21)) }, logsBtn)
-if A_LOGS then icon(logsIcon, A_LOGS, 0, 0, 28, 21)
-else
-	new("UIStroke", { Color = WHITE, Thickness = 2 }, logsIcon)
-	box2(logsIcon, 0, 5, 28, 2, { BackgroundColor3 = WHITE })
-end
-dot = new("Frame", { Position = UDim2.fromOffset(px(25), px(3)), Size = UDim2.fromOffset(px(10), px(10)), BackgroundColor3 = GREEN, BorderSizePixel = 0, Visible = false, ZIndex = 12 }, logsBtn)
+-- [EXEC_BTNS]
+-- bottom row (y 268..312): settings, logs, run
+local gearBtn = btn(content, "Settings", 12, 278, 72, 26)
+local logsBtn = btn(content, "Logs", 90, 278, 56, 26)
+dot = new("Frame", { Position = UDim2.fromOffset(px(49), px(-3)), Size = UDim2.fromOffset(px(10), px(10)), BackgroundColor3 = GREEN, BorderSizePixel = 0, Visible = false, ZIndex = 12 }, logsBtn)
 new("UICorner", { CornerRadius = UDim.new(1, 0) }, dot)
+local runBtn = btn(content, "Run", 564, 278, 72, 26, CTRL_ON, BTN_ON)
+-- [/EXEC_BTNS]
 
-local runBtn = bottomButton(600)
-if A_CHEV then icon(runBtn, A_CHEV, 4, 4, 28, 28)
-else new("TextLabel", { BackgroundTransparency = 1, Text = ">", Font = Enum.Font.GothamBlack, TextSize = px(32), TextColor3 = WHITE, Size = UDim2.fromScale(1, 1) }, runBtn) end
-
+-- [LOGS]
 ---------------------------------------------------------------- LOGS PANEL  (471 x 557)
-logsP = newPanel("Logs", 471, 557, 10)
+logsP = newPanel("Logs", 471, 557, 9)
 do
 	local c = logsP.content
 	local lh = box2(c, 0, 0, 365, 40, { BackgroundTransparency = 1 })
 	label(c, "logs", 14, 11, 100, 18, F_CODE, 16)
-	local clear = new("TextButton", {
-		Text = "clear", Font = F_CODE, TextSize = px(12), TextColor3 = WHITE, AutoButtonColor = false,
-		Position = UDim2.fromOffset(px(371), px(9)), Size = UDim2.fromOffset(px(52), px(22)),
-		BackgroundColor3 = INNER, BackgroundTransparency = INNER_T, BorderSizePixel = 0, ZIndex = 10,
-	}, c)
-	new("UICorner", { CornerRadius = UDim.new(0, px(4)) }, clear)
-	new("UIStroke", { Color = CTRL_EDGE, Thickness = 1 }, clear)
+	local clear = btn(c, "clear", 371, 9, 52, 22)
 	local lclose = xButton(c, 445, 20)
 
 	local area = inner(c, 12, 40, 447, 505)
@@ -815,18 +910,7 @@ bind(RunService.Heartbeat, function()
 		pendingStick -= 1
 		logSF.CanvasPosition = V2(0, 1e7)
 	end
-	-- caret: follows cursor / selection / text, solid while you move or type, then blinks
-	if box:IsFocused() and ex.state == "open" then
-		local cp, ss, n = box.CursorPosition, box.SelectionStart, #box.Text
-		if cp ~= cCP or ss ~= cSS or n ~= cN then
-			cCP, cSS, cN = cp, ss, n
-			updateCaret()
-		end
-		caret.Visible = (os.clock() - lastMove) % 1.06 < 0.53
-	else
-		caret.Visible = false
-		cCP = nil
-	end
+	
 end)
 
 local MSG_COLOR = {
@@ -840,15 +924,17 @@ bind(LogService.MessageOut, function(msg, kind)
 end)
 
 emit("Welcome, " .. player.Name .. ". Logs will be displayed here.", LOG_TXT, true, true)
+-- [/LOGS]
 
+-- [SETTINGS_UI]
 ---------------------------------------------------------------- SETTINGS PANEL  (297 x 188)
-setP = newPanel("Settings", 297, 188, 10)
+setP = newPanel("Settings", 353, 188, 9)
 do
 	local c = setP.content
-	local sh = box2(c, 0, 0, 255, 40, { BackgroundTransparency = 1 })
-	label(c, "settings", 0, 11, 297, 18, F_CODE, 16, WHITE, Enum.TextXAlignment.Center)
-	local sclose = xButton(c, 271, 20)
-	local panelInner = inner(c, 12, 40, 273, 136)
+	local sh = box2(c, 0, 0, 311, 40, { BackgroundTransparency = 1 })
+	label(c, "settings", 14, 11, 160, 18, F_CODE, 16)
+	local sclose = xButton(c, 327, 20)
+	local panelInner = inner(c, 12, 40, 329, 136)
 
 	local rows = {
 		{ "keep", "Keep executor between sessions" },
@@ -857,38 +943,32 @@ do
 		{ "serverHop", "Server-hop instead of re-join" },
 	}
 	for idx, rw in ipairs(rows) do
-		local key = rw[1]
-		local row = new("TextButton", {
-			Text = "", AutoButtonColor = false, BackgroundTransparency = 1,
-			Position = UDim2.fromOffset(0, px(6 + (idx - 1) * 32)), Size = UDim2.fromOffset(px(273), px(28)),
-		}, panelInner)
-		new("TextLabel", {
-			Text = rw[2], Font = F_UI, TextSize = px(14), TextColor3 = WHITE, BackgroundTransparency = 1,
-			TextXAlignment = Enum.TextXAlignment.Left, Position = UDim2.fromOffset(px(14), 0), Size = UDim2.new(0, px(210), 1, 0),
-		}, row)
-		local cb = new("Frame", { Position = UDim2.fromOffset(px(243), px(6)), Size = UDim2.fromOffset(px(16), px(16)), BorderSizePixel = 0 }, row)
-		new("UICorner", { CornerRadius = UDim.new(0, px(3)) }, cb)
-		new("UIStroke", { Color = CTRL_EDGE, Thickness = 1 }, cb)
-		local function paint()
-			local on = settings[key]
-			cb.BackgroundColor3 = on and WHITE or BLACK
-			cb.BackgroundTransparency = on and 0.15 or 0.8
+		local key, y = rw[1], 6 + (idx - 1) * 32
+		label(panelInner, rw[2], 14, y, 215, 28, F_UI, fs(12))
+		local onB, offB = btn(panelInner, "On", 229, y + 3, 40, 22), btn(panelInner, "Off", 275, y + 3, 40, 22)
+		local function show()
+			fill(onB, settings[key])
+			fill(offB, not settings[key])
 		end
-		paint()
-		bind(row.MouseButton1Click, function()
-			settings[key] = not settings[key]
-			paint()
-			if key == "keep" and settings.keep then queueSelf(true) end
-			if key == "sendLogs" and settings.sendLogs and not rcon then
+		local function choose(v)
+			settings[key] = v
+			show()
+			if key == "keep" and v then queueSelf(true) end
+			if key == "sendLogs" and v and not rcon then
 				emit("rconsoleprint is unavailable: logs can't be sent to the executor console", LOG_WARN, true)
 			end
 			save()
-		end)
+		end
+		show()
+		bind(onB.MouseButton1Click, function() choose(true) end)
+		bind(offB.MouseButton1Click, function() choose(false) end)
 	end
 	bind(sclose.MouseButton1Click, function() fadeClose(setP) end)
 	makeDrag(sh, function() return setP.tl end, function(v) setTL(setP, v) end)
 end
+-- [/SETTINGS_UI]
 
+-- [PLACE]
 ---------------------------------------------------------------- opening / placing panels
 local function place(p, dx, dy)
 	if p.placed then return end
@@ -906,18 +986,20 @@ end
 
 local function toggleSettings()
 	if setP.isOpen then fadeClose(setP) return end
-	place(setP, 171, 392)
+	place(setP, 148, 392)
 	popOpen(setP)
 end
 
 bind(gearBtn.MouseButton1Click, toggleSettings)
 bind(logsBtn.MouseButton1Click, toggleLogs)
+-- [/PLACE]
 
+-- [RUN]
 ---------------------------------------------------------------- run
 local function run()
 	save()
 	if not loadstring then emit("loadstring is unavailable in this environment", LOG_ERR, true) return end
-	local fn, err = loadstring(box.Text, "=kelsec")
+	local fn, err = loadstring(fullText(), "=kelsec")
 	if not fn then emit("Syntax error: " .. tostring(err), LOG_ERR, true) return end
 	local start = os.clock()
 	task.spawn(function()
@@ -930,7 +1012,9 @@ local function run()
 	end)
 end
 bind(runBtn.MouseButton1Click, run)
+-- [/RUN]
 
+-- [WINDOW]
 ---------------------------------------------------------------- minimize / restore / close
 -- the panel shrinks into / grows out of its own top-left corner, so that corner never moves
 local function minimize()
@@ -1001,7 +1085,10 @@ bind(closeBtn.MouseButton1Click, closeExecutor)
 makeDrag(header, function() return ex.tl end, function(v) if not ex.busy then setTL(ex, v) end end)
 makeDrag(ex.root, function() return ex.tl end, function(v) if not ex.busy then setTL(ex, v) end end, restore,
 	function() return ex.state == "min" and not ex.busy end)
+-- [/WINDOW]
 
+-- [ENTRY]
 ---------------------------------------------------------------- start
 if settings.keep then queueSelf(false) end
 popOpen(ex)
+-- [/ENTRY]
