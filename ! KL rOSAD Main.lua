@@ -1,31 +1,32 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py). Markers use "--" (Lua), not "//".
--- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), single-run guard (env.KLOSAD_BOOT), unload previous run | VERSION, DIR, env | deps: none | L127-143
--- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L145-266
--- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L268-352
--- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L354-500
--- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L502-1073
--- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1075-1845
--- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart, ctx.SRV.hop / scanregions / serverbrowser commands, notifyuser/nuser + unnotifyuser/unuser (ctx.nuAdd/nuRemove/nuScan, cfg.notifyUsers), loaderLine single-run guard | deps: CMD_CORE | L1847-4509
--- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.alertUser (user notifier banner), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L4511-4955
--- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L4957-5376
--- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade) | deps: UI_SHARED | L5378-5510
--- [PG_HOME] Home page (stats+icon centered, experience name carry) | stats loop, bio, ctx.curExp | deps: UI_PANEL | L5512-5607
--- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L5609-6013
--- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L6015-6045
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L6047-6124
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L6126-6155
--- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L6157-6176
--- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L6178-6300
--- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L6302-6528
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L6530-6627
--- [PG_PREFS] Preferences page (incl. User notifier list) | refresh(), ui.refreshNu() | deps: PG_FLOW | L6629-6677
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L6679-6801
+-- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), single-run guard (env.KLOSAD_BOOT), unload every previous run (env.KLOSAD_ALL registry) | VERSION, DIR, env | deps: none | L128-148
+-- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L150-271
+-- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L273-357
+-- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L359-505
+-- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L507-1078
+-- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1080-1850
+-- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart, ctx.SRV.hop / scanregions / serverbrowser commands, notifyuser/nuser + unnotifyuser/unuser (ctx.nuAdd/nuRemove/nuScan/nuPoll/nuStatus/nuInfo, cfg.notifyUsers, cfg.nuPoll), cleanup/clean (ctx.cleanup), loaderLine single-run guard | deps: CMD_CORE | L1852-4637
+-- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.alertUser (user notifier card: avatar, names, status), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L4639-5101
+-- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L5103-5522
+-- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade) | deps: UI_SHARED | L5524-5656
+-- [PG_HOME] Home page (stats+icon centered, experience name carry) | stats loop, bio, ctx.curExp | deps: UI_PANEL | L5658-5753
+-- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L5755-6159
+-- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L6161-6191
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L6193-6270
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L6272-6301
+-- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L6303-6322
+-- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L6324-6446
+-- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L6448-6674
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L6676-6773
+-- [PG_PREFS] Preferences page (incl. User notifier list) | refresh(), ui.refreshNu() | deps: PG_FLOW | L6775-6836
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L6838-6964
 
 --[[
 	KL rOSAD v1.1  |  open-source admin/dev panel  |  client-side only
 
 	CHANGELOG (newest first; every change adds a line here and updates the NAV INDEX, then navfix)
-	v1.1  New user notifier: ;notifyuser / ;nuser <username> adds a username to a list (saved), ;unnotifyuser / ;unuser <username|all> removes it; Preferences > User notifier has the same list with Add / Remove. When a listed username is in the server (on join of the script, or when they join) a big red pulsing banner with 3 pings shows at the top for 20 s (click closes), even with Notifications off
+	v1.1  New user notifier: ;notifyuser / ;nuser <username> adds a username to a list (saved), ;unnotifyuser / ;unuser <username|all> removes it; Preferences > User notifier has the same list with avatar, display name, username and status (Offline / Online / In game: <game> / In Studio, polled in one batched request every 30 / 45 / 60 / 90 s, default 60). When a listed username is in the server (on script start, or when they join) a card themed like the UI (avatar, display name, username, "In this server", accent ring pulse, 2 pings) shows at the top for 20 s (click closes), even with Notifications off
+	v1.1  New ;cleanup / ;clean [game|scripts] (nothing = both): removes stray rOSAD runs and leftover guis, runs a Lua garbage collection (if the executor allows it), clears the executor's Drawing cache, shows Lua and client memory before / after. Every finished run now registers its unload in env.KLOSAD_ALL, so the next start (auto execute, hop, re-exec) unloads every older run even if env.KLOSAD was lost
 	v1.1  Fix lag after an auto execute rejoin / hop that stayed after exiting rOSAD: the executor's autoexec folder and queue_on_teleport could both start a run, and the second one left the first alive (exit only stopped one). Now only one run boots (the loader and the script both check), and unload also stops the endless panel glow tween
 	v1.1  Servers tab: new Rescan button (fresh server list, then scans the new servers). Fix: a scan that errored or hung left "busy" set forever so no later scan started; a failing lookup is now caught per server and a scan with no progress for 90 s counts as dead
 	v1.1  New ;leave / ;leavegame (closes the Roblox client). Autostart refuses ;rejoin, ;serverhop, ;smallserver, ;region and ;leave (also through aliases): they can't be added and a saved one is skipped with a notice on exec and respawn
@@ -135,6 +136,10 @@ env.KLOSAD_BOOT = os.time()
 if not game:IsLoaded() then game.Loaded:Wait(); task.wait(1) end
 repeat task.wait() until game:GetService("Players").LocalPlayer and workspace.CurrentCamera
 if env.KLOSAD and env.KLOSAD.Unload then pcall(env.KLOSAD.Unload) end
+-- every finished run registers its unload here, so a run that lost env.KLOSAD (autoexec + teleport loader, re-exec) is still cleaned up
+for _, fn in ipairs(env.KLOSAD_ALL or {}) do pcall(fn) end
+env.KLOSAD_ALL = {}
+pcall(function() game:GetService("ContextActionService"):UnbindAction("KLOSAD_Shift") end)
 -- a run that errored before the end, or lost env.KLOSAD, leaves its gui, blur and render steps behind; they stack with this run and eat fps
 for _, n in ipairs({ "KLSync", "KLSpiderCam", "KLOSAD_Mouse" }) do pcall(function() game:GetService("RunService"):UnbindFromRenderStep(n) end) end
 for _, get in ipairs({ function() return game:GetService("CoreGui") end, function() return game:GetService("Players").LocalPlayer.PlayerGui end, function() return game:GetService("Lighting") end }) do
@@ -289,7 +294,7 @@ local DEFAULTS = {
 	theme = "Dark", opacity = 0.8, accent = "#FFFF00", anim = 1, scale = 1,
 	lines = 12, blur = 1, pos = "Center", barKey = "Semicolon", panelKey = "RightShift",
 	toasts = true, bio = "", binds = {}, autoExec = false, avc = false, mod = {}, exp = {}, hist = {}, startBar = true, autostart = {},
-	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false, selfPath = "", aliases = {}, kbDefName = "Default", listenPad = 0, srvRegion = "", srvSort = "Ping", srvDesc = false, srvMax = 50, notifyUsers = {},
+	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false, selfPath = "", aliases = {}, kbDefName = "Default", listenPad = 0, srvRegion = "", srvSort = "Ping", srvDesc = false, srvMax = 50, notifyUsers = {}, nuPoll = 60,
 }
 local cfg = {}
 for k, v in pairs(DEFAULTS) do cfg[k] = v end
@@ -4450,15 +4455,94 @@ end)
 if cfg.autoExec then task.defer(function() ctx.setAutoExec(true, true) end) end
 if cfg.avc then task.defer(function() ctx.setAvc(true, true) end) end
 
--- user notifier: a big banner (ui.alertUser) when a listed username is in the server, now or when they join. Exact username, any case.
+-- ;cleanup [game|scripts]: frees what a client script can free. Roblox gives scripts no way to force the engine's own garbage collection, so this is best effort.
 do
-	local seen = {} -- userId -> here now, so a leave + rejoin alerts again
+	local function mb() local ok, v = pcall(function() return S.Stats:GetTotalMemoryUsageMb() end); return ok and v or 0 end
+	function ctx.cleanup(q)
+		q = tostring(q or ""):lower()
+		local all = q == "" or q == "all"
+		local doS, doG = all or q == "scripts" or q == "script", all or q == "game"
+		if not (doS or doG) then return ctx.notify("Usage: ;cleanup [game|scripts] (nothing = both)") end
+		local m0, k0, out = mb(), collectgarbage("count"), {}
+		if doS then
+			local n = 0
+			for _, fn in ipairs(table.clone(env.KLOSAD_ALL or {})) do if fn ~= ui.unload then pcall(fn); n = n + 1 end end -- stray rOSAD runs
+			for _, get in ipairs({ function() return S.CoreGui end, function() return lp.PlayerGui end, function() return S.Lighting end }) do
+				pcall(function()
+					for _, o in ipairs(get():GetChildren()) do
+						if (o.Name == "KLOSAD" and o ~= ui.gui) or (o.Name == "KLOSAD_Blur" and o ~= ui.blur) then o:Destroy(); n = n + 1 end
+					end
+				end)
+			end
+			for i = #(state.baseParts or {}), 1, -1 do if not state.baseParts[i].Parent then table.remove(state.baseParts, i) end end
+			out[#out + 1] = n .. " stray run/gui removed"
+			pcall(collectgarbage, "collect")
+		end
+		if doG then
+			if cleardrawcache and pcall(cleardrawcache) then out[#out + 1] = "drawing cache cleared" end
+		end
+		task.wait(0.5)
+		out[#out + 1] = ("Lua %.1f > %.1f MB, client %.0f > %.0f MB"):format(k0 / 1024, collectgarbage("count") / 1024, m0, mb())
+		ctx.notify("Cleanup: " .. table.concat(out, ", "), 6)
+	end
+	def({ "cleanup", "clean" }, "[game|scripts]", "Free memory: stray rOSAD runs, Lua garbage, drawing cache (nothing = both)", "memory leak optimize clear gc fps lag", ctx.cleanup)
+end
+
+-- user notifier: a card (ui.alertUser) when a listed username is in the server, now or when they join; Preferences shows each user's status,
+-- polled every cfg.nuPoll seconds in ONE batched request. Exact username, any case.
+do
+	local info, seen, last, csrf = {}, {}, 0, ""
+	ctx.nuInfo = info
+	local GREEN, GREY = Color3.fromRGB(60, 200, 90), Color3.fromRGB(150, 150, 150)
+	local KIND = { [0] = { "Offline", GREY }, [1] = { "Online", Color3.fromRGB(80, 160, 255) }, [2] = { "In game", GREEN }, [3] = { "In Studio", Color3.fromRGB(255, 160, 50) }, [4] = { "Invisible", GREY } }
+	local function inServer(n) for _, p in ipairs(S.Players:GetPlayers()) do if p.Name:lower() == n then return p end end end
+	local function redraw() if S.panelOpen and ui.tab == "Preferences" and ui.refreshNu then ui.refreshNu() end end
+	local function entry(n) local e = info[n]; if not e then e = { user = n }; info[n] = e end; return e end
+	local function hdr(res, name) for k, v in pairs(res.Headers or {}) do if tostring(k):lower() == name then return v end end end
+	-- the engine's own request carries your login (presence needs it); the executor's request is the fallback
+	local function post(url, tbl)
+		local body, res = S.HttpService:JSONEncode(tbl), nil
+		for _ = 1, 2 do
+			res = nil
+			local ok, rq = pcall(function() return S.HttpService:RequestInternal({ Url = url, Method = "POST", Headers = { ["Content-Type"] = "application/json", ["x-csrf-token"] = csrf }, Body = body }) end)
+			if not (ok and rq and pcall(function() rq:Start(function(_, r) res = r or false end) end)) then res = nil; break end
+			local t = os.clock()
+			while res == nil and os.clock() - t < 10 do task.wait(0.05) end
+			if type(res) ~= "table" then res = nil; break end
+			local tok = res.StatusCode == 403 and hdr(res, "x-csrf-token")
+			if not tok then break end
+			csrf = tok
+		end
+		if not (res and res.StatusCode == 200) and request then
+			local ok, r = pcall(request, { Url = url, Method = "POST", Headers = { ["Content-Type"] = "application/json" }, Body = body })
+			if ok and type(r) == "table" and (r.StatusCode == 200 or not res) then res = r end
+		end
+		if res and res.StatusCode == 200 then
+			local ok, v = pcall(S.HttpService.JSONDecode, S.HttpService, res.Body)
+			return ok and v or nil, "bad reply"
+		end
+		return nil, res and ("HTTP " .. tostring(res.StatusCode)) or "no response"
+	end
 	local function check(p)
 		if p == lp or seen[p.UserId] or not table.find(cfg.notifyUsers, p.Name:lower()) then return end
 		seen[p.UserId] = true
-		if ui.alertUser then ui.alertUser(p.Name, p.DisplayName) end
+		local e = entry(p.Name:lower())
+		e.id, e.user, e.display = p.UserId, p.Name, p.DisplayName
+		if ui.alertUser then ui.alertUser(p.UserId, p.Name, p.DisplayName) end
+		redraw()
 	end
 	function ctx.nuScan() for _, p in ipairs(S.Players:GetPlayers()) do check(p) end end
+	local function remove(n, msg)
+		n = tostring(n or ""):lower():gsub("^@", "")
+		if n == "all" then cfg.notifyUsers = {}; table.clear(info) else
+			local i = table.find(cfg.notifyUsers, n)
+			if not i then return ctx.notify("Not on the notify list: " .. n) end
+			table.remove(cfg.notifyUsers, i); info[n] = nil
+		end
+		save(); redraw()
+		ctx.notify(msg or "Notify list updated")
+	end
+	function ctx.nuRemove(n) remove(n) end
 	function ctx.nuAdd(q)
 		local added = {}
 		for n in tostring(q or ""):gmatch("[^%s,@]+") do
@@ -4466,25 +4550,69 @@ do
 			if not table.find(cfg.notifyUsers, n) then table.insert(cfg.notifyUsers, n); added[#added + 1] = n end
 		end
 		if #added == 0 then return ctx.notify("Usage: ;notifyuser <username> (or already on the list)") end
-		save(); ctx.nuScan()
-		if ui.refreshNu then ui.refreshNu() end
+		save(); ctx.nuScan(); redraw()
+		last = -math.huge -- poll their status now
 		ctx.notify("Will alert when in the server: " .. table.concat(added, ", "))
 	end
-	function ctx.nuRemove(n)
-		n = tostring(n or ""):lower():gsub("^@", "")
-		if n == "all" then cfg.notifyUsers = {} else
-			local i = table.find(cfg.notifyUsers, n)
-			if not i then return ctx.notify("Not on the notify list: " .. n) end
-			table.remove(cfg.notifyUsers, i)
+	-- activity text + dot color for a listed name. Roblox has no "idle": Online covers it, Offline adds how long ago they were last seen
+	function ctx.nuStatus(n)
+		local e = info[n]
+		if inServer(n) then return "In this server", GREEN end
+		if not e or e.kind == nil then return e and e.why or "checking…", GREY end
+		local k = KIND[e.kind] or KIND[0]
+		local t = k[1]
+		if e.kind == 2 and e.loc and e.loc ~= "" then t = t .. ": " .. e.loc
+		elseif e.kind == 0 and e.last then
+			local ok, ts = pcall(function() return DateTime.fromIsoDate(e.last).UnixTimestamp end)
+			if ok and ts then
+				local m = math.max(0, math.floor((os.time() - ts) / 60))
+				t = ("%s · last seen %s"):format(t, m < 60 and m .. "m" or m < 2880 and math.floor(m / 60) .. "h" or math.floor(m / 1440) .. "d")
+			end
 		end
-		save()
-		if ui.refreshNu then ui.refreshNu() end
-		ctx.notify("Notify list updated")
+		return t, k[2]
+	end
+	function ctx.nuPoll()
+		local byId, ids, need, bad = {}, {}, {}, {}
+		for _, n in ipairs(cfg.notifyUsers) do
+			local e, p = entry(n), inServer(n)
+			if p then e.id, e.user, e.display = p.UserId, p.Name, p.DisplayName end
+			if not e.id then
+				local ok, id = pcall(S.Players.GetUserIdFromNameAsync, S.Players, n)
+				if ok then e.id = id elseif tostring(id):lower():find("valid") then bad[#bad + 1] = n else e.why = "lookup failed" end
+			end
+			if e.id then
+				byId[e.id] = e; ids[#ids + 1] = e.id
+				if not e.display then need[#need + 1] = e.id end
+			end
+		end
+		for _, n in ipairs(bad) do remove(n, "No Roblox user called " .. n) end
+		if #need > 0 then
+			for _, u in ipairs((post("https://users.roblox.com/v1/users", { userIds = need, excludeBannedUsers = false }) or {}).data or {}) do
+				local e = byId[u.id]
+				if e then e.user, e.display = u.name, u.displayName end
+			end
+		end
+		if #ids > 0 then
+			local r, why = post("https://presence.roblox.com/v1/presence/users", { userIds = ids })
+			for _, u in ipairs(r and r.userPresences or {}) do
+				local e = byId[u.userId]
+				if e then e.kind, e.loc, e.last, e.why = u.userPresenceType, u.lastLocation, u.lastOnline, nil end
+			end
+			if not r then for _, e in pairs(byId) do e.why = "status unavailable (" .. tostring(why) .. ")" end end
+		end
+		redraw()
 	end
 	ctx.connect("nuAdd", S.Players.PlayerAdded, check)
 	ctx.connect("nuLeft", S.Players.PlayerRemoving, function(p) seen[p.UserId] = nil end)
 	task.delay(3, ctx.nuScan) -- after the gui exists
-	def({ "notifyuser", "nuser" }, "<username> [more]", "Big alert whenever this username is in the server (listed in Preferences)", "notify alert watch user player join friend", ctx.nuAdd)
+	task.spawn(function()
+		task.wait(4)
+		while S.alive do
+			if #cfg.notifyUsers > 0 then last = os.clock(); pcall(ctx.nuPoll) end
+			repeat task.wait(2) until not S.alive or os.clock() - last >= math.max(15, cfg.nuPoll)
+		end
+	end)
+	def({ "notifyuser", "nuser" }, "<username> [more]", "Alert card whenever this username is in the server (list + status in Preferences)", "notify alert watch user player join friend", ctx.nuAdd)
 	def({ "unnotifyuser", "unuser" }, "<username|all>", "Remove a username from the notify list", "notify alert watch remove", ctx.nuRemove)
 end
 end
@@ -4766,34 +4894,52 @@ do
 	ui.actLayout()
 end
 
--- user notifier alert (;notifyuser): big red banner, pulses, 3 pings, stays 20 s, click closes. Shown even with Notifications off
+-- user notifier card (;notifyuser): themed like the toast, avatar + display name + username + status, accent ring pulse, 2 pings, stays 20 s, click closes. Shown even with Notifications off
 do
-	local holder = new("Frame", { Name = "UserAlert", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 80), BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(520, 0), AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 60 }, gui)
+	local holder = new("Frame", { Name = "UserAlert", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 28), BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(380, 0), AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 60 }, gui)
 	new("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, holder)
 	local sc, n = new("UIScale", {}, holder), 0
-	function ui.alertUser(name, display)
+	function ui.alertUser(uid, name, display)
 		n = n + 1
 		sc.Scale = cfg.scale
-		local sub = (display ~= name and ("display name: " .. display .. "  -  ") or "") .. "click to close"
-		local b = new("TextButton", { LayoutOrder = n, Size = UDim2.fromOffset(520, 90), AutoButtonColor = false, BackgroundColor3 = Color3.fromRGB(200, 0, 0), BorderSizePixel = 0,
-			Font = FONT_B, TextSize = 24, TextColor3 = Color3.new(1, 1, 1), RichText = true, ZIndex = 60,
-			Text = ('%s IS IN THE SERVER\n<font size="14">%s</font>'):format(esc(name:upper()), esc(sub)) }, holder)
+		local b = new("CanvasGroup", { LayoutOrder = n, Size = UDim2.fromOffset(380, 92), BackgroundTransparency = 0.05, BorderSizePixel = 0, GroupTransparency = 1, ZIndex = 60 }, holder)
+		paint(b, "BackgroundColor3", "bar")
 		new("UICorner", { CornerRadius = UDim.new(0, 10) }, b)
-		local st = new("UIStroke", { Thickness = 4, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, b)
-		local pulse = TweenInfo.new(0.45, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
-		local tws = { S.TweenService:Create(b, pulse, { BackgroundColor3 = Color3.fromRGB(255, 70, 70) }), S.TweenService:Create(st, pulse, { Transparency = 0.8 }) }
-		for _, t in ipairs(tws) do t:Play() end
-		local function close()
-			if not b.Parent then return end
-			for _, t in ipairs(tws) do pcall(function() t:Cancel() end) end
-			b:Destroy()
+		local st = new("UIStroke", { Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, b)
+		paint(st, "Color", "accent")
+		local av = new("ImageLabel", { Position = UDim2.fromOffset(14, 16), Size = UDim2.fromOffset(60, 60), BorderSizePixel = 0, BackgroundTransparency = 0.9, Image = thumb("AvatarHeadShot", uid, 150), ZIndex = 61 }, b)
+		paint(av, "BackgroundColor3", "row")
+		new("UICorner", { CornerRadius = UDim.new(1, 0) }, av)
+		paint(new("UIStroke", { Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, av), "Color", "accent")
+		txt(b, "USER IN SERVER", 8, "accentText", 90, 8, 270, 14, { Font = FONT_B, ZIndex = 61 })
+		txt(b, display, 14, "text", 90, 22, 276, 22, { Font = FONT_B, ZIndex = 61, TextTruncate = Enum.TextTruncate.AtEnd })
+		txt(b, "@" .. name, 9, "sub", 90, 45, 276, 14, { ZIndex = 61, TextTruncate = Enum.TextTruncate.AtEnd })
+		local dot = new("Frame", { Position = UDim2.fromOffset(91, 68), Size = UDim2.fromOffset(8, 8), BorderSizePixel = 0, BackgroundColor3 = Color3.fromRGB(60, 200, 90), ZIndex = 61 }, b)
+		new("UICorner", { CornerRadius = UDim.new(1, 0) }, dot)
+		txt(b, "In this server", 9, "text2", 105, 64, 260, 16, { ZIndex = 61 })
+		local prog = new("Frame", { AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, 0), Size = UDim2.new(1, 0, 0, 3), BorderSizePixel = 0, ZIndex = 62 }, b)
+		paint(prog, "BackgroundColor3", "accent")
+		local tws = {}
+		if cfg.anim ~= 0 then
+			tws[1] = S.TweenService:Create(prog, TweenInfo.new(20, Enum.EasingStyle.Linear), { Size = UDim2.new(0, 0, 0, 3) })
+			tws[2] = S.TweenService:Create(st, TweenInfo.new(0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { Transparency = 0.7 })
+			for _, t in ipairs(tws) do t:Play() end
 		end
-		b.MouseButton1Click:Connect(close)
+		tw(b, { GroupTransparency = 0 }, 0.2)
+		local closed = false
+		local function close()
+			if closed then return end
+			closed = true
+			for _, t in ipairs(tws) do pcall(function() t:Cancel() end) end
+			tw(b, { GroupTransparency = 1 }, 0.2)
+			task.delay(dur(0.2) + 0.05, function() pcall(function() b:Destroy() end) end)
+		end
+		new("TextButton", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "", ZIndex = 70 }, b).MouseButton1Click:Connect(close)
 		task.delay(20, close)
 		task.spawn(function()
 			local s = new("Sound", { SoundId = "rbxasset://sounds/electronicpingshort.wav", Volume = 2 }, gui)
-			for _ = 1, 3 do pcall(s.Play, s); task.wait(0.4) end
+			for _ = 1, 2 do pcall(s.Play, s); task.wait(0.5) end
 			s:Destroy()
 		end)
 	end
@@ -6641,22 +6787,35 @@ do
 	fhdr(pg, "Server browser")
 	seg(frow(pg, "Max servers to scan", 227), 0, { 0, 59, 118, 177 }, 50, { { "25", 25 }, { "50", 50 }, { "75", 75 }, { "100", 100 } }, "srvMax")
 	fhdr(pg, "User notifier")
+	seg(frow(pg, "Status refresh (seconds)", 227), 0, { 0, 59, 118, 177 }, 50, { { "30", 30 }, { "45", 45 }, { "60", 60 }, { "90", 90 } }, "nuPoll")
 	local nr = new("Frame", { Size = UDim2.new(1, 0, 0, 23), BackgroundTransparency = 1, LayoutOrder = nx() }, pg)
-	local nb = input(nr, "username to alert about (also ;notifyuser)…", 0, 0, 330, 23, 11)
+	local nb = input(nr, "username to watch (also ;notifyuser)…", 0, 0, 330, 23, 11)
 	local function addNu() ctx.nuAdd(nb.Text); nb.Text = "" end
 	btn(nr, "Add", 336, 0, 60, 23, "btnFill", BTN_OFF, addNu)
 	nb.FocusLost:Connect(function(enter) if enter then addNu() end end)
 	local nl = new("Frame", { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, LayoutOrder = nx() }, pg)
-	new("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, nl)
+	new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, nl)
 	function ui.refreshNu()
-		for _, c in ipairs(nl:GetChildren()) do if c:IsA("Frame") then c:Destroy() end end
+		for _, c in ipairs(nl:GetChildren()) do if c:IsA("GuiObject") then c:Destroy() end end
 		if #cfg.notifyUsers == 0 then
 			txt(new("Frame", { Size = UDim2.new(1, 0, 0, 20), BackgroundTransparency = 1 }, nl), "none", 11, "sub", 12, 0, 300, 20)
 		end
 		for i, n in ipairs(cfg.notifyUsers) do
-			local r = new("Frame", { Size = UDim2.new(1, 0, 0, 23), BackgroundTransparency = 1, LayoutOrder = i }, nl)
-			txt(r, n, 12, "text", 12, 2, 380, 19, { TextTruncate = Enum.TextTruncate.AtEnd })
-			btn(r, "Remove", 400, 0, 70, 23, "btnFill", BTN_OFF, function() ctx.nuRemove(n) end)
+			local e = ctx.nuInfo[n] or {}
+			local r = fr(nl, 0, 0, 0, 56, "row", 0.85, 8, "edge", 1, 0.55)
+			r.Size, r.LayoutOrder = UDim2.new(1, 0, 0, 56), i
+			if e.id then
+				local a = new("ImageLabel", { Position = UDim2.fromOffset(8, 8), Size = UDim2.fromOffset(40, 40), BorderSizePixel = 0, BackgroundTransparency = 0.9, Image = thumb("AvatarHeadShot", e.id, 150) }, r)
+				paint(a, "BackgroundColor3", "row")
+				new("UICorner", { CornerRadius = UDim.new(1, 0) }, a)
+			end
+			local status, color = ctx.nuStatus(n)
+			txt(r, e.display or e.user or n, 11, "text2", 58, 5, 330, 16, { Font = FONT_B, TextTruncate = Enum.TextTruncate.AtEnd })
+			txt(r, "@" .. (e.user or n), 8, "sub", 58, 21, 330, 12, { TextTruncate = Enum.TextTruncate.AtEnd })
+			local dot = new("Frame", { Position = UDim2.fromOffset(59, 40), Size = UDim2.fromOffset(8, 8), BorderSizePixel = 0, BackgroundColor3 = color }, r)
+			new("UICorner", { CornerRadius = UDim.new(1, 0) }, dot)
+			txt(r, status, 9, "text", 73, 36, 320, 16, { TextTruncate = Enum.TextTruncate.AtEnd })
+			btn(r, "Remove", 404, 16, 70, 23, "btnFill", BTN_OFF, function() ctx.nuRemove(n) end)
 		end
 	end
 	ui.refreshNu()
@@ -6672,7 +6831,7 @@ do
 	btn(br, "Reset all effects", 0, 0, 120, 23, "btnFill", BTN_OFF, function() ctx.resetAll(); refresh() end)
 	btn(br, "Unload panel", 126, 0, 100, 23, "btnFill", BTN_OFF, function() ui.unload() end)
 	txt(pg, "KL rOSAD v" .. VERSION, 8, "dim", 0, 0, 300, 14, { LayoutOrder = nx() })
-	onShow["Preferences"] = refresh
+	onShow["Preferences"] = function() refresh(); ui.refreshNu() end
 end
 -- [/PG_PREFS]
 
@@ -6781,6 +6940,8 @@ function ui.unload()
 	pcall(function() ui.blur:Destroy() end)
 	pcall(function() gui:Destroy() end)
 	env.KLOSAD = nil
+	local i = env.KLOSAD_ALL and table.find(env.KLOSAD_ALL, ui.unload)
+	if i then table.remove(env.KLOSAD_ALL, i) end
 end
 
 ui.apply()
@@ -6794,6 +6955,8 @@ end
 ui.selectTab("Home")
 env.KLOSAD = { Unload = ui.unload, ctx = ctx, cfg = cfg, ui = ui, S = S, version = VERSION }
 env.KLOSAD_BOOT = nil
+env.KLOSAD_ALL = env.KLOSAD_ALL or {}
+table.insert(env.KLOSAD_ALL, ui.unload)
 if not (HAS_FS and HAS_LOAD) then ctx.notify("Limited mode: this executor has no file access or loadstring.", 5) end
 ui.welcome()
 if cfg.startBar then task.defer(function() ui.openBar() end) end
