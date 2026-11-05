@@ -1,33 +1,45 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py). Markers use "--" (Lua), not "//".
--- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), single-run guard (env.KLOSAD_BOOT), unload every previous run (env.KLOSAD_ALL registry) | VERSION, DIR, env | deps: none | L128-148
--- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L150-271
--- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L273-357
--- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L359-505
--- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L507-1078
--- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1080-1850
--- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart, ctx.SRV.hop / scanregions / serverbrowser commands, notifyuser/nuser + unnotifyuser/unuser (ctx.nuAdd/nuRemove/nuScan/nuPoll/nuStatus/nuInfo, cfg.notifyUsers, cfg.nuPoll), cleanup/clean (ctx.cleanup), loaderLine single-run guard | deps: CMD_CORE | L1852-4637
--- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.alertUser (user notifier card: avatar, names, status), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L4639-5101
--- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L5103-5522
--- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade) | deps: UI_SHARED | L5524-5656
--- [PG_HOME] Home page (stats+icon centered, experience name carry) | stats loop, bio, ctx.curExp | deps: UI_PANEL | L5658-5753
--- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L5755-6159
--- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L6161-6191
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L6193-6270
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L6272-6301
--- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L6303-6322
--- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L6324-6446
--- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L6448-6674
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L6676-6773
--- [PG_PREFS] Preferences page (incl. User notifier list) | refresh(), ui.refreshNu() | deps: PG_FLOW | L6775-6836
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L6838-6964
+-- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), single-run guard (env.KLOSAD_BOOT), unload every previous run (env.KLOSAD_ALL registry) | VERSION, DIR, env | deps: none | L140-160
+-- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L162-283
+-- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L285-369
+-- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L371-517
+-- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L519-1090
+-- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1092-1867
+-- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart, ctx.SRV.hop / scanregions / serverbrowser commands, notifyuser/nuser + unnotifyuser/unuser (ctx.nuAdd/nuRemove/nuScan/nuPoll/nuStatus/nuInfo, cfg.notifyUsers, cfg.nuPoll), cleanup/clean (ctx.cleanup), loaderLine single-run guard, SRV.here / SRV.relay (this server's region for Home), ptp/pulsetp, look/lookat + unlook (live/seen/pick helpers), keepemotes/kemote + unkeepemotes/unkemote (emoteLike/take/attach/playHere) | deps: CMD_CORE | L1869-4829
+-- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.alertUser (user notifier card: avatar, names, status), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L4831-5293
+-- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L5295-5714
+-- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade) | deps: UI_SHARED | L5716-5848
+-- [PG_HOME] Home page (stats+icon centered, Region row via ctx.SRV.here, experience name carry) | stats loop, bio, ctx.curExp | deps: UI_PANEL | L5850-5960
+-- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, Sort drop down (cfg.plSort: A-Z / Z-A / Nearest / Farthest; sortList, resort re-orders in place every cfg.plPoll s), voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L5962-6447
+-- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L6449-6479
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L6481-6558
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L6560-6589
+-- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L6591-6610
+-- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L6612-6734
+-- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L6736-6962
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L6964-7061
+-- [PG_PREFS] Preferences page (incl. Players tab sort refresh, User notifier list) | refresh(), ui.refreshNu() | deps: PG_FLOW | L7063-7126
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L7128-7254
 
 --[[
 	KL rOSAD v1.1  |  open-source admin/dev panel  |  client-side only
 
 	CHANGELOG (newest first; every change adds a line here and updates the NAV INDEX, then navfix)
+	v1.1  ;spider: walls are seen earlier (a ray reaches about 3.4 studs ahead, at chest AND knee height, so low walls count) and the turn onto a wall is faster (rate 14, was 8), so you start going up before you hit it. While the surface turns, the walk speed is kept (it used to shrink with the angle and stall at corners)
+	v1.1  New ;keepemotes / ;kemote (+ ;unkeepemotes / ;unkemote): the newest emote / non-default animation gets priority Action4 (beats walk, jump, fall, sit) and is played again the moment it stops early, so moving, jumping or falling no longer cancels it. A looped one stays until you start another or run ;unkemote; a one-shot ends normally. Humanoid:PlayEmote / "/e" only works while standing: when the game's Animate script refuses, the default emotes (wave, point, dance, laugh, cheer) are played by rOSAD instead, so they work mid air too (needs getcallbackmember)
+	v1.1  Players tab: the Sort button is now a drop down (A-Z / Z-A / Nearest / Farthest) like the Servers tab, and sits clear of the search box
+	v1.1  New ;look / ;lookat <player | near | far | inwall> (+ ;unlook): your character faces the target (turn only, never tilts) and the camera is not touched, same method as ;spin. near / far are re-picked 10 times a second, inwall = the nearest one with no wall in between (nobody in view = you walk and turn normally)
+	v1.1  New ;ptp / ;pulsetp <player> [seconds, default 1]: teleports you onto the player for that long, then back to where you were
+	v1.1  Players tab: Sort button (A-Z / Z-A / Nearest / Farthest, saved). Nearest / Farthest re-order the cards in place (no rebuild, so buttons and sliders keep working) every Preferences > Players tab > Sort refresh seconds (0 = every frame, 1, 2, 3, 5)
+	v1.1  ;friend <username or user id> now also works for people who are not in the server: Roblox only prompts for players who are here, so it copies their profile link and tells you to press Add Friend there
+	v1.1  Baby: new Module Cfg "Baby: lean back (degrees)" (babyLean, default 0) tilts you backwards, away from the player, on top of the existing rotation
+	v1.1  Fix Placeholder1: after a death ;placeholder1 said "already in your inventory" because the old tool still had a parent; it now checks the tool is in your CURRENT backpack / character
+	v1.1  Home: the Locale row is now "Region: <city>, <country>" for the server you are in (from the region cache, else one lookup of this server through the same relay / join routes as the Servers tab; long names shrink to fit). "Region: Relay inactive" when region-relay.py is not running, "Region: unavailable" for any other failure; a failed lookup retries every 30 s while Home is open
 	v1.1  New user notifier: ;notifyuser / ;nuser <username> adds a username to a list (saved), ;unnotifyuser / ;unuser <username|all> removes it; Preferences > User notifier has the same list with avatar, display name, username and status (Offline / Online / In game: <game> / In Studio, polled in one batched request every 30 / 45 / 60 / 90 s, default 60). When a listed username is in the server (on script start, or when they join) a card themed like the UI (avatar, display name, username, "In this server", accent ring pulse, 2 pings) shows at the top for 20 s (click closes), even with Notifications off
 	v1.1  New ;cleanup / ;clean [game|scripts] (nothing = both): removes stray rOSAD runs and leftover guis, runs a Lua garbage collection (if the executor allows it), clears the executor's Drawing cache, shows Lua and client memory before / after. Every finished run now registers its unload in env.KLOSAD_ALL, so the next start (auto execute, hop, re-exec) unloads every older run even if env.KLOSAD was lost
 	v1.1  Fix lag after an auto execute rejoin / hop that stayed after exiting rOSAD: the executor's autoexec folder and queue_on_teleport could both start a run, and the second one left the first alive (exit only stopped one). Now only one run boots (the loader and the script both check), and unload also stops the endless panel glow tween
+	v1.1  Server list: all pages are fetched (up to 10 x 100, was the first page only, which Roblox often fills with far fewer than 100 servers); the Servers tab status shows the players in the listed servers. Full servers are still left out (they cannot be joined)
+	v1.1  Servers tab: Rescan now only refreshes the server list and reports how many servers are new (they show "Not scanned yet"); regions are found by Scan regions / ;scanregions, a separate scan that can run alongside it. The status line shows "refreshing list..." and/or "scanning regions N..." with moving dots while either works, and Rescan dims while it runs
 	v1.1  Servers tab: new Rescan button (fresh server list, then scans the new servers). Fix: a scan that errored or hung left "busy" set forever so no later scan started; a failing lookup is now caught per server and a scan with no progress for 90 s counts as dead
 	v1.1  New ;leave / ;leavegame (closes the Roblox client). Autostart refuses ;rejoin, ;serverhop, ;smallserver, ;region and ;leave (also through aliases): they can't be added and a saved one is skipped with a notice on exec and respawn
 	v1.1  Correction: Preferences > Max servers to scan (25 / 50 / 75 / 100, default 50) limits how many NEW servers a scan sends to Roblox (join requests); cached servers cost none and the list is no longer cut
@@ -294,7 +306,7 @@ local DEFAULTS = {
 	theme = "Dark", opacity = 0.8, accent = "#FFFF00", anim = 1, scale = 1,
 	lines = 12, blur = 1, pos = "Center", barKey = "Semicolon", panelKey = "RightShift",
 	toasts = true, bio = "", binds = {}, autoExec = false, avc = false, mod = {}, exp = {}, hist = {}, startBar = true, autostart = {},
-	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false, selfPath = "", aliases = {}, kbDefName = "Default", listenPad = 0, srvRegion = "", srvSort = "Ping", srvDesc = false, srvMax = 50, notifyUsers = {}, nuPoll = 60,
+	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false, selfPath = "", aliases = {}, kbDefName = "Default", listenPad = 0, srvRegion = "", srvSort = "Ping", srvDesc = false, srvMax = 50, notifyUsers = {}, nuPoll = 60, plSort = "A-Z", plPoll = 1,
 }
 local cfg = {}
 for k, v in pairs(DEFAULTS) do cfg[k] = v end
@@ -333,7 +345,7 @@ local MODDEF = {
 	flyDef = 50, flyMult = 1, speedDef = 16, speedMult = 1, jpDef = 50, jpMult = 1, spinDef = 2, spinMult = 1,
 	tpMode = "Multiplier", tpDef = 2, tpCap = 10, followRadius = 5, fpsCorner = "TR", ragdollBlock = true,
 	streamMe = "Streamer", streamOthers = "Pasta Hater",
-	bpDist = 1.5, bpHeight = 0.5, babyDist = 2.2, babyHeight = 0.5, babyRot = 35,
+	bpDist = 1.5, bpHeight = 0.5, babyDist = 2.2, babyHeight = 0.5, babyRot = 35, babyLean = 0,
 	afRadius = 15, afThreshold = 120, afRestore = 1.5, atpMin = 40, akMax = 80, aeThreshold = 500, aeDuration = 2,
 	afkInterval = 60, spamCount = 3, avHeight = 50, defNotify = true,
 	floatStep = 3, espCustom = false, espColor = "#FF3B3B", actOn = true, actCorner = "BL",
@@ -879,7 +891,7 @@ local TOGGLES = {
 	antivoid = "unantivoid", antiteleport = "unantiteleport", antiknockback = "unantiknockback", antiattach = "unantiattach",
 	antiearrape = "unantiearrape", antiblur = "unantiblur", antiafk = "unantiafk", antispam = "unantispam",
 	antifreeze = "unantifreeze", blink = "unblink", ghost = "unghost", streamer = "unstreamer", name = "unname",
-	lockmouse = "unlockmouse", ctrllock = "unctrllock", showfps = "unshowfps", hide = "unhide all", placeholder1 = "unplaceholder1", hidecursor = "unhidecursor",
+	lockmouse = "unlockmouse", ctrllock = "unctrllock", showfps = "unshowfps", hide = "unhide all", placeholder1 = "unplaceholder1", hidecursor = "unhidecursor", look = "unlook", keepemotes = "unkeepemotes",
 }
 TOGGLES.spider, TOGGLES.serverpos = "unspider", "unserverpos"
 -- commands that flip themselves on and off and keep state.active up to date on their own
@@ -954,7 +966,7 @@ local META = {
 	userinfo = { "<player>", "Show name, ID and account age" }, copyid = { "<player>", "Copy a player's user ID" },
 	profile = { "<player>", "Copy a player's profile link" }, players = { "", "Open the Players tab" },
 	follow = { "<player>", "Walk after a player" }, unfollow = { "", "Stop following" },
-	friend = { "<player>", "Open the friend request prompt" }, unfriend = { "<player>", "Open the unfriend prompt" },
+	friend = { "<player | username | id>", "Open the friend request prompt (not in the server: copies their profile link)" }, unfriend = { "<player>", "Open the unfriend prompt" },
 	block = { "<player>", "Open the block prompt" }, unblock = { "<player>", "Open the unblock prompt" },
 	mute = { "<player>", "Mute a player's voice and hide their chat" }, unmute = { "<player>", "Hear a player and see their chat again" },
 	serverhop = { "", "Join another public server" }, smallserver = { "", "Join the emptiest public server" },
@@ -1005,14 +1017,14 @@ local TAGS = {
 -- sections for the scroll-all list of the command bar. Add a command's canonical name to a line to move it; anything not listed is "Other".
 ctx.CAT_ORDER = { "Movement", "Defense", "Offense", "Players", "Voice", "Camera", "Visuals", "Character", "Privacy", "Server", "Tools", "rOSAD", "Other" }
 local CATS = {
-	Movement = "float unfloat cfly uncfly fly unfly jesus unjesus tpwalk untpwalk hheight follow unfollow sit unsit ragdoll unragdoll spin unspin speed jumppower goto tpto mousetp freeze thaw infjump uninfjump noclip clip blink unblink ghost gravity clear",
+	Movement = "float unfloat cfly uncfly fly unfly jesus unjesus tpwalk untpwalk hheight follow unfollow sit unsit ragdoll unragdoll spin unspin look unlook speed jumppower goto tpto ptp mousetp freeze thaw infjump uninfjump noclip clip blink unblink ghost gravity clear",
 	Defense = "antifling unantifling antisit unantisit antivoid unantivoid antiteleport unantiteleport antiknockback unantiknockback antiattach unantiattach antiearrape unantiearrape antiblur unantiblur antiafk unantiafk antispam unantispam antifreeze unantifreeze",
 	Offense = "backpack baby headsit heada backa unattach",
 	Players = "view unview userinfo copyid profile players friend unfriend block unblock hide unhide",
 	Voice = "mute unmute listen unlisten nostereo stereo refreshaudio arjvc",
 	Camera = "fov maxzoom minzoom freecam lockmouse unlockmouse enableshiftlock ctrllock unctrllock toggleshiftlock crosshair removecrosshair hidecursor unhidecursor",
 	Visuals = "fullbright unfullbright esp unesp xray unxray nofog time showfps unshowfps baseplate removebaseplate",
-	Character = "reset anim noanim invisible visible placeholder1 unplaceholder1",
+	Character = "reset anim noanim invisible visible placeholder1 unplaceholder1 keepemotes unkeepemotes",
 	Privacy = "streamer unstreamer name unname",
 	Server = "serverhop smallserver serverinfo rejoin jobid placeid",
 	Tools = "hlxp liu dex cobalt kelsec rspy alogger workwell tetris untetris workwellpf properties tooleditor klpfxp kill saveinstance freezesave tools console",
@@ -1199,8 +1211,13 @@ return function(ctx)
 	return {
 		names = { "friend" },
 		run = function(q)
-			local p = findPlayer(q)
-			if not p then return ctx.notify("Player not found") end
+			local p = ctx.findPlayers(q)[1]
+			if not p then -- not in this server: games can only prompt for players who are here, so hand over their profile instead
+				local found, uid = pcall(function() return tonumber(q) or ctx.Players:GetUserIdFromNameAsync(q) end)
+				if not (found and uid) then return ctx.notify("No player or Roblox user '" .. tostring(q) .. "'", 4) end
+				if setclipboard then pcall(setclipboard, "https://www.roblox.com/users/" .. uid .. "/profile") end
+				return ctx.notify("Not in this server: Roblox only lets a game send friend requests to players who are here. Their profile link is copied, open it and press Add Friend", 8)
+			end
 			local ok, err = pcall(function() SocialService:PromptFriendRequest(p) end)
 			if not ok then
 				ok, err = pcall(function() game:GetService("StarterGui"):SetCore("PromptSendFriendRequest", p) end)
@@ -2249,7 +2266,7 @@ local function attach(kind, q, off)
 		if kind == "backpack" then
 			cf = tt.CFrame * CFrame.new(0, mod.bpHeight, tonumber(off) or mod.bpDist) * CFrame.Angles(0, math.pi, 0)
 		elseif kind == "baby" then
-			cf = tt.CFrame * CFrame.new(0, mod.babyHeight, -(tonumber(off) or mod.babyDist)) * CFrame.Angles(0, math.rad(180 + mod.babyRot), 0)
+			cf = tt.CFrame * CFrame.new(0, mod.babyHeight, -(tonumber(off) or mod.babyDist)) * CFrame.Angles(0, math.rad(180 + mod.babyRot), 0) * CFrame.Angles(math.rad(tonumber(mod.babyLean) or 0), 0, 0)
 		elseif ps then -- heada / backa: offsets + sweep come from Module Cfg (headXxx / backXxx), read every frame so edits apply live
 			local pre = kind == "heada" and "head" or "back"
 			local d = tonumber(off) or mod[pre .. "Dist"]
@@ -2474,15 +2491,18 @@ do
 			local moving = wish.Magnitude > 0.1
 			-- which surface is the floor now: wall in front > floor under you > the edge you are walking around
 			local hit = workspace:Raycast(pos, -up * (stand + 1.5), rp)
-			local want
+			local want, ahead -- ahead = the new surface is a wall in front of you
 			if s.jumpT > 0 then
 				s.jumpT = s.jumpT - dt
 				hit = nil
 			else
 				local wd = moving and wish.Unit
 				if wd then
-					local fh = workspace:Raycast(pos, wd * 2.4, rp)
-					if fh and s.dwell <= 0 and math.abs(fh.Normal:Dot(up)) < 0.9 then want = fh.Normal end
+					local reach = math.max(3.2, stand + 0.4) -- further than the body is wide: the turn starts before you touch the wall
+					for _, dy in ipairs({ 0, -stand * 0.5 }) do -- chest and knee height, so low walls count too
+						local fh = workspace:Raycast(pos + up * dy, wd * reach, rp)
+						if fh and s.dwell <= 0 and math.abs(fh.Normal:Dot(up)) < 0.9 then want, ahead = fh.Normal, true; break end
+					end
 				end
 				if not want and hit then want = hit.Normal end
 				if not want and wd then
@@ -2494,13 +2514,15 @@ do
 			if want and (not s.want or want:Dot(s.want) < 0.95) then s.want, s.dwell = want, 0.2 end -- new surface: no other wall switch for 0.2 s (no flip-flop at corners and bumps)
 			if want then
 				s.air = 0
-				s.up = toward(s.up, want, 1 - math.exp(-8 * dt))
+				s.up = toward(s.up, want, 1 - math.exp(-(ahead and 14 or 8) * dt))
 			else
 				s.air = s.air + dt
 				if s.air > 0.6 then s.up = toward(s.up, Vector3.yAxis, 1 - math.exp(-3 * dt)) end
 			end
 			up = s.up
+			local wm = wish.Magnitude
 			wish = wish - up * wish:Dot(up) -- the walk direction follows the surface you are turning onto
+			if wm > 0 and wish.Magnitude > 0.25 * wm then wish = wish.Unit * wm end -- ...at the same speed (the projection alone shrinks it while the surface turns)
 			-- gravity along the normal: a spring holds you at standing height on a surface, in the air you fall along -up
 			local vel
 			if hit then
@@ -2555,6 +2577,158 @@ def({ "unspin" }, "", "Stop spinning", "rotate turn", function()
 	ctx.disconnect("spin")
 	if ctx.hum() then ctx.hum().AutoRotate = true end
 end)
+
+-- ;ptp / ;pulsetp <player> [seconds]: sit on the target for a moment, then go back to where you were
+do
+	local busy -- os.clock() of the running pulse; a stale value (error mid pulse) expires by itself
+	def({ "ptp", "pulsetp" }, "<player> [seconds]", "Pulse teleport: go to a player for a moment (default 1 s), then back to where you were", "teleport pulse return", function(q, t)
+		if busy and os.clock() - busy < 31 then return ctx.notify("Pulse teleport is already running") end
+		local p, r = ctx.findPlayer(q), ctx.root()
+		if not (p and r) then return end
+		if not (p.Character and p.Character:FindFirstChild("HumanoidRootPart")) then return ctx.notify(p.Name .. " has no character") end
+		local secs = math.clamp(tonumber(t) or 1, 0, 30)
+		local back, t0 = r.CFrame, os.clock()
+		busy = t0
+		repeat
+			local tr = p.Character and p.Character:FindFirstChild("HumanoidRootPart")
+			if not (tr and r.Parent) then break end
+			ctx.markMove()
+			r.CFrame = tr.CFrame
+			RS.Heartbeat:Wait()
+		until os.clock() - t0 >= secs or not S.alive
+		busy = nil
+		if r.Parent then ctx.markMove(); r.CFrame = back; r.AssemblyLinearVelocity = Vector3.zero end
+	end)
+end
+
+-- ;look <player | near | far | inwall>: your character faces the target (turn only), the camera is not touched; same method as ;spin
+do
+	local function live(p) -- the target's root part + character, nil while dead / not spawned
+		local c = p.Character
+		local h, r = c and c:FindFirstChildOfClass("Humanoid"), c and c:FindFirstChild("HumanoidRootPart")
+		if h and r and h.Health > 0 then return r, c end
+	end
+	local function seen(from, r, c) -- true when no wall is between you and the target
+		local params = RaycastParams.new()
+		params.FilterType = Enum.RaycastFilterType.Exclude
+		params.FilterDescendantsInstances = { ctx.char(), c }
+		return workspace:Raycast(from, r.Position - from, params) == nil
+	end
+	local function pick(mode, from) -- nearest / farthest player, or (inwall) the nearest one with a clear line to you
+		local list = {}
+		for _, p in ipairs(Players:GetPlayers()) do
+			local r, c = live(p)
+			if p ~= lp and r then list[#list + 1] = { r = r, c = c, d = (r.Position - from).Magnitude } end
+		end
+		table.sort(list, function(a, b) if mode == "far" then return a.d > b.d end return a.d < b.d end)
+		for _, e in ipairs(list) do
+			if mode ~= "inwall" or seen(from, e.r, e.c) then return e.r end
+		end
+	end
+	def({ "look", "lookat" }, "<player | near | far | inwall>", "Face a player without moving the camera (near / far = nearest / farthest, inwall = nearest one not behind a wall)", "aim face turn lock aimbot", function(q)
+		local mode, target = tostring(q or ""):lower(), nil
+		if mode ~= "near" and mode ~= "far" and mode ~= "inwall" then
+			if not q then return ctx.notify("look <player | near | far | inwall>") end
+			target = ctx.findPlayer(q)
+			if not target then return end
+		end
+		local tr, nextPick
+		ctx.connect("look", RS.Heartbeat, function()
+			local r, h = ctx.root(), ctx.hum()
+			if not (r and h) then return end
+			if target then
+				tr = live(target)
+			elseif not (tr and tr.Parent) or os.clock() >= (nextPick or 0) then
+				nextPick = os.clock() + 0.1
+				tr = pick(mode, r.Position)
+			end
+			h.AutoRotate = tr == nil -- no target (inwall with nobody in view): walk and turn normally
+			if not tr then return end
+			local d = tr.Position - r.Position
+			d = Vector3.new(d.X, 0, d.Z)
+			if d.Magnitude < 0.05 then return end
+			r.CFrame = CFrame.lookAt(r.Position, r.Position + d)
+			r.AssemblyAngularVelocity = Vector3.zero
+		end)
+	end)
+	def({ "unlook", "unlookat" }, "", "Stop looking at a player", "aim face turn lock aimbot", function()
+		ctx.disconnect("look")
+		local h = ctx.hum()
+		if h then h.AutoRotate = true end
+	end)
+end
+
+-- ;keepemotes / ;kemote: emotes and other animations are not cut off by moving, jumping, falling, sitting...
+-- How: the newest non-default animation gets priority Action4 (beats the walk / jump / fall animations) and is played again the moment it stops early.
+-- Also: Humanoid:PlayEmote only works while standing on the ground, so when the game's Animate script refuses, the emote is played here instead.
+do
+	local LOCO = { idle = 1, walk = 1, run = 1, jump = 1, fall = 1, climb = 1, sit = 1, swim = 1, swimidle = 1, toolnone = 1, toolslash = 1, toollunge = 1, mood = 1 }
+	local cur, last, hooked = nil, 0, nil -- kept track, its last seen TimePosition, { bf, orig } of the PlayEmote hook
+	local function emoteLike(t) -- the Animate script's own idle / walk / jump... are not emotes
+		local a, an = t.Animation, lp.Character and lp.Character:FindFirstChild("Animate")
+		return not (a and an and a:IsDescendantOf(an) and a.Parent and LOCO[a.Parent.Name:lower()])
+	end
+	local function take(t)
+		cur, last = t, 0
+		pcall(function() t.Priority = Enum.AnimationPriority.Action4 end)
+	end
+	local function unhook()
+		local k = hooked
+		hooked = nil
+		if k and k.bf.Parent then pcall(function() k.bf.OnInvoke = k.orig end) end
+	end
+	local function playHere(animate, e) -- what Animate does for an emote, minus its "only while standing" check
+		local a
+		if typeof(e) == "Instance" and e:IsA("Animation") then a = e
+		elseif type(e) == "string" then local f = animate:FindFirstChild(e); a = f and f:FindFirstChildOfClass("Animation") end
+		local h = ctx.hum()
+		local an = h and h:FindFirstChildOfClass("Animator")
+		if not (a and an) then return false end
+		local ok, t = pcall(function() return an:LoadAnimation(a) end)
+		if not (ok and t) then return false end
+		take(t); t:Play(0.1)
+		return true, t
+	end
+	local function attach() -- runs for the current character, again after every respawn
+		unhook()
+		cur = nil
+		local c = lp.Character
+		local h = c and c:WaitForChild("Humanoid", 5)
+		local an = h and h:WaitForChild("Animator", 5)
+		if not an or lp.Character ~= c then return end
+		ctx.connect("kemotePlay", an.AnimationPlayed, function(t) if emoteLike(t) then take(t) end end)
+		for _, t in ipairs(an:GetPlayingAnimationTracks()) do if emoteLike(t) then take(t) end end
+		local animate = c:WaitForChild("Animate", 3)
+		local bf = animate and animate:FindFirstChild("PlayEmote")
+		local got, orig = pcall(function() return getcallbackmember(bf, "OnInvoke") end)
+		if not (got and orig) then return end -- no getcallbackmember: emotes still survive moving, they just need you to stand still to start
+		hooked = { bf = bf, orig = orig }
+		bf.OnInvoke = function(e)
+			local ok, a, b = pcall(orig, e)
+			if ok and a then return a, b end
+			return playHere(animate, e)
+		end
+	end
+	def({ "keepemotes", "kemote" }, "", "Keep emotes / animations playing while you move, jump, fall or sit; default emotes also start mid air (;unkemote to stop)", "emote animation dance keep uninterrupted air anywhere", function()
+		ctx.connect("kemoteChar", lp.CharacterAdded, function() task.spawn(attach) end)
+		ctx.connect("kemote", RS.Heartbeat, function()
+			local t, h = cur, ctx.hum()
+			if not t then return end
+			if not h or h.Health <= 0 then cur = nil; return end
+			if t.IsPlaying then last = t.TimePosition; return end
+			if not t.Looped and last >= t.Length - 0.15 then cur = nil; return end -- a one-shot that ran to its end
+			pcall(function() t:Play(0.1); t.TimePosition = last end)
+		end)
+		task.spawn(attach)
+	end)
+	def({ "unkeepemotes", "unkemote" }, "", "Stop keeping animations (the one playing now is stopped)", "emote animation dance keep uninterrupted", function()
+		for _, k in ipairs({ "kemote", "kemoteChar", "kemotePlay" }) do ctx.disconnect(k) end
+		unhook()
+		local t = cur
+		cur = nil
+		if t then pcall(function() t:Stop(0.1) end) end
+	end)
+end
 
 -- plain movement commands, now with the module defaults / multipliers and anti-teleport awareness
 def({ "speed", "walkspeed", "ws" }, "[n]", "Set walk speed (default and multiplier in Module Cfg)", "run fast", function(n)
@@ -3272,7 +3446,8 @@ do
 	end
 	local function viaRelay(body) -- region-relay.py on this PC does the gamejoin call with your cookie (proper cookie + csrf); nil when it is not running
 		local ok, r = pcall(request, { Url = "http://127.0.0.1:47653/join", Method = "POST", Headers = { ["Content-Type"] = "application/json" }, Body = body })
-		if ok and type(r) == "table" then return { StatusCode = r.StatusCode, Body = r.Body } end
+		SRV.relay = ok and type(r) == "table" and tonumber(r.StatusCode) ~= nil -- false = region-relay.py is not running (Home shows "Relay inactive")
+		if SRV.relay then return { StatusCode = r.StatusCode, Body = r.Body } end
 	end
 	local MODES, ORDER = { relay = viaRelay, internal = viaInternal, api = viaApi, request = viaRequest }, { "relay", "internal", "api", "request" }
 	local function resolve(placeId, jobId)
@@ -3364,9 +3539,9 @@ do
 		if #q <= 2 then return r.cc == q:upper() or r.cont == q:upper() end -- "us", "eu", "as" are codes, not a piece of a name ("us" is inside "australia")
 		return r.key:find(q, 1, true) ~= nil
 	end
-	function SRV.list(placeId, pages)
+	function SRV.list(placeId) -- follows the page cursor (up to 10 pages); Roblox often sends fewer than 100 servers per page while more pages exist
 		local out, cursor = {}, nil
-		for _ = 1, pages or 1 do
+		for _ = 1, 10 do
 			local url = ("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true%s"):format(placeId, cursor and ("&cursor=" .. cursor) or "")
 			local body, err = ctx.fetch(url)
 			local d = body and jdec(body)
@@ -3374,6 +3549,7 @@ do
 			for _, s in ipairs(d.data) do out[#out + 1] = s end
 			cursor = d.nextPageCursor
 			if not cursor then break end
+			task.wait(0.3) -- spaced out so the list call itself does not hit the rate limit
 		end
 		return out
 	end
@@ -3448,6 +3624,21 @@ do
 		ctx.notify("Joining server...", 3)
 		local ok, err = pcall(function() S.TeleportService:TeleportToPlaceInstance(placeId, id, lp) end)
 		if not ok then ctx.notify("Teleport failed: " .. tostring(err), 5) end
+	end
+	-- this server's own region (Home tab): the cache first, else one lookup of this JobId. Returns the label, or nil + why
+	function SRV.here()
+		local id = game.JobId
+		if id == "" then return nil, "no job id" end
+		local e = SRV.byId[id]
+		if not (e and e.ip) then
+			local r, why = resolve(game.PlaceId, id)
+			if not r then return nil, why end
+			e = r
+		end
+		if not SRV.ip[e.ip] and not geo({ e.ip }) then return nil, "IP lookup failed" end
+		SRV.save()
+		local rg = SRV.ip[e.ip]
+		return rg and rg.label
 	end
 	-- first server that matches and has room
 	function SRV.find(servers, q)
@@ -3756,7 +3947,8 @@ do
 	def({ "placeholder1" }, "", "Get the Placeholder1 tool: equip it to play the animation (speed in Module Cfg)", "tool animation hand gesture", function()
 		local bp, h = lp:FindFirstChildOfClass("Backpack"), ctx.hum()
 		if not (bp and h) then return end
-		if P.tool and P.tool.Parent then return ctx.notify("Placeholder1 is already in your inventory") end
+		if P.tool and (P.tool.Parent == bp or P.tool.Parent == ctx.char()) then return ctx.notify("Placeholder1 is already in your inventory") end
+		stopAnim() -- a tool left over from before a death can still have a parent (the old character): it is not yours any more, drop its animation first
 		local t = Instance.new("Tool")
 		t.Name, t.ToolTip, t.RequiresHandle, t.CanBeDropped = "Placeholder1", "Placeholder1", false, false
 		t.Parent = bp
@@ -4000,7 +4192,7 @@ end)
 -- ;clear / ;cls [effect...]: no argument = switch off every movement effect and put speed, jump and gravity back to the
 -- server's values; with one or more effects (fly, noclip, ws, jp, gravity...) only those
 do
-	local MOVE = { "fly", "cfly", "noclip", "float", "jesus", "tpwalk", "infjump", "spin", "freeze", "follow" }
+	local MOVE = { "fly", "cfly", "noclip", "float", "jesus", "tpwalk", "infjump", "spin", "look", "freeze", "follow" }
 	local function off(what) -- what = canonical command name; true if it knows how to clear it
 		local h, d = ctx.hum(), state.defaults
 		if what == "gravity" then workspace.Gravity = d.grav; return true end
@@ -5694,10 +5886,13 @@ do
 	end
 
 	-- stats: four rows that together span exactly the icon's height (105..215), each text centred in its row
-	local vals, region = {}, "-"
-	for i, name in ipairs({ "Players", "Locale", "Latency", "Uptime" }) do
-		vals[name] = txt(h, name .. ": -", 11, "text", 64, 105 + math.floor((i - 1) * 27.5), 125, 27, { TextYAlignment = Enum.TextYAlignment.Center })
+	local vals, region = {}, "..."
+	local rg = ctx.SRV.region(game.JobId) -- cached by an earlier scan or lookup: shown at once
+	if rg then region = rg.label end
+	for i, name in ipairs({ "Players", "Region", "Latency", "Uptime" }) do
+		vals[name] = txt(h, name .. ": -", 11, "text", 64, 105 + math.floor((i - 1) * 27.5), 133, 27, { TextYAlignment = Enum.TextYAlignment.Center, TextScaled = name == "Region" })
 	end
+	new("UITextSizeConstraint", { MaxTextSize = fs(11) }, vals["Region"]) -- a long city shrinks to fit instead of being cut
 	-- game icon: square (the deck's is 196x110; this one is 110x110)
 	local icon = new("ImageLabel", { Position = UDim2.fromOffset(199, 105), Size = UDim2.fromOffset(110, 110), BorderSizePixel = 0,
 		ScaleType = Enum.ScaleType.Crop, Image = thumb("GameIcon", cfg.expIcon[gid] or game.GameId, 150) }, h)
@@ -5726,15 +5921,27 @@ do
 	new("UIPadding", { PaddingLeft = UDim.new(0, 5), PaddingRight = UDim.new(0, 5), PaddingTop = UDim.new(0, 4) }, bio)
 	bio.FocusLost:Connect(function() cfg.bio = bio.Text; save() end)
 
-	pcall(function() region = S.LocalizationService.RobloxLocaleId end)
+	-- this server's region: cached, or looked up once (ctx.SRV.here); a failure retries every 30 s while Home is open
+	local rTry, rBusy, rDone = 0, false, rg ~= nil
+	local function regionStep()
+		if rDone or rBusy or os.clock() - rTry < 30 then return end
+		rBusy, rTry = true, os.clock()
+		task.spawn(function()
+			local ok, label = pcall(ctx.SRV.here)
+			rBusy = false
+			if ok and label then region, rDone = label, true
+			else region = ctx.SRV.relay == false and "Relay inactive" or "unavailable" end
+		end)
+	end
 	-- live stats + a new tip every 5 minutes
 	task.spawn(function()
 		local last = os.clock()
 		while S.alive do
 			if S.panelOpen and ui.tab == "Home" then
+				regionStep()
 				pcall(function()
 					vals["Players"].Text = "Players: " .. #S.Players:GetPlayers() .. " / " .. S.Players.MaxPlayers
-					vals["Locale"].Text = "Locale: " .. region
+					vals["Region"].Text = "Region: " .. region
 					local ok, ping = pcall(function() return S.Stats.Network.ServerStatsItem["Data Ping"]:GetValue() end)
 					vals["Latency"].Text = "Latency: " .. (ok and (math.floor(ping) .. " ms") or "-")
 					local t = math.floor(workspace.DistributedGameTime)
@@ -5756,15 +5963,60 @@ end
 -- ===== page: Players: search 299x32 at 9,10 + status text; cards 511 wide (80 tall, 64 for you) in a list with 6px gaps; group headers 20 tall =====
 do
 	local pg = pages["Players"]
-	local sbox = input(pg, "Search for player…", 9, 10, 299, 32, 11)
-	local stat = txt(pg, "", 9, "sub", 316, 10, 207, 32, { TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Center })
+	local sbox = input(pg, "Search for player…", 9, 10, 230, 32, 11)
+	local stat = txt(pg, "", 9, "sub", 356, 10, 167, 32, { TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Center })
 	local plist = scroller(pg, 0, 53, 532, 326)
 	plist.AutomaticCanvasSize = Enum.AutomaticSize.None -- the height is known exactly, so the scroll position survives a rebuild
 	new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, plist)
 	new("UIPadding", { PaddingLeft = UDim.new(0, 9), PaddingRight = UDim.new(0, 12), PaddingTop = UDim.new(0, 2), PaddingBottom = UDim.new(0, 8) }, plist)
 	local friends = {} -- userId -> bool, filled in the background
-	local rows = {} -- userId -> { ring, bars, lvl, fb } of the cards on screen
+	local rows = {} -- userId -> { ring, bars, lvl, fb, fr = card, grp = group } of the cards on screen
 	local render
+	local hdr, pollT = {}, 0 -- group -> LayoutOrder of its header (its cards follow at +1, +2...), seconds since the last re-sort
+
+	-- sort A-Z / Z-A by display name, Nearest / Farthest by distance from you (unknown distance always last)
+	local SORTS = { "A-Z", "Z-A", "Nearest", "Farthest" }
+	local function sortList(list)
+		local mode = cfg.plSort
+		local byDist, d = mode == "Nearest" or mode == "Farthest", {}
+		if byDist then
+			local me = ctx.root()
+			for _, p in ipairs(list) do
+				local pr = p.Character and p.Character:FindFirstChild("HumanoidRootPart")
+				d[p] = (me and pr) and (me.Position - pr.Position).Magnitude or math.huge
+				if mode == "Farthest" and d[p] ~= math.huge then d[p] = -d[p] end
+			end
+		end
+		table.sort(list, function(a, b)
+			local an, bn = a.DisplayName:lower(), b.DisplayName:lower()
+			if byDist and d[a] ~= d[b] then return d[a] < d[b] end
+			if mode == "Z-A" then return an > bn end
+			return an < bn
+		end)
+	end
+	-- Nearest / Farthest: move the cards that are already on screen instead of rebuilding them
+	local function resort()
+		local by = {}
+		for uid, rw in pairs(rows) do
+			local p = rw.grp and rw.fr and S.Players:GetPlayerByUserId(uid)
+			if p then by[rw.grp] = by[rw.grp] or {}; table.insert(by[rw.grp], p) end
+		end
+		for key, list in pairs(by) do
+			sortList(list)
+			for i, p in ipairs(list) do rows[p.UserId].fr.LayoutOrder = (hdr[key] or 0) + i end
+		end
+	end
+	local sortMenu
+	local sortBtn = btn(pg, "Sort: " .. tostring(cfg.plSort) .. "  v", 246, 10, 104, 32, nil, nil, function() sortMenu.Visible = not sortMenu.Visible end)
+	sortMenu = fr(pg, 246, 44, 104, #SORTS * 28 + 4, "ctrlOff", 0, 5, "edge", 1, 0.3)
+	sortMenu.ZIndex, sortMenu.Visible = 20, false
+	for i, v in ipairs(SORTS) do
+		btn(sortMenu, v, 2, 2 + (i - 1) * 28, 100, 26, nil, nil, function()
+			cfg.plSort, sortMenu.Visible = v, false
+			sortBtn.Text = "Sort: " .. v .. "  v"
+			save(); render()
+		end)
+	end
 
 	-- a name you can double click: copies it, or (no clipboard) selects it so you can copy it by hand
 	local clicks = {}
@@ -5914,7 +6166,7 @@ do
 			new("UICorner", { CornerRadius = UDim.new(0, 1) }, b)
 			bars[i] = b
 		end
-		rows[uid] = { ring = ring, bars = bars, lvl = 0 }
+		rows[uid] = { ring = ring, bars = bars, lvl = 0, fr = r, grp = key }
 		if me then
 			btn(r, "Respawn", BX + 2 * (BW + BG), (h - BH) / 2, BW, BH, "btnFill", BTN_OFF, function() ctx.Run("reset") end)
 			return
@@ -5969,7 +6221,7 @@ do
 			end
 		end
 		for _, list in pairs(groups) do
-			table.sort(list, function(a, b) return a.DisplayName:lower() < b.DisplayName:lower() end)
+			sortList(list)
 		end
 		local order, y, count = 0, 0, 0
 		local function add(hh) y = y + (count > 0 and 6 or 0) + hh; count = count + 1 end
@@ -5977,7 +6229,7 @@ do
 		for _, key in ipairs({ "listening", "friends", "players", "hidden" }) do
 			local list = groups[key]
 			if #list > 0 then
-				order = order + 1; add(20); header(key, #list, order)
+				order = order + 1; add(20); header(key, #list, order); hdr[key] = order
 				for _, p in ipairs(list) do
 					order = order + 1; add(80); card(p, order, key, blocked, q)
 				end
@@ -6002,6 +6254,11 @@ do
 			return
 		end
 		wasVisible = true
+		pollT = pollT + dt
+		if (cfg.plSort == "Nearest" or cfg.plSort == "Farthest") and pollT >= (tonumber(cfg.plPoll) or 1) then
+			pollT = 0
+			resort()
+		end
 		local t = os.clock()
 		for uid, rw in pairs(rows) do
 			local m = ctx.vcMeter(uid)
@@ -6023,7 +6280,7 @@ do
 	end)
 
 	sbox:GetPropertyChangedSignal("Text"):Connect(function() render() end)
-	onShow["Players"] = function() fetchFriends(true); render(true) end
+	onShow["Players"] = function() sortMenu.Visible = false; fetchFriends(true); render(true) end
 	conn(S.Players.PlayerAdded, function() if visible() then fetchFriends(); render() end end)
 	conn(S.Players.PlayerRemoving, function(p)
 		if state.viewing == p then state.viewing = nil end
@@ -6044,6 +6301,7 @@ do
 	new("UIPadding", { PaddingLeft = UDim.new(0, 9), PaddingRight = UDim.new(0, 12), PaddingTop = UDim.new(0, 2), PaddingBottom = UDim.new(0, 8) }, list)
 	local function ago(t) local m = math.floor((os.time() - t) / 60); return m < 1 and "just now" or m < 60 and (m .. " min ago") or (math.floor(m / 60) .. " h ago") end
 	local servers, listErr, sched, scanBtn, menu = {}, nil, false, nil, nil
+	local listBusy, known, ticking, rescanBtn, setStat, tick = false, 0, false, nil, nil, nil -- known = servers with a region; listBusy = the server list is being fetched
 	local render
 	local function visible() return S.panelOpen and ui.tab == "Servers" end
 	local function later()
@@ -6054,7 +6312,8 @@ do
 	function render()
 		clear(list)
 		local q = box.Text:lower():match("^%s*(.-)%s*$")
-		local rows, known = {}, 0
+		local rows = {}
+		known = 0
 		for _, s in ipairs(servers) do
 			local r = SR.region(s.id)
 			if r then known = known + 1 end
@@ -6091,12 +6350,50 @@ do
 			empty(list, listErr and ("Server list failed: " .. listErr) or (#servers == 0 and "No public servers found." or "No scanned server matches. Press Scan regions."))
 		end
 		list.CanvasSize = UDim2.fromOffset(0, math.max(#rows, 1) * 50 + 10)
-		stat.Text = ("%d servers  ·  %d regions%s"):format(#servers, known, SR.busy and "  ·  scanning..." or "")
+		setStat()
+		if SR.running() then tick() end -- a scan started by ;scanregions shows up too
 	end
-	local function refresh()
+	-- status line: "refreshing list..." (Rescan) and/or "scanning regions N..." (Scan regions) in front of the counts while either one works
+	function setStat()
+		local busy = {}
+		if listBusy then busy[#busy + 1] = "refreshing list" end
+		if SR.running() then busy[#busy + 1] = "scanning regions " .. ((SR.okN or 0) + (SR.failN or 0)) end
+		local head = #busy > 0 and (table.concat(busy, " + ") .. ("."):rep(math.floor(os.clock() * 2) % 3 + 1) .. "  ·  ") or ""
+		local pl = 0
+		for _, s in ipairs(servers) do pl = pl + (s.playing or 0) end
+		stat.Text = head .. ("%d servers (%d players)  ·  %d regions"):format(#servers, pl, known) -- players listed: compare with the game's own count to see what is missing
+		if rescanBtn then rescanBtn.TextTransparency = listBusy and 0.55 or 0 end
+	end
+	function tick() -- animates the dots until both are done
+		if ticking then return end
+		ticking = true
 		task.spawn(function()
-			local l, err = SR.list(game.PlaceId, 1)
-			if #l > 0 then servers, listErr = l, nil else listErr = err end
+			while (listBusy or SR.running()) and S.alive do setStat(); task.wait(0.4) end
+			ticking = false
+			setStat()
+		end)
+	end
+	-- the server list only: no join request, no IP lookup. Regions are Scan regions' job
+	local function refresh(announce)
+		if listBusy then return end
+		listBusy = true; tick()
+		task.spawn(function()
+			local old = {}
+			for _, s in ipairs(servers) do old[s.id] = true end
+			local ok, l, err = pcall(SR.list, game.PlaceId, 1)
+			if not ok then l, err = {}, tostring(l) end
+			listBusy = false
+			if #l > 0 then
+				servers, listErr = l, nil
+				if announce then
+					local n = 0
+					for _, s in ipairs(l) do if not old[s.id] then n = n + 1 end end
+					ctx.notify(("Rescan: %d new server%s (%d total)"):format(n, n == 1 and "" or "s", #l), 4)
+				end
+			else
+				listErr = err
+				if announce then ctx.notify("Server list failed: " .. tostring(err), 5) end
+			end
 			if visible() then render() end
 		end)
 	end
@@ -6110,22 +6407,13 @@ do
 				later()
 			end
 		end)
-		if not started then scanBtn.Text = "Scan regions" end
+		if started then tick() else scanBtn.Text = "Scan regions" end
 	end
 	scanBtn = btn(pg, "Scan regions", 316, 13, 100, 26, nil, nil, function()
 		if SR.running() then SR.stop = true; return end
 		startScan()
 	end)
-	btn(pg, "Rescan", 241, 46, 68, 26, nil, nil, function() -- fresh server list, then scan the servers that are new (cached ones are skipped)
-		if SR.running() then return ctx.notify("A scan is already running", 3) end
-		task.spawn(function()
-			local l, err = SR.list(game.PlaceId, 1)
-			if #l == 0 then listErr = err; return ctx.notify("Server list failed: " .. tostring(err), 5) end
-			servers, listErr = l, nil
-			if visible() then render() end
-			startScan()
-		end)
-	end)
+	rescanBtn = btn(pg, "Rescan", 241, 46, 68, 26, nil, nil, function() refresh(true) end) -- new servers only: shown as "Not scanned yet" until Scan regions
 	btn(pg, "Join match", 422, 13, 100, 26, nil, nil, function()
 		local q = box.Text:lower():match("^%s*(.-)%s*$")
 		if q == "" then return ctx.notify("Type a region first (city, country or code)") end
@@ -6727,7 +7015,7 @@ do
 	fhdr(pg, "Follow, backpack, baby")
 	numRow("Follow: default radius (studs)", "followRadius")
 	numRow("Backpack: distance", "bpDist"); numRow("Backpack: height", "bpHeight")
-	numRow("Baby: distance", "babyDist"); numRow("Baby: height", "babyHeight"); numRow("Baby: rotation (degrees)", "babyRot")
+	numRow("Baby: distance", "babyDist"); numRow("Baby: height", "babyHeight"); numRow("Baby: rotation (degrees)", "babyRot"); numRow("Baby: lean back (degrees)", "babyLean")
 	fhdr(pg, "Head attach (;heada / ;headattach)")
 	numRow("Distance (in front of the face)", "headDist"); numRow("Height above the head", "headHeight"); numRow("Side", "headSide")
 	togRow("Sweep front / back", "headSweep"); numRow("Sweep amplitude (studs)", "headSweepAmp"); numRow("Sweep speed (radians/s)", "headSweepSpeed")
@@ -6786,6 +7074,8 @@ do
 	seg(frow(pg, "Listen pad (attenuation)", 168), 0, { 0, 59, 118 }, 50, { { "0 dB", 0 }, { "-6 dB", -6 }, { "-12 dB", -12 } }, "listenPad", function() ctx.applyListenPad() end)
 	fhdr(pg, "Server browser")
 	seg(frow(pg, "Max servers to scan", 227), 0, { 0, 59, 118, 177 }, 50, { { "25", 25 }, { "50", 50 }, { "75", 75 }, { "100", 100 } }, "srvMax")
+	fhdr(pg, "Players tab")
+	seg(frow(pg, "Sort refresh, 0 = no delay", 286), 0, { 0, 59, 118, 177, 236 }, 50, { { "0", 0 }, { "1", 1 }, { "2", 2 }, { "3", 3 }, { "5", 5 } }, "plPoll", function() end)
 	fhdr(pg, "User notifier")
 	seg(frow(pg, "Status refresh (seconds)", 227), 0, { 0, 59, 118, 177 }, 50, { { "30", 30 }, { "45", 45 }, { "60", 60 }, { "90", 90 } }, "nuPoll")
 	local nr = new("Frame", { Size = UDim2.new(1, 0, 0, 23), BackgroundTransparency = 1, LayoutOrder = nx() }, pg)
