@@ -1,30 +1,37 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py). Markers use "--" (Lua), not "//".
--- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), unload previous run | VERSION, DIR, env | deps: none | L118-131
--- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L133-254
--- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L256-339
--- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L341-487
--- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L489-1060
--- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1062-1831
--- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart | deps: CMD_CORE | L1833-4406
--- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L4408-4819
--- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L4821-5240
--- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade) | deps: UI_SHARED | L5242-5374
--- [PG_HOME] Home page (stats+icon centered, experience name carry) | stats loop, bio, ctx.curExp | deps: UI_PANEL | L5376-5471
--- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L5473-5859
--- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L5861-5891
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L5893-5970
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L5972-6001
--- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L6003-6022
--- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L6024-6145
--- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L6147-6373
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L6375-6470
--- [PG_PREFS] Preferences page | refresh() | deps: PG_FLOW | L6472-6498
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L6500-6620
+-- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), unload previous run | VERSION, DIR, env | deps: none | L125-138
+-- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L140-261
+-- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L263-346
+-- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L348-494
+-- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L496-1067
+-- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1069-1839
+-- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart, ctx.SRV.hop / scanregions / serverbrowser commands | deps: CMD_CORE | L1841-4465
+-- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L4467-4878
+-- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L4880-5299
+-- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade) | deps: UI_SHARED | L5301-5433
+-- [PG_HOME] Home page (stats+icon centered, experience name carry) | stats loop, bio, ctx.curExp | deps: UI_PANEL | L5435-5530
+-- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L5532-5936
+-- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L5938-5968
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L5970-6047
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L6049-6078
+-- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L6080-6099
+-- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L6101-6223
+-- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L6225-6451
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L6453-6550
+-- [PG_PREFS] Preferences page | refresh() | deps: PG_FLOW | L6552-6580
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L6582-6702
 
 --[[
 	KL rOSAD v1.1  |  open-source admin/dev panel  |  client-side only
 
 	CHANGELOG (newest first; every change adds a line here and updates the NAV INDEX, then navfix)
+	v1.1  Servers tab: new Rescan button (fresh server list, then scans the new servers). Fix: a scan that errored or hung left "busy" set forever so no later scan started; a failing lookup is now caught per server and a scan with no progress for 90 s counts as dead
+	v1.1  New ;leave / ;leavegame (closes the Roblox client). Autostart refuses ;rejoin, ;serverhop, ;smallserver, ;region and ;leave (also through aliases): they can't be added and a saved one is skipped with a notice on exec and respawn
+	v1.1  Correction: Preferences > Max servers to scan (25 / 50 / 75 / 100, default 50) limits how many NEW servers a scan sends to Roblox (join requests); cached servers cost none and the list is no longer cut
+	v1.1  Server browser: Sort drop down arrow is plain text; list and scan are capped at Preferences > Servers to scan (25 / 50 / 75 / 100, default 50); a rate limit now backs off and retries instead of ending the scan; shown ping = list ping x Module Cfg multiplier (default 2, the list underreports); regions carry a continent
+	v1.1  New ;serverbrowser / ;server / ;servers (opens the Servers tab), ;scanregions / ;scanservers (scans and caches the region of this game's servers, fine for autostart), ;serverhop <US / EU / AS / city> (best ping scanned server in that region with room; says to scan first when there is none). 2 letter regions are country or continent codes (no more "us" inside "australia"). Old cached regions rescan their city lookup once to get the continent
+	v1.1  Fix ;spider / ;wallwalk: the camera is no longer rotated or rolled (it stays yours); W follows where the camera looks and, facing a wall, climbs it; slower turn onto a new surface, 0.2 s hold before the next wall switch, walk direction re-projected after a turn
+	v1.1  Region cache is written after every scanned chunk and before a join (a teleport or re-exec mid scan used to lose it); a failed write shows a notification; the Servers tab tells you how many cached servers were loaded
 	v1.1  Servers tab: the Sort button is now a drop down menu (Ping / Players / Region / Age)
 	v1.1  Servers tab: the cookie field is gone (the cookie is handled by region-relay.py); sort buttons moved up into its row
 	v1.1  Servers tab: scanned regions are cached on disk (KLOSAD/servers.json, 6 h) and shown with "scanned x min ago", so a rejoin does not rescan. New Sort button (Ping / Players / Region / Age) and Ascending / Descending, saved
@@ -277,7 +284,7 @@ local DEFAULTS = {
 	theme = "Dark", opacity = 0.8, accent = "#FFFF00", anim = 1, scale = 1,
 	lines = 12, blur = 1, pos = "Center", barKey = "Semicolon", panelKey = "RightShift",
 	toasts = true, bio = "", binds = {}, autoExec = false, avc = false, mod = {}, exp = {}, hist = {}, startBar = true, autostart = {},
-	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false, selfPath = "", aliases = {}, kbDefName = "Default", listenPad = 0, srvRegion = "", srvSort = "Ping", srvDesc = false,
+	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false, selfPath = "", aliases = {}, kbDefName = "Default", listenPad = 0, srvRegion = "", srvSort = "Ping", srvDesc = false, srvMax = 50,
 }
 local cfg = {}
 for k, v in pairs(DEFAULTS) do cfg[k] = v end
@@ -322,7 +329,7 @@ local MODDEF = {
 	predOn = false, predMult = 1, srvShow = false, srvHide = 0.5,
 	chStyle = "Cross", chLen = 6, chGap = 4, chThick = 2, chOutline = 1, chOutlineAlpha = 1, chColor = "#00FF00", chCursor = false,
 	headDist = 1.5, headHeight = 1.5, headSide = 0, headSweep = true, headSweepAmp = 0.5, headSweepSpeed = 10,
-	backDist = 1.2, backHeight = 0.5, backSide = 0, backSweep = true, backSweepAmp = 0.5, backSweepSpeed = 20,
+	backDist = 1.2, backHeight = 0.5, backSide = 0, backSweep = true, backSweepAmp = 0.5, backSweepSpeed = 20, srvPingMult = 2,
 	ph1Mult = 1,
 }
 for k, v in pairs(MODDEF) do
@@ -1002,7 +1009,7 @@ local CATS = {
 }
 CATS.Movement = CATS.Movement .. " spider unspider"
 CATS.Visuals = CATS.Visuals .. " serverpos unserverpos"
-CATS.Server = (CATS.Server or "") .. " region"
+CATS.Server = (CATS.Server or "") .. " region serverbrowser scanregions serverhop leave"
 ctx.catOf = {}
 for cat, names in pairs(CATS) do
 	for w in names:gmatch("%S+") do ctx.catOf[w] = cat end
@@ -1304,8 +1311,9 @@ return function(ctx)
 	local hop = ctx.hop
 
 	return {
-		names = { "serverhop", "shop" },
-		run = function()
+		names = { "serverhop", "shop" }, args = "[US / EU / AS / city]", desc = "Hop to another server; with a region, to a scanned server there (run ;scanregions first)",
+		run = function(q)
+			if q and q ~= "" then return ctx.SRV.hop(q) end
 			hop("Desc")
 		end,
 	}
@@ -2348,7 +2356,7 @@ end)
 def({ "unragdoll", "unrag" }, "", "Get up from ragdoll", "fall limp stiff physics", function() if state.ragdollStop then state.ragdollStop() end end)
 
 -- ===== SPIDER / WALLWALK: every surface is a floor =====
--- Your "up" becomes the surface normal (walls, ceilings, slopes, edges), gravity pulls you into it, the camera rolls with you.
+-- Your "up" becomes the surface normal (walls, ceilings, slopes, edges), gravity pulls you into it. The camera is never touched.
 -- Three rays decide the surface: a wall in front of you, the floor under you, and the edge you are walking around.
 do
 	local SP
@@ -2382,7 +2390,7 @@ do
 		if not (h and c and r) then return end
 		stopSpider()
 		local cam = workspace.CurrentCamera
-		local s = { up = Vector3.yAxis, camUp = Vector3.yAxis, fall = Vector3.zero, face = r.CFrame.LookVector, objs = {}, tracks = {},
+		local s = { up = Vector3.yAxis, dwell = 0, fall = Vector3.zero, face = r.CFrame.LookVector, objs = {}, tracks = {},
 			air = 0, jumpT = 0, grounded = false, autoRotate = h.AutoRotate }
 		SP = s
 		local stand = h.RigType == Enum.HumanoidRigType.R6 and 3 or (h.HipHeight + r.Size.Y / 2) -- root centre to feet
@@ -2441,8 +2449,13 @@ do
 			-- walk direction: camera relative, flattened onto the surface you stand on
 			local ix, iz = moveInput()
 			local cf = cam.CFrame
-			local look = cf.LookVector - up * cf.LookVector:Dot(up)
-			if look.Magnitude < 0.1 then look = cf.UpVector - up * cf.UpVector:Dot(up) end
+			-- screen-forward along the surface: where the camera looks plus where its top points (facing a wall, W climbs it); a blend, so no jump between the two
+			local lv, uv = cf.LookVector, cf.UpVector
+			local look = (lv - up * lv:Dot(up)) + (uv - up * uv:Dot(up)) * math.abs(lv:Dot(up))
+			for _, ax in ipairs({ s.face, Vector3.xAxis, Vector3.zAxis }) do
+				if look.Magnitude >= 0.05 then break end
+				look = ax - up * ax:Dot(up)
+			end
 			look = look.Unit
 			local right = look:Cross(up).Unit
 			local wish = look * iz + right * ix
@@ -2458,7 +2471,7 @@ do
 				local wd = moving and wish.Unit
 				if wd then
 					local fh = workspace:Raycast(pos, wd * 2.4, rp)
-					if fh and math.abs(fh.Normal:Dot(up)) < 0.9 then want = fh.Normal end
+					if fh and s.dwell <= 0 and math.abs(fh.Normal:Dot(up)) < 0.9 then want = fh.Normal end
 				end
 				if not want and hit then want = hit.Normal end
 				if not want and wd then
@@ -2466,14 +2479,17 @@ do
 					if eh then want = eh.Normal end
 				end
 			end
+			s.dwell = s.dwell - dt
+			if want and (not s.want or want:Dot(s.want) < 0.95) then s.want, s.dwell = want, 0.2 end -- new surface: no other wall switch for 0.2 s (no flip-flop at corners and bumps)
 			if want then
 				s.air = 0
-				s.up = toward(s.up, want, 1 - math.exp(-14 * dt))
+				s.up = toward(s.up, want, 1 - math.exp(-8 * dt))
 			else
 				s.air = s.air + dt
 				if s.air > 0.6 then s.up = toward(s.up, Vector3.yAxis, 1 - math.exp(-3 * dt)) end
 			end
 			up = s.up
+			wish = wish - up * wish:Dot(up) -- the walk direction follows the surface you are turning onto
 			-- gravity along the normal: a spring holds you at standing height on a surface, in the air you fall along -up
 			local vel
 			if hit then
@@ -2492,7 +2508,7 @@ do
 			fwd = fwd.Unit
 			s.face = fwd
 			local target = CFrame.fromMatrix(Vector3.zero, fwd:Cross(up).Unit, up, -fwd)
-			rr.CFrame = CFrame.new(pos) * rr.CFrame.Rotation:Lerp(target, 1 - math.exp(-20 * dt))
+			rr.CFrame = CFrame.new(pos) * rr.CFrame.Rotation:Lerp(target, 1 - math.exp(-12 * dt))
 			rr.AssemblyAngularVelocity = Vector3.zero
 			if not s.grounded and s.air > 0.25 and fallT then setTrack(fallT)
 			elseif moving and s.grounded and walkT then setTrack(walkT); walkT:AdjustSpeed(hh.WalkSpeed / 14.5)
@@ -2505,20 +2521,7 @@ do
 				s.fall, s.jumpT, s.grounded = s.up * jp, 0.25, false
 			end
 		end)
-		-- the camera rolls with the surface: rotate whatever the camera script produced around you, so up = the surface normal
-		RS:BindToRenderStep("KLSpiderCam", Enum.RenderPriority.Camera.Value + 1, function(dt)
-			local rr = ctx.root()
-			if not rr then return end
-			s.camUp = toward(s.camUp, s.up, 1 - math.exp(-12 * dt))
-			local d = math.clamp(Vector3.yAxis:Dot(s.camUp), -1, 1)
-			local axis = Vector3.yAxis:Cross(s.camUp)
-			local rot
-			if axis.Magnitude > 1e-4 then rot = CFrame.fromAxisAngle(axis.Unit, math.acos(d))
-			elseif d < 0 then rot = CFrame.Angles(math.pi, 0, 0)
-			else return end
-			local p = rr.Position
-			cam.CFrame = CFrame.new(p) * rot * CFrame.new(-p) * cam.CFrame
-		end)
+		
 	end
 	def({ "spider", "wallwalk" }, "", "Walk on walls, ceilings and slopes like Spider-Man (jump leaps off the surface)", "wall climb ceiling gravity surface walk", startSpider)
 	def({ "unspider", "unwallwalk" }, "", "Stop walking on walls", "wall climb ceiling gravity surface walk", stopSpider)
@@ -3299,11 +3302,12 @@ do
 	local function put(r, ip)
 		if not r or not r.city or r.city == "" then return end
 		local cc, region, country = r.countryCode or r.country_code or "", r.regionName or r.region or "", r.country or ""
-		SRV.ip[ip] = { label = r.city .. ", " .. cc, key = (r.city .. " " .. region .. " " .. country .. " " .. cc):lower() }
+		SRV.ip[ip] = { label = r.city .. ", " .. cc, cc = cc:upper(), cont = (r.continentCode or r.continent_code or ""):upper(),
+			key = (r.city .. " " .. region .. " " .. country .. " " .. cc .. " " .. (r.continent or "")):lower() }
 	end
 	local function geo(ips) -- one batch request; per IP fallback over https
 		local q = {}
-		for _, ip in ipairs(ips) do q[#q + 1] = { query = ip, fields = "status,country,countryCode,regionName,city,query" } end
+		for _, ip in ipairs(ips) do q[#q + 1] = { query = ip, fields = "status,country,countryCode,regionName,city,query,continent,continentCode" } end
 		local ok, res = pcall(request, { Url = "http://ip-api.com/batch", Method = "POST", Headers = { ["Content-Type"] = "application/json" }, Body = S.HttpService:JSONEncode(q) })
 		local arr = ok and res and res.StatusCode == 200 and jdec(res.Body)
 		if arr then
@@ -3326,22 +3330,29 @@ do
 		for id, e in pairs(SRV.byId) do
 			if e.ip and e.t and now - e.t < TTL then ids[id] = e; ips[e.ip] = SRV.ip[e.ip] end
 		end
-		pcall(function()
+		local ok, err = pcall(function()
 			if not isfolder(DIR) then makefolder(DIR) end
 			writefile(FILE, S.HttpService:JSONEncode({ ids = ids, ips = ips }))
 		end)
+		if not ok and not SRV.saveWarned then SRV.saveWarned = true; ctx.notify("Region cache not saved: " .. tostring(err), 8) end
 	end
 	pcall(function()
 		if not (HAS_FS and isfile and isfile(FILE)) then return end
 		local d, now = jdec(readfile(FILE)), os.time()
 		if not d then return end
 		for id, e in pairs(d.ids or {}) do
-			if type(e) == "table" and type(e.ip) == "string" and type(e.t) == "number" and now - e.t < TTL then SRV.byId[id] = e end
+			if type(e) == "table" and type(e.ip) == "string" and type(e.t) == "number" and now - e.t < TTL then SRV.byId[id] = e; SRV.loaded = (SRV.loaded or 0) + 1 end
 		end
-		for ip, r in pairs(d.ips or {}) do if type(r) == "table" and r.label and r.key then SRV.ip[ip] = r end end
+		for ip, r in pairs(d.ips or {}) do if type(r) == "table" and r.label and r.key and r.cont then SRV.ip[ip] = r end end
 	end)
+	function SRV.running() return SRV.busy and os.clock() - (SRV.beat or 0) < 90 end -- a scan that died leaves busy set; 90 s without progress means it is dead and a new scan may start
 	function SRV.region(id) local e = SRV.byId[id]; return e and SRV.ip[e.ip] end
-	function SRV.match(id, q) local r = SRV.region(id); return r and r.key:find(q, 1, true) ~= nil end
+	function SRV.match(id, q)
+		local r = SRV.region(id)
+		if not r then return false end
+		if #q <= 2 then return r.cc == q:upper() or r.cont == q:upper() end -- "us", "eu", "as" are codes, not a piece of a name ("us" is inside "australia")
+		return r.key:find(q, 1, true) ~= nil
+	end
 	function SRV.list(placeId, pages)
 		local out, cursor = {}, nil
 		for _ = 1, pages or 1 do
@@ -3357,8 +3368,17 @@ do
 	end
 	-- checks the servers in chunks of 12 (4 at a time); onChunk(chunk) after each chunk, return true to stop; onChunk(nil) when finished
 	function SRV.scan(placeId, servers, onChunk)
-		if SRV.busy then return false end
-		SRV.busy, SRV.stop, SRV.err, SRV.okN, SRV.failN = true, false, nil, 0, 0
+		if SRV.running() then return false end
+		SRV.busy, SRV.stop, SRV.err, SRV.okN, SRV.failN, SRV.beat = true, false, nil, 0, 0, os.clock()
+		-- the cap counts Roblox join requests (new servers only); servers already cached cost none, and the IP lookup is not Roblox
+		local left, use = math.clamp(tonumber(cfg.srvMax) or 50, 1, 100), {}
+		for _, s in ipairs(servers) do
+			if (SRV.byId[s.id] and SRV.byId[s.id].ip) or left > 0 then
+				if not (SRV.byId[s.id] and SRV.byId[s.id].ip) then left = left - 1 end
+				use[#use + 1] = s
+			end
+		end
+		servers = use
 		task.spawn(function()
 			local i = 1
 			while i <= #servers and not SRV.stop and S.alive do
@@ -3374,7 +3394,14 @@ do
 							if not s then break end
 							nxt = nxt + 1
 							if not (SRV.byId[s.id] and SRV.byId[s.id].ip) then
-								local e, why = resolve(placeId, s.id)
+								local e, why
+								for try = 1, 3 do
+									local ok, a, b = pcall(resolve, placeId, s.id) -- an error here used to kill the worker, leave the scan hanging and block every later scan
+									if ok then e, why = a, b else e, why = nil, tostring(a) end
+									SRV.beat = os.clock()
+									if why ~= "rate" or SRV.stop then break end
+									task.wait(3 * try) -- rate limited: back off and retry this server instead of ending the whole scan
+								end
 								if e then
 									SRV.okN = SRV.okN + 1
 								else
@@ -3397,15 +3424,16 @@ do
 					if e and not SRV.ip[e.ip] and not seen[e.ip] then seen[e.ip] = true; need[#need + 1] = e.ip end
 				end
 				if #need > 0 and not geo(need) then SRV.err = SRV.err or "IP lookup failed (ip-api.com / ipwho.is)"; SRV.stop = true end
+				SRV.save() -- every chunk, so a join / teleport / re-exec in the middle of a scan keeps what was found
 				if onChunk and onChunk(chunk) then break end
 			end
 			SRV.busy = false
-			SRV.save()
 			if onChunk then onChunk(nil) end
 		end)
 		return true
 	end
 	function SRV.join(placeId, id)
+		SRV.save()
 		ctx.notify("Joining server...", 3)
 		local ok, err = pcall(function() S.TeleportService:TeleportToPlaceInstance(placeId, id, lp) end)
 		if not ok then ctx.notify("Teleport failed: " .. tostring(err), 5) end
@@ -3436,6 +3464,30 @@ def({ "region", "joinregion" }, "<region>", "Join a server in a region: city, co
 		if s then found = true; SRV.stop = true; SRV.join(pid, s.id); return true end
 	end) then ctx.notify("A region scan is already running", 4) end
 end)
+
+-- ;serverhop <region> / ;scanregions / ;serverbrowser: work on the cache the scans fill, nothing here scans by itself
+function SRV.hop(q)
+	q = q:lower()
+	local pid = game.PlaceId
+	local list, err = SRV.list(pid, 1)
+	if #list == 0 then return ctx.notify("Server list failed: " .. tostring(err), 5) end
+	local best
+	for _, s in ipairs(list) do
+		if s.id ~= game.JobId and (s.playing or 0) < (s.maxPlayers or 1) and SRV.match(s.id, q) and (not best or (s.ping or 9e9) < (best.ping or 9e9)) then best = s end
+	end
+	if not best then return ctx.notify("No scanned server in '" .. q .. "'. Run ;scanregions first", 5) end
+	SRV.join(pid, best.id)
+end
+def({ "scanregions", "scanservers" }, "", "Scan the regions of this game's public servers (up to Preferences > Servers to scan); saved for ;serverhop and the Servers tab. Good for autostart", "server region scan ping", function()
+	local pid = game.PlaceId
+	local list, err = SRV.list(pid, 1)
+	if #list == 0 then return ctx.notify("Server list failed: " .. tostring(err), 5) end
+	if not SRV.scan(pid, list, function(chunk)
+		if not chunk then ctx.notify(SRV.err or ("Region scan done: " .. SRV.okN .. " new servers checked"), 5) end
+	end) then ctx.notify("A region scan is already running", 4) end
+end)
+def({ "serverbrowser", "server", "servers" }, "", "Open the server browser (Servers tab)", "server region list join", function() ctx.openTab("Servers") end)
+def({ "leave", "leavegame" }, "", "Leave the game (closes the Roblox client)", "exit quit shutdown disconnect close", function() game:Shutdown() end)
 
 -- ===== VOICE: listen / unlisten (same routing as the Players page button), nostereo / stereo =====
 def({ "listen" }, "<player>", "Listen to a player's voice chat from anywhere (the game's own voice from them is muted for you)", "voice vc audio hear", function(q)
@@ -4364,7 +4416,14 @@ local function autoSource(it)
 	end
 	return nil, "script not found"
 end
+-- commands that take you out of the game never run from autostart (exec or respawn), whatever they are called (aliases resolve to the real name)
+local LEAVES = { rejoin = true, serverhop = true, smallserver = true, region = true, leave = true }
+function ctx.leaves(line)
+	local w = tostring(line):lower():match("^%s*;?(%S+)")
+	return w ~= nil and LEAVES[ctx.Aliases[w] or w] == true
+end
 function ctx.autoRun(it)
+	if it.kind == "cmd" and ctx.leaves(it.ref) then return ctx.notify("Autostart skipped '" .. it.ref .. "': leave / rejoin / hop commands never run on startup", 5) end
 	if it.kind == "cmd" then return task.spawn(ctx.Run, it.ref) end -- a command line, e.g. "antiearrape"
 	local key = ctx.toolKey[it.name]
 	if key then return ctx.openTool(key) end -- known tools go through the same loader as ;dex etc., so a second run just reopens
@@ -5776,7 +5835,7 @@ do
 		for _, s in ipairs(servers) do
 			local r = SR.region(s.id)
 			if r then known = known + 1 end
-			if q == "" or (r and r.key:find(q, 1, true)) then rows[#rows + 1] = { s = s, r = r } end
+			if q == "" or (r and SR.match(s.id, q)) then rows[#rows + 1] = { s = s, r = r } end
 		end
 		local key, desc, now = cfg.srvSort, cfg.srvDesc, os.time()
 		local function val(x) -- nil (unknown) always sorts last, whatever the direction
@@ -5799,7 +5858,7 @@ do
 			c.Size, c.LayoutOrder = UDim2.new(1, 0, 0, 46), i
 			local e = SR.byId[s.id]
 			txt(c, r and (r.label .. (e and e.t and ("  ·  scanned " .. ago(e.t)) or "")) or "Not scanned yet", 10, r and "text2" or "sub", 14, 7, 330, 16, { Font = FONT_B })
-			txt(c, ("%d/%d players  ·  %s  ·  %s"):format(s.playing or 0, s.maxPlayers or 0, s.ping and (s.ping .. " ms") or "ping ?", s.fps and (math.floor(s.fps + 0.5) .. " fps") or "fps ?"),
+			txt(c, ("%d/%d players  ·  %s  ·  %s"):format(s.playing or 0, s.maxPlayers or 0, s.ping and ("~" .. math.floor(s.ping * (cfg.mod.srvPingMult or 2) + 0.5) .. " ms") or "ping ?", s.fps and (math.floor(s.fps + 0.5) .. " fps") or "fps ?"),
 				8, "sub", 14, 26, 330, 13)
 			local cur = s.id == game.JobId
 			local b = btn(c, cur and "Current" or "Join", 511 - 12 - 78, 11, 78, 24, nil, nil, function() SR.join(game.PlaceId, s.id) end)
@@ -5818,16 +5877,30 @@ do
 			if visible() then render() end
 		end)
 	end
-	scanBtn = btn(pg, "Scan regions", 316, 13, 100, 26, nil, nil, function(b)
-		if SR.busy then SR.stop = true; return end
-		if #servers == 0 then return ctx.notify("No servers to scan yet, press Refresh") end
-		b.Text = "Stop"
-		SR.scan(game.PlaceId, servers, function(chunk)
+	local function startScan()
+		if #servers == 0 then return ctx.notify("No servers to scan yet") end
+		scanBtn.Text = "Stop"
+		local started = SR.scan(game.PlaceId, servers, function(chunk)
 			if chunk then later() else
-				b.Text = "Scan regions"
+				scanBtn.Text = "Scan regions"
 				if SR.err then ctx.notify(SR.err, 10) end
 				later()
 			end
+		end)
+		if not started then scanBtn.Text = "Scan regions" end
+	end
+	scanBtn = btn(pg, "Scan regions", 316, 13, 100, 26, nil, nil, function()
+		if SR.running() then SR.stop = true; return end
+		startScan()
+	end)
+	btn(pg, "Rescan", 241, 46, 68, 26, nil, nil, function() -- fresh server list, then scan the servers that are new (cached ones are skipped)
+		if SR.running() then return ctx.notify("A scan is already running", 3) end
+		task.spawn(function()
+			local l, err = SR.list(game.PlaceId, 1)
+			if #l == 0 then listErr = err; return ctx.notify("Server list failed: " .. tostring(err), 5) end
+			servers, listErr = l, nil
+			if visible() then render() end
+			startScan()
 		end)
 	end)
 	btn(pg, "Join match", 422, 13, 100, 26, nil, nil, function()
@@ -5843,18 +5916,22 @@ do
 	for i, v in ipairs(SORTS) do
 		btn(menu, v, 2, 2 + (i - 1) * 28, 116, 26, nil, nil, function()
 			cfg.srvSort, menu.Visible = v, false
-			sortBtn.Text = "Sort: " .. v .. "  ▾"
+			sortBtn.Text = "Sort: " .. v .. "  v"
 			save(); render()
 		end)
 	end
-	sortBtn = btn(pg, "Sort: " .. tostring(cfg.srvSort) .. "  ▾", 9, 46, 120, 26, nil, nil, function() menu.Visible = not menu.Visible end)
+	sortBtn = btn(pg, "Sort: " .. tostring(cfg.srvSort) .. "  v", 9, 46, 120, 26, nil, nil, function() menu.Visible = not menu.Visible end)
 	btn(pg, cfg.srvDesc and "Descending" or "Ascending", 135, 46, 100, 26, nil, nil, function(b)
 		cfg.srvDesc = not cfg.srvDesc
 		b.Text = cfg.srvDesc and "Descending" or "Ascending"
 		save(); render()
 	end)
 	box.FocusLost:Connect(function() cfg.srvRegion = box.Text; save() end)
-	onShow["Servers"] = function() menu.Visible = false; render(); refresh() end
+	onShow["Servers"] = function()
+		menu.Visible = false
+		if not SR.shown then SR.shown = true; ctx.notify("Region cache: " .. (SR.loaded or 0) .. " servers loaded from KLOSAD/servers.json", 4) end
+		render(); refresh()
+	end
 end
 -- [/PG_PLAYERS]
 
@@ -6037,6 +6114,7 @@ do
 	local render
 
 	local function add(it)
+		if it.kind == "cmd" and ctx.leaves(it.ref) then return ctx.notify("Leave / rejoin / hop commands can't be added to autostart") end
 		cfg.autostart.items[#cfg.autostart.items + 1] = { name = it.name, kind = it.kind, ref = it.ref, respawn = false }
 		save(); render()
 	end
@@ -6458,6 +6536,8 @@ do
 	strRow("Your name", "streamMe"); strRow("Other players (comma separated)", "streamOthers")
 	fhdr(pg, "Placeholder1 (;placeholder1)")
 	numRow("Animation speed (1 = default)", "ph1Mult")
+	fhdr(pg, "Server browser")
+	numRow("Ping shown = list ping x this (the list underreports)", "srvPingMult")
 	fhdr(pg, "Defense")
 	togRow("Defense notifications", "defNotify")
 	numRow("Anti fling: radius", "afRadius"); numRow("Anti fling: velocity threshold", "afThreshold"); numRow("Anti fling: restore time (s)", "afRestore")
@@ -6481,6 +6561,8 @@ do
 	fhdr(pg, "Voice")
 	if cfg.listenPad == -3 then cfg.listenPad = -6 end -- old option, nearest new one
 	seg(frow(pg, "Listen pad (attenuation)", 168), 0, { 0, 59, 118 }, 50, { { "0 dB", 0 }, { "-6 dB", -6 }, { "-12 dB", -12 } }, "listenPad", function() ctx.applyListenPad() end)
+	fhdr(pg, "Server browser")
+	seg(frow(pg, "Max servers to scan", 227), 0, { 0, 59, 118, 177 }, 50, { { "25", 25 }, { "50", 50 }, { "75", 75 }, { "100", 100 } }, "srvMax")
 	fhdr(pg, "Active effects")
 	local active = txt(pg, "none", 11, "sub", 0, 0, 400, 20, { LayoutOrder = nx(), TextWrapped = true })
 	local br = new("Frame", { Size = UDim2.new(1, 0, 0, 23), BackgroundTransparency = 1, LayoutOrder = nx() }, pg)
