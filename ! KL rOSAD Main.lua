@@ -1,30 +1,46 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py). Markers use "--" (Lua), not "//".
--- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), unload previous run | VERSION, DIR, env | deps: none | L93-101
--- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L103-224
--- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L226-308
--- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L310-455
--- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L457-941
--- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L943-1695
--- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart | deps: CMD_CORE | L1697-3727
--- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L3729-4082
--- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L4084-4503
--- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade) | deps: UI_SHARED | L4505-4637
--- [PG_HOME] Home page (stats+icon centered, experience name carry) | stats loop, bio, ctx.curExp | deps: UI_PANEL | L4639-4734
--- [PG_PLAYERS] Players page (3x2 buttons, Listen, Hide) | render(), copyable() | deps: UI_PANEL | L4736-4856
--- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L4858-4888
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L4890-4967
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L4969-4998
--- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L5000-5019
--- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L5021-5142
--- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L5144-5370
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L5372-5457
--- [PG_PREFS] Preferences page | refresh() | deps: PG_FLOW | L5459-5482
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L5484-5600
+-- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), unload previous run | VERSION, DIR, env | deps: none | L109-117
+-- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L119-240
+-- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L242-325
+-- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L327-473
+-- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L475-1046
+-- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1048-1817
+-- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart | deps: CMD_CORE | L1819-4362
+-- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L4364-4767
+-- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L4769-5188
+-- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade) | deps: UI_SHARED | L5190-5322
+-- [PG_HOME] Home page (stats+icon centered, experience name carry) | stats loop, bio, ctx.curExp | deps: UI_PANEL | L5324-5419
+-- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, voice indicator, volume slider, 3x2 buttons; Servers page (region per server, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L5421-5789
+-- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L5791-5821
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L5823-5900
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L5902-5931
+-- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L5933-5952
+-- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L5954-6075
+-- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L6077-6303
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L6305-6400
+-- [PG_PREFS] Preferences page | refresh() | deps: PG_FLOW | L6402-6428
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L6430-6550
 
 --[[
 	KL rOSAD v1.1  |  open-source admin/dev panel  |  client-side only
 
 	CHANGELOG (newest first; every change adds a line here and updates the NAV INDEX, then navfix)
+	v1.1  Region lookup via the executor request now tries the cookie as Cookie header, Cookies field or both and keeps the one Roblox accepts; the cookie check reports each, the cookie length, a missing _|WARNING prefix and whether the executor drops the Cookie header
+	v1.1  Servers tab cookie field takes the value from any paste format: .ROBLOSECURITY:"value", .ROBLOSECURITY=value, "value" or the bare value
+	v1.1  Region lookup errors now include the reply from Roblox and a cookie check (users.roblox.com authenticated), the cookie is also sent in the Cookies field some executors use
+	v1.1  Servers tab: cookie field (session only, cleared from the box once taken, never saved or put in command history) for the region lookup; errors name each route and are shown as a notification
+	v1.1  Region lookup now reaches gamejoin with your login through the engine's own request (RequestInternal), then HttpRbxApiService, then the executor request with a cookie; the first one that works is remembered
+	v1.1  New Servers tab and ;region <city / country / code>: shows the region of public servers (server IP -> city) and joins one in the region you want. Scan is 4 at a time, cached for the session
+	v1.1  Listen pad options are now 0 dB, -6 dB and -12 dB (a saved -3 dB is treated as -6 dB)
+	v1.1  Preferences > Voice: listen pad (0 dB, -3 dB, -6 dB). Everyone you listen to goes through a fader at that attenuation, changing it applies live
+	v1.1  Players page rebuilt as cards: voice activity indicator (ring around the avatar + level bars), per player volume slider (0 to 200%, right click resets), grouped Listening > Friends > Players > Blocked / Hidden. Clicking Listen pins the player to the top and scrolls there. Scroll position is kept on every other refresh
+	v1.1  UI: every animation now uses a quarter sine (ease out), no more Back / Quart overshoot. Module Cfg regrouped (offense, server position, ESP, crosshair, notices, ragdoll)
+	v1.1  New activation notices: a small stack in a screen corner (default bottom left) shows each command that ran and its value. Module Cfg: on / off and corner
+	v1.1  New ;serverpos / ;showpos and ;unserverpos / ;unshowpos (Module Cfg: Show server position, auto hide distance 0 to 5 studs, default 0.5): a ghost where the server has you (your path delayed by half your ping)
+	v1.1  Offense prediction (Module Cfg, backpack / baby / headsit / heada / backa): the server gets your position shifted by the target's velocity times your ping, your own screen never shows the shift
+	v1.1  New ;spider / ;wallwalk and ;unspider: every surface is a floor (walls, ceilings, slopes, edges), camera and character rotate with it, jump leaps off along the surface
+	v1.1  ;ragdoll rebuilt: the whole body goes stiff (PlatformStand + Physics, joints intact) so the server and everyone else see it too. The per limb Module Cfg switches are gone
+	v1.1  ESP: shows the username (not the display name), colour is the player's team colour unless Module Cfg has a custom colour on
 	v1.1  Players page: a button whose effect is on (Unview, Unmute, Unlisten, Unhide) is drawn in the accent selected style like the other toggle buttons
 	v1.1  Fix: ;hide / the Hide button no longer mutes the player's voice and chat (that is ;mute / the Mute button). Hide still removes the avatar and silences every sound inside their character
 	v1.1  Placeholder1: base animation speed is now 1 (the Module Cfg value still multiplies it, default 1)
@@ -247,7 +263,7 @@ local DEFAULTS = {
 	theme = "Dark", opacity = 0.8, accent = "#FFFF00", anim = 1, scale = 1,
 	lines = 12, blur = 1, pos = "Center", barKey = "Semicolon", panelKey = "RightShift",
 	toasts = true, bio = "", binds = {}, autoExec = false, avc = false, mod = {}, exp = {}, hist = {}, startBar = true, autostart = {},
-	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false, selfPath = "", aliases = {}, kbDefName = "Default",
+	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false, selfPath = "", aliases = {}, kbDefName = "Default", listenPad = 0, srvRegion = "",
 }
 local cfg = {}
 for k, v in pairs(DEFAULTS) do cfg[k] = v end
@@ -288,7 +304,8 @@ local MODDEF = {
 	bpDist = 1.5, bpHeight = 0.5, babyDist = 2.2, babyHeight = 0.5, babyRot = 35,
 	afRadius = 15, afThreshold = 120, afRestore = 1.5, atpMin = 40, akMax = 80, aeThreshold = 500, aeDuration = 2,
 	afkInterval = 60, spamCount = 3, avHeight = 50, defNotify = true,
-	floatStep = 3, ragHead = true, ragTorso = true, ragLeftArm = true, ragRightArm = true, ragLeftLeg = true, ragRightLeg = true,
+	floatStep = 3, espCustom = false, espColor = "#FF3B3B", actOn = true, actCorner = "BL",
+	predOn = false, predMult = 1, srvShow = false, srvHide = 0.5,
 	chStyle = "Cross", chLen = 6, chGap = 4, chThick = 2, chOutline = 1, chOutlineAlpha = 1, chColor = "#00FF00", chCursor = false,
 	headDist = 1.5, headHeight = 1.5, headSide = 0, headSweep = true, headSweepAmp = 0.5, headSweepSpeed = 10,
 	backDist = 1.2, backHeight = 0.5, backSide = 0, backSweep = true, backSweepAmp = 0.5, backSweepSpeed = 20,
@@ -408,7 +425,8 @@ local function tw(inst, props, t, style)
 		for k, v in pairs(props) do inst[k] = v end
 		return
 	end
-	S.TweenService:Create(inst, TweenInfo.new(dur(t), style or Enum.EasingStyle.Quad, Enum.EasingDirection.Out), props):Play()
+	-- one curve for the whole UI: a quarter sine (ease out), starts fast and settles softly, never overshoots. Only Linear is honoured (progress lines)
+	S.TweenService:Create(inst, TweenInfo.new(dur(t), style == Enum.EasingStyle.Linear and style or Enum.EasingStyle.Sine, Enum.EasingDirection.Out), props):Play()
 end
 
 local function keyFromString(s)
@@ -628,9 +646,15 @@ function ctx.setListen(uid, on)
 		local out = Instance.new("AudioDeviceOutput")
 		out.Name = "_klListen"
 		out.Parent = S.SoundService
-		local w = Instance.new("Wire")
-		w.SourceInstance, w.TargetInstance, w.Parent = dev, out, out
-		state.listen[uid] = { out = out, dev = dev, wires = {} }
+		-- voice -> pad (a fader set to the Preferences attenuation) -> your output
+		local pad = Instance.new("AudioFader")
+		pad.Name = "_klPad"
+		pad.Volume = 10 ^ ((tonumber(cfg.listenPad) or 0) / 20)
+		pad.Parent = out
+		local w1, w2 = Instance.new("Wire"), Instance.new("Wire")
+		w1.SourceInstance, w1.TargetInstance, w1.Parent = dev, pad, out
+		w2.SourceInstance, w2.TargetInstance, w2.Parent = pad, out, out
+		state.listen[uid] = { out = out, dev = dev, wires = {}, pad = pad }
 	end)
 	if not ok then return false, "Couldn't create the audio route in this executor" end
 	if not S.listenLoop then
@@ -644,6 +668,69 @@ function ctx.setListen(uid, on)
 		end)
 	end
 	return true
+end
+-- voice activity: an AudioAnalyzer wired to the player's AudioDeviceInput (needs Audio API voice). Only exists while the Players tab is open.
+function ctx.vcDrop(uid)
+	local m = state.vcm and state.vcm[uid]
+	if m then pcall(function() m.an:Destroy() end); state.vcm[uid] = nil end
+end
+function ctx.vcClear()
+	for uid in pairs(state.vcm or {}) do ctx.vcDrop(uid) end
+end
+function ctx.vcMeter(uid)
+	state.vcm, state.vcMiss = state.vcm or {}, state.vcMiss or {}
+	local m = state.vcm[uid]
+	if m and m.an.Parent and m.dev.Parent then return m end
+	if m then ctx.vcDrop(uid) end
+	if state.vcMiss[uid] and os.clock() - state.vcMiss[uid] < 3 then return nil end
+	state.vcMiss[uid] = os.clock() -- no device yet: try again in 3 seconds, not every frame
+	local p = S.Players:GetPlayerByUserId(uid)
+	local dev = p and p:FindFirstChildWhichIsA("AudioDeviceInput", true)
+	if not dev then return nil end
+	pcall(function()
+		local an = Instance.new("AudioAnalyzer")
+		an.Name = "_klMeter"
+		an.Parent = S.SoundService
+		local w = Instance.new("Wire")
+		w.SourceInstance, w.TargetInstance, w.Parent = dev, an, an
+		state.vcm[uid] = { an = an, dev = dev }
+	end)
+	return state.vcm[uid]
+end
+-- per player volume: the player's voice input volume (0 = silent, 1 = normal, 2 = double). While muted it is stored and applied on unmute.
+local function applyVol(uid, v)
+	local p = S.Players:GetPlayerByUserId(uid)
+	if not p then if state.vcVol then state.vcVol[uid] = nil end return end
+	for _, d in ipairs(p:GetDescendants()) do
+		if d:IsA("AudioDeviceInput") then
+			if state.muted[uid] then
+				if state.voiceVol and state.voiceVol[d] ~= nil then state.voiceVol[d] = v end
+			else
+				pcall(function() d.Volume = v end)
+			end
+		end
+	end
+end
+function ctx.setVoiceVol(uid, v)
+	state.vcVol = state.vcVol or {}
+	state.vcVol[uid] = math.abs(v - 1) > 0.001 and v or nil
+	applyVol(uid, v)
+	if next(state.vcVol) and not S.volLoop then
+		S.volLoop = true
+		task.spawn(function() -- keeps the volume if the voice input is recreated
+			while S.alive and next(state.vcVol) do
+				task.wait(2)
+				for id, vv in pairs(state.vcVol) do applyVol(id, vv) end
+			end
+			S.volLoop = false
+		end)
+	end
+end
+function ctx.applyListenPad() -- Preferences > Voice > listen pad, applied to everyone you are listening to right now
+	local v = 10 ^ ((tonumber(cfg.listenPad) or 0) / 20)
+	for _, rec in pairs(state.listen) do
+		if rec.pad then pcall(function() rec.pad.Volume = v end) end
+	end
 end
 function ctx.rememberLighting()
 	local L = ctx.Lighting
@@ -762,16 +849,20 @@ local TOGGLES = {
 	antifreeze = "unantifreeze", blink = "unblink", ghost = "unghost", streamer = "unstreamer", name = "unname",
 	lockmouse = "unlockmouse", ctrllock = "unctrllock", showfps = "unshowfps", hide = "unhide all", placeholder1 = "unplaceholder1", hidecursor = "unhidecursor",
 }
+TOGGLES.spider, TOGGLES.serverpos = "unspider", "unserverpos"
 -- commands that flip themselves on and off and keep state.active up to date on their own
 local SELF = { float = true, blink = true, ghost = true, hide = true }
 
 function ctx.resetAll()
 	state.loopGen = state.loopGen + 1
 	state.loopOf = {}
+	state.noAct = true -- one notice for the whole reset instead of one per command
 	for on in pairs(state.active) do
 		state.active[on] = nil
 		if TOGGLES[on] then pcall(ctx.Run, TOGGLES[on]) end
 	end
+	state.noAct = nil
+	if ui.act then ui.act("stopall", "all effects off") end
 end
 
 function ctx.add(names, fn)
@@ -780,6 +871,7 @@ function ctx.add(names, fn)
 	for _, n in ipairs(names) do ctx.Aliases[n] = names[1] end
 end
 
+local NOACT = { panel = true, cmds = true, config = true, cfg = true, ui = true, exit = true, selftest = true, prefix = true, reload = true }
 function ctx.Run(line)
 	local args = split((line:gsub("^%s*;", "")))
 	local name = table.remove(args, 1)
@@ -803,6 +895,16 @@ function ctx.Run(line)
 	end
 	local ok, err = pcall(ctx.Commands[cmd], table.unpack(args))
 	if not ok then return ctx.notify(cmd .. " error: " .. tostring(err)) end
+	if ui.act and not state.noAct and not NOACT[cmd] then -- activation notice: "fly 80", "esp on", "esp off"
+		local offOf, cnt = nil, 0
+		for on, off in pairs(TOGGLES) do if off == cmd then offOf, cnt = on, cnt + 1 end end
+		local val = table.concat(args, " ")
+		if #val > 30 then val = val:sub(1, 28) .. ".." end
+		if cnt > 0 then ui.act(cnt == 1 and offOf or (cmd:gsub("^un", "")), "off")
+		elseif SELF[cmd] then ui.act(cmd, state.active[cmd] and "on" or "off")
+		elseif TOGGLES[cmd] then ui.act(cmd, val ~= "" and val or "on")
+		else ui.act(cmd, val) end
+	end
 	if SELF[cmd] then return end
 	if TOGGLES[cmd] then
 		state.active[cmd] = true
@@ -884,6 +986,9 @@ local CATS = {
 	Tools = "hlxp liu dex cobalt kelsec rspy alogger workwell tetris untetris workwellpf properties tooleditor klpfxp kill saveinstance freezesave tools console",
 	rOSAD = "ui exit cmds config keeposad unkeeposad alias unalias bind unbind loop unloop breakloop prefix fpscap gamedefault text stopall reload panel selftest",
 }
+CATS.Movement = CATS.Movement .. " spider unspider"
+CATS.Visuals = CATS.Visuals .. " serverpos unserverpos"
+CATS.Server = (CATS.Server or "") .. " region"
 ctx.catOf = {}
 for cat, names in pairs(CATS) do
 	for w in names:gmatch("%S+") do ctx.catOf[w] = cat end
@@ -1455,6 +1560,21 @@ CMD[#CMD + 1] = (function()
 return function(ctx)
 	local Players, lp, state, connect = ctx.Players, ctx.lp, ctx.state, ctx.connect
 
+	-- team colour unless Module Cfg has a custom colour on
+	local function espCol(p)
+		if cfg.mod.espCustom then return parseHex(cfg.mod.espColor) or Color3.fromRGB(255, 59, 59) end
+		return p.Team and p.TeamColor.Color or Color3.new(1, 1, 1)
+	end
+	local function paintEsp(p)
+		local o = state.esp[p]
+		if not o then return end
+		local c = espCol(p)
+		if o[1].Parent then o[1].FillColor = c; o[1].OutlineColor = c end
+		local tl = o[2]:FindFirstChildOfClass("TextLabel")
+		if tl then tl.TextColor3 = c end
+	end
+	function ctx.espRefresh() for p in pairs(state.esp) do paintEsp(p) end end
+
 	local function tag(p)
 		if p == lp or not p.Character then return end
 		for _, o in ipairs(state.esp[p] or {}) do o:Destroy() end
@@ -1466,13 +1586,15 @@ return function(ctx)
 		local tl = Instance.new("TextLabel", bb)
 		tl.Size = UDim2.fromScale(1, 1); tl.BackgroundTransparency = 1
 		tl.TextColor3 = Color3.new(1, 1, 1); tl.TextStrokeTransparency = 0
-		tl.Text = p.DisplayName
+		tl.Text = p.Name -- username, not the display name
 		bb.Adornee = p.Character:FindFirstChild("Head"); bb.Parent = p.Character
 		state.esp[p] = { hl, bb }
+		paintEsp(p)
 	end
 
 	local function watch(p)
 		if p == lp then return end
+		connect("espTeam_" .. p.UserId, p:GetPropertyChangedSignal("TeamColor"), function() paintEsp(p) end)
 		connect("espChar_" .. p.UserId, p.CharacterAdded, function()
 			task.wait(0.5)
 			tag(p)
@@ -1573,7 +1695,7 @@ return function(ctx)
 		run = function()
 			disconnect("espAdd")
 			for k in pairs(state.conns) do
-				if k:find("^espChar_") then disconnect(k) end
+				if k:find("^espChar_") or k:find("^espTeam_") then disconnect(k) end
 			end
 			for p, objs in pairs(state.esp) do
 				for _, o in ipairs(objs) do o:Destroy() end
@@ -1945,6 +2067,120 @@ end)
 def({ "unfollow" }, "", "Stop following", "walk chase", function() ctx.disconnect("follow") end)
 
 -- backpack / baby / headsit share one attach loop; jump detaches
+-- ===== SERVER SYNC: what the server sees of you =====
+-- Prediction: while attached, the position that gets replicated is shifted by the target's velocity times your ping. The shift is made after
+-- your frame is simulated and undone first thing in the next frame (RenderStepped, priority First), so your own screen and physics never see it.
+-- Server position: a ghost drawn where the server should have you now = your replicated path, delayed by half your ping.
+local SYNC = { real = nil, root = nil, hist = {}, parts = {}, gm = nil, bound = nil, ping = 0.1, pingT = 0 }
+local function pingSec()
+	local ok, v = pcall(function() return game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue() end)
+	if ok and tonumber(v) and v > 0 then return v / 1000 end
+	local ok2, w = pcall(function() return lp:GetNetworkPing() * 2 end)
+	return ok2 and tonumber(w) or 0.1
+end
+local function histAt(t)
+	local hs = SYNC.hist
+	for i = #hs, 1, -1 do
+		if hs[i][1] <= t then
+			local nx = hs[i + 1]
+			if nx then return hs[i][2]:Lerp(nx[2], math.clamp((t - hs[i][1]) / math.max(nx[1] - hs[i][1], 1e-4), 0, 1)) end
+			return hs[i][2]
+		end
+	end
+	return hs[1] and hs[1][2]
+end
+local function ghostClear()
+	if SYNC.gm then pcall(function() SYNC.gm:Destroy() end) end
+	SYNC.gm, SYNC.parts = nil, {}
+end
+local function ghostBuild()
+	ghostClear()
+	local c = ctx.char()
+	if not c then return end
+	local gm = Instance.new("Folder")
+	gm.Name = "_KLServerPos"
+	for _, p in ipairs(c:GetChildren()) do
+		if p:IsA("BasePart") and p.Name ~= "HumanoidRootPart" then
+			local g = Instance.new("Part")
+			g.Name, g.Size, g.Anchored, g.CanCollide, g.CanQuery, g.CanTouch, g.CastShadow = p.Name, p.Size, true, false, false, false, false
+			g.Material, g.Color, g.Transparency = Enum.Material.Neon, Color3.fromRGB(255, 140, 0), 0.6
+			g.Parent = gm
+			SYNC.parts[#SYNC.parts + 1] = { src = p, g = g }
+		end
+	end
+	gm.Parent = workspace
+	SYNC.gm = gm
+end
+local function syncStep()
+	local r = ctx.root()
+	if not r then return end
+	local now = os.clock()
+	local hs = SYNC.hist
+	hs[#hs + 1] = { now, r.CFrame } -- this is what was replicated last frame (shifted if a shift was active)
+	while #hs > 2 and now - hs[2][1] > 1.5 do table.remove(hs, 1) end
+	if SYNC.real then
+		if SYNC.root == r then r.CFrame = SYNC.real end
+		SYNC.real = nil
+	end
+	if now - SYNC.pingT > 0.5 then SYNC.pingT, SYNC.ping = now, pingSec() end
+	if SYNC.gm then
+		local scf = histAt(now - SYNC.ping / 2 - 0.03)
+		if not scf then return end
+		local near = (scf.Position - r.Position).Magnitude < math.clamp(tonumber(mod.srvHide) or 0.5, 0, 5)
+		for _, e in ipairs(SYNC.parts) do
+			if near or not e.src.Parent then
+				e.g.Transparency = 1
+			else
+				e.g.Transparency = 0.6
+				e.g.CFrame = scf * r.CFrame:ToObjectSpace(e.src.CFrame)
+			end
+		end
+	end
+end
+local function syncBind(need)
+	if need and not SYNC.bound then
+		SYNC.bound = true
+		RS:BindToRenderStep("KLSync", Enum.RenderPriority.First.Value, syncStep)
+	elseif not need and SYNC.bound then
+		SYNC.bound = nil
+		pcall(function() RS:UnbindFromRenderStep("KLSync") end)
+		if SYNC.real and SYNC.root then pcall(function() SYNC.root.CFrame = SYNC.real end) end
+		SYNC.real, SYNC.hist = nil, {}
+	end
+end
+function SYNC.shift(r, cf, off)
+	SYNC.real, SYNC.root = cf, r
+	r.CFrame = cf + off
+end
+function ctx.srvApply(on)
+	if on then
+		ghostBuild()
+		ctx.connect("srvChar", lp.CharacterAdded, function()
+			task.wait(1.5)
+			if mod.srvShow and S.alive then ghostBuild() end
+		end)
+	else
+		ctx.disconnect("srvChar")
+		ghostClear()
+	end
+	active("serverpos", on or nil)
+	syncBind(on or mod.predOn)
+end
+function ctx.srvRefresh()
+	local want = mod.srvShow == true
+	if want ~= (SYNC.gm ~= nil) then ctx.srvApply(want) else syncBind(want or mod.predOn) end
+end
+function ctx.syncStop() ctx.srvApply(false); syncBind(false) end
+def({ "serverpos", "showpos" }, "", "Show where the server has you (a ghost; hides when it is close to your position)", "server position lag ping ghost desync", function()
+	mod.srvShow = true; save()
+	ctx.srvApply(true)
+end)
+def({ "unserverpos", "unshowpos" }, "", "Hide the server position ghost", "server position lag ping ghost desync", function()
+	if S.alive then mod.srvShow = false; save() end
+	ctx.srvApply(false)
+end)
+if mod.predOn or mod.srvShow then task.defer(function() if mod.srvShow then ctx.srvApply(true) else syncBind(true) end end) end
+
 local function detach()
 	ctx.disconnect("attach"); ctx.disconnect("attachJump")
 	state.attach = nil
@@ -1971,6 +2207,7 @@ local function attach(kind, q, off)
 	if h then
 		if ps then h.PlatformStand = true else h.Sit = true end
 	end
+	local lastP, lastT, tvel = nil, 0, Vector3.zero
 	ctx.connect("attach", ps and RS.PreSimulation or RS.Heartbeat, function()
 		local r, tc = ctx.root(), p.Character
 		local tt = tc and (tc:FindFirstChild("UpperTorso") or tc:FindFirstChild("Torso") or tc:FindFirstChild("HumanoidRootPart"))
@@ -2002,6 +2239,14 @@ local function attach(kind, q, off)
 		r.CFrame = cf
 		r.AssemblyLinearVelocity = Vector3.zero
 		ctx.markMove()
+		if mod.predOn then -- the target's velocity (from its positions) times your ping: where it will be when the server sees you
+			local now, pp = os.clock(), tt.Position
+			if lastP and now > lastT then tvel = tvel:Lerp((pp - lastP) / (now - lastT), 0.35) end
+			lastP, lastT = pp, now
+			local off = tvel * (SYNC.ping * (tonumber(mod.predMult) or 1))
+			if off.Magnitude > 30 then off = off.Unit * 30 end
+			SYNC.shift(r, cf, off)
+		end
 	end)
 	ctx.connect("attachJump", UIS.JumpRequest, detach)
 end
@@ -2042,59 +2287,32 @@ def({ "unsit" }, "", "Stand up", "seat", function()
 	ctx.eject()
 end)
 
--- true ragdoll: every joint of an enabled limb (Module Cfg) is swapped for a ball socket, so the limb really goes limp
-local RAG = {
-	head = { Neck = 1 }, torso = { Waist = 1 },
-	leftArm = { LeftShoulder = 1, LeftElbow = 1, LeftWrist = 1, ["Left Shoulder"] = 1 },
-	rightArm = { RightShoulder = 1, RightElbow = 1, RightWrist = 1, ["Right Shoulder"] = 1 },
-	leftLeg = { LeftHip = 1, LeftKnee = 1, LeftAnkle = 1, ["Left Hip"] = 1 },
-	rightLeg = { RightHip = 1, RightKnee = 1, RightAnkle = 1, ["Right Hip"] = 1 },
-}
-local RAGKEY = { head = "ragHead", torso = "ragTorso", leftArm = "ragLeftArm", rightArm = "ragRightArm", leftLeg = "ragLeftLeg", rightLeg = "ragRightLeg" }
-local function ragGroup(jointName)
-	for g, set in pairs(RAG) do
-		if set[jointName] then return g end
-	end
-end
-def({ "ragdoll", "rag" }, "", "Ragdoll until you press space or move (limbs picked in Module Cfg)", "fall limp physics", function()
-	local h, c = ctx.hum(), ctx.char()
-	if not (h and c) then return end
+-- ragdoll: the whole body goes stiff (PlatformStand + Physics state, every joint stays intact), so you drop like a plank and everyone sees it, not just you
+def({ "ragdoll", "rag" }, "", "Go stiff and fall over until you press space or move (everyone sees it)", "fall limp stiff plank physics", function()
+	local h, r = ctx.hum(), ctx.root()
+	if not (h and r) then return end
 	if state.ragdollStop then state.ragdollStop() end
+	h.PlatformStand = true
 	h:ChangeState(Enum.HumanoidStateType.Physics)
-	local undo, neck = {}, h.RequiresNeck
-	h.RequiresNeck = false -- a loose neck must not kill you
-	for _, m in ipairs(c:GetDescendants()) do
-		local g = m:IsA("Motor6D") and ragGroup(m.Name)
-		if g and mod[RAGKEY[g]] and m.Part0 and m.Part1 then
-			local a0, a1, bs = Instance.new("Attachment"), Instance.new("Attachment"), Instance.new("BallSocketConstraint")
-			a0.Name, a0.CFrame, a0.Parent = "_RagA0", m.C0, m.Part0
-			a1.Name, a1.CFrame, a1.Parent = "_RagA1", m.C1, m.Part1
-			bs.Name, bs.Attachment0, bs.Attachment1 = "_RagBS", a0, a1
-			bs.LimitsEnabled, bs.UpperAngle = true, (g == "head") and 45 or 80
-			bs.TwistLimitsEnabled, bs.TwistLowerAngle, bs.TwistUpperAngle = true, -45, 45
-			bs.Parent = m.Part0
-			local was = m.Part1.CanCollide
-			m.Part1.CanCollide = true
-			if pcall(function() m.Enabled = false end) then
-				undo[#undo + 1] = { m = m, a0 = a0, a1 = a1, bs = bs, part = m.Part1, was = was }
-			else
-				a0:Destroy(); a1:Destroy(); bs:Destroy()
-				m.Part1.CanCollide = was
-			end
+	local an = h:FindFirstChildOfClass("Animator")
+	local frozen = {}
+	local function freeze() -- hold the current pose so the limbs stay stiff
+		if not an then return end
+		for _, t in ipairs(an:GetPlayingAnimationTracks()) do
+			if frozen[t] == nil then frozen[t] = t.Speed; pcall(function() t:AdjustSpeed(0) end) end
 		end
 	end
+	freeze()
+	r.AssemblyAngularVelocity = r.CFrame.RightVector * 2 -- tips you over even when you stand perfectly straight
 	if mod.ragdollBlock then
 		pcall(function() ctx.StarterGui:SetCore("ResetButtonCallback", false) end)
 		state.resetBlocked = true
 	end
 	local function stop()
 		ctx.disconnect("ragdoll"); ctx.disconnect("ragdollJump")
-		for _, u in ipairs(undo) do
-			pcall(function() u.m.Enabled = true end)
-			pcall(function() u.bs:Destroy(); u.a0:Destroy(); u.a1:Destroy(); u.part.CanCollide = u.was end)
-		end
+		for t, sp in pairs(frozen) do pcall(function() t:AdjustSpeed(sp) end) end
 		local hh = ctx.hum()
-		if hh then hh.RequiresNeck = neck; hh:ChangeState(Enum.HumanoidStateType.GettingUp) end
+		if hh then hh.PlatformStand = false; hh:ChangeState(Enum.HumanoidStateType.GettingUp) end
 		if state.resetBlocked then
 			pcall(function() ctx.StarterGui:SetCore("ResetButtonCallback", true) end)
 			state.resetBlocked = nil
@@ -2108,10 +2326,189 @@ def({ "ragdoll", "rag" }, "", "Ragdoll until you press space or move (limbs pick
 		local hh = ctx.hum()
 		if not hh then return end
 		if hh.MoveDirection.Magnitude > 0 then return stop() end
+		if not hh.PlatformStand then hh.PlatformStand = true end
 		if hh:GetState() ~= Enum.HumanoidStateType.Physics then hh:ChangeState(Enum.HumanoidStateType.Physics) end
+		freeze()
 	end)
 end)
-def({ "unragdoll", "unrag" }, "", "Get up from ragdoll", "fall limp physics", function() if state.ragdollStop then state.ragdollStop() end end)
+def({ "unragdoll", "unrag" }, "", "Get up from ragdoll", "fall limp stiff physics", function() if state.ragdollStop then state.ragdollStop() end end)
+
+-- ===== SPIDER / WALLWALK: every surface is a floor =====
+-- Your "up" becomes the surface normal (walls, ceilings, slopes, edges), gravity pulls you into it, the camera rolls with you.
+-- Three rays decide the surface: a wall in front of you, the floor under you, and the edge you are walking around.
+do
+	local SP
+	local function toward(a, b, k)
+		local v = a:Lerp(b, k)
+		if v.Magnitude < 0.05 then v = a:Cross(Vector3.xAxis); if v.Magnitude < 0.05 then v = a:Cross(Vector3.zAxis) end end
+		return v.Unit
+	end
+	local function stopSpider()
+		local s = SP
+		if not s then return end
+		SP = nil
+		ctx.disconnect("spiderBeat"); ctx.disconnect("spiderJump")
+		pcall(function() RS:UnbindFromRenderStep("KLSpiderCam") end)
+		for _, o in ipairs(s.objs) do pcall(function() o:Destroy() end) end
+		for _, t in ipairs(s.tracks) do pcall(function() t:Stop(0.1) end) end
+		if s.animate and s.animate.Parent then s.animate.Disabled = false end
+		local h, r = ctx.hum(), ctx.root()
+		if h then h.AutoRotate = s.autoRotate; h.PlatformStand = false; h:ChangeState(Enum.HumanoidStateType.GettingUp) end
+		if r then
+			local f = Vector3.new(s.face.X, 0, s.face.Z)
+			f = f.Magnitude > 0.05 and f.Unit or Vector3.new(0, 0, -1)
+			local p = r.Position + Vector3.new(0, 3, 0)
+			r.CFrame = CFrame.lookAt(p, p + f)
+			r.AssemblyLinearVelocity = Vector3.zero; r.AssemblyAngularVelocity = Vector3.zero
+		end
+		active("spider", nil)
+	end
+	local function startSpider()
+		local h, c, r = ctx.hum(), ctx.char(), ctx.root()
+		if not (h and c and r) then return end
+		stopSpider()
+		local cam = workspace.CurrentCamera
+		local s = { up = Vector3.yAxis, camUp = Vector3.yAxis, fall = Vector3.zero, face = r.CFrame.LookVector, objs = {}, tracks = {},
+			air = 0, jumpT = 0, grounded = false, autoRotate = h.AutoRotate }
+		SP = s
+		local stand = h.RigType == Enum.HumanoidRigType.R6 and 3 or (h.HipHeight + r.Size.Y / 2) -- root centre to feet
+		-- the engine's gravity is cancelled by a force, ours acts along the surface normal
+		local att = Instance.new("Attachment"); att.Name = "_SpiderAtt"; att.Parent = r
+		local vf = Instance.new("VectorForce")
+		vf.Name, vf.Attachment0, vf.RelativeTo, vf.ApplyAtCenterOfMass = "_SpiderVF", att, Enum.ActuatorRelativeTo.World, true
+		vf.Parent = r
+		s.objs = { att, vf }
+		local rp = RaycastParams.new()
+		rp.FilterType, rp.RespectCanCollide, rp.FilterDescendantsInstances = Enum.RaycastFilterType.Exclude, true, { c }
+		-- animations: the game's own walk / idle / fall, played by hand because the humanoid is in the Physics state
+		local an, animate = h:FindFirstChildOfClass("Animator"), c:FindFirstChild("Animate")
+		local function load(folder, name)
+			local f = animate and animate:FindFirstChild(folder)
+			local a = f and f:FindFirstChild(name)
+			if a and a:IsA("Animation") and an then
+				local ok, t = pcall(function() return an:LoadAnimation(a) end)
+				if ok and t then s.tracks[#s.tracks + 1] = t; return t end
+			end
+		end
+		if animate and an then
+			s.animate = animate
+			animate.Disabled = true
+			for _, t in ipairs(an:GetPlayingAnimationTracks()) do t:Stop(0.1) end
+		end
+		local walkT, idleT, fallT = load("walk", "WalkAnim"), load("idle", "Animation1"), load("fall", "FallAnim")
+		local function setTrack(t)
+			if not t or s.cur == t then return end
+			if s.cur then s.cur:Stop(0.15) end
+			s.cur = t; t:Play(0.15)
+		end
+		local controls
+		pcall(function() controls = require(lp.PlayerScripts:FindFirstChild("PlayerModule")):GetControls() end)
+		local function moveInput()
+			if controls then
+				local ok, v = pcall(function() return controls:GetMoveVector() end)
+				if ok and typeof(v) == "Vector3" then return v.X, -v.Z end
+			end
+			local x, z = 0, 0
+			if down(Enum.KeyCode.W) then z = z + 1 end
+			if down(Enum.KeyCode.S) then z = z - 1 end
+			if down(Enum.KeyCode.D) then x = x + 1 end
+			if down(Enum.KeyCode.A) then x = x - 1 end
+			return x, z
+		end
+		h:ChangeState(Enum.HumanoidStateType.Physics)
+		ctx.connect("spiderBeat", RS.PreSimulation, function(dt)
+			local hh, rr = ctx.hum(), ctx.root()
+			if not (hh and rr and rr.Parent == c) then return stopSpider() end
+			dt = math.min(dt, 0.1)
+			if hh:GetState() ~= Enum.HumanoidStateType.Physics then hh:ChangeState(Enum.HumanoidStateType.Physics) end
+			hh.AutoRotate = false
+			vf.Force = Vector3.new(0, rr.AssemblyMass * workspace.Gravity, 0)
+			local pos, up = rr.Position, s.up
+			-- walk direction: camera relative, flattened onto the surface you stand on
+			local ix, iz = moveInput()
+			local cf = cam.CFrame
+			local look = cf.LookVector - up * cf.LookVector:Dot(up)
+			if look.Magnitude < 0.1 then look = cf.UpVector - up * cf.UpVector:Dot(up) end
+			look = look.Unit
+			local right = look:Cross(up).Unit
+			local wish = look * iz + right * ix
+			if wish.Magnitude > 1 then wish = wish.Unit end
+			local moving = wish.Magnitude > 0.1
+			-- which surface is the floor now: wall in front > floor under you > the edge you are walking around
+			local hit = workspace:Raycast(pos, -up * (stand + 1.5), rp)
+			local want
+			if s.jumpT > 0 then
+				s.jumpT = s.jumpT - dt
+				hit = nil
+			else
+				local wd = moving and wish.Unit
+				if wd then
+					local fh = workspace:Raycast(pos, wd * 2.4, rp)
+					if fh and math.abs(fh.Normal:Dot(up)) < 0.9 then want = fh.Normal end
+				end
+				if not want and hit then want = hit.Normal end
+				if not want and wd then
+					local eh = workspace:Raycast(pos + wd * 2.4 - up * (stand + 0.5), -wd * 3, rp)
+					if eh then want = eh.Normal end
+				end
+			end
+			if want then
+				s.air = 0
+				s.up = toward(s.up, want, 1 - math.exp(-14 * dt))
+			else
+				s.air = s.air + dt
+				if s.air > 0.6 then s.up = toward(s.up, Vector3.yAxis, 1 - math.exp(-3 * dt)) end
+			end
+			up = s.up
+			-- gravity along the normal: a spring holds you at standing height on a surface, in the air you fall along -up
+			local vel
+			if hit then
+				s.fall = Vector3.zero
+				vel = up * math.clamp((stand - hit.Distance) * 14, -30, 30)
+			else
+				s.fall = s.fall - up * workspace.Gravity * dt
+				vel = s.fall
+			end
+			s.grounded = hit ~= nil
+			rr.AssemblyLinearVelocity = wish * hh.WalkSpeed + vel
+			-- face the way you walk, feet on the surface
+			local fwd = moving and wish.Unit or s.face
+			fwd = fwd - up * fwd:Dot(up)
+			if fwd.Magnitude < 0.05 then fwd = look end
+			fwd = fwd.Unit
+			s.face = fwd
+			local target = CFrame.fromMatrix(Vector3.zero, fwd:Cross(up).Unit, up, -fwd)
+			rr.CFrame = CFrame.new(pos) * rr.CFrame.Rotation:Lerp(target, 1 - math.exp(-20 * dt))
+			rr.AssemblyAngularVelocity = Vector3.zero
+			if not s.grounded and s.air > 0.25 and fallT then setTrack(fallT)
+			elseif moving and s.grounded and walkT then setTrack(walkT); walkT:AdjustSpeed(hh.WalkSpeed / 14.5)
+			else setTrack(idleT) end
+		end)
+		ctx.connect("spiderJump", UIS.JumpRequest, function()
+			local hh = ctx.hum()
+			if hh and (s.grounded or s.air < 0.15) then
+				local jp = hh.UseJumpPower and hh.JumpPower or math.sqrt(2 * workspace.Gravity * hh.JumpHeight)
+				s.fall, s.jumpT, s.grounded = s.up * jp, 0.25, false
+			end
+		end)
+		-- the camera rolls with the surface: rotate whatever the camera script produced around you, so up = the surface normal
+		RS:BindToRenderStep("KLSpiderCam", Enum.RenderPriority.Camera.Value + 1, function(dt)
+			local rr = ctx.root()
+			if not rr then return end
+			s.camUp = toward(s.camUp, s.up, 1 - math.exp(-12 * dt))
+			local d = math.clamp(Vector3.yAxis:Dot(s.camUp), -1, 1)
+			local axis = Vector3.yAxis:Cross(s.camUp)
+			local rot
+			if axis.Magnitude > 1e-4 then rot = CFrame.fromAxisAngle(axis.Unit, math.acos(d))
+			elseif d < 0 then rot = CFrame.Angles(math.pi, 0, 0)
+			else return end
+			local p = rr.Position
+			cam.CFrame = CFrame.new(p) * rot * CFrame.new(-p) * cam.CFrame
+		end)
+	end
+	def({ "spider", "wallwalk" }, "", "Walk on walls, ceilings and slopes like Spider-Man (jump leaps off the surface)", "wall climb ceiling gravity surface walk", startSpider)
+	def({ "unspider", "unwallwalk" }, "", "Stop walking on walls", "wall climb ceiling gravity surface walk", stopSpider)
+end
 
 def({ "spin" }, "<rotations per second>", "Spin your character (with fling prevention)", "rotate turn", function(n)
 	local rps = ctx.val("spin", n)
@@ -2765,6 +3162,237 @@ def({ "unname", "unspoof" }, "", "Stop spoofing your name", "name spoof", functi
 	if c then c.Enabled, c.Others = false, false end
 end)
 
+-- ===== SERVER REGIONS: ;region and the Servers tab =====
+-- A server's region is where its public IP is. join-game-instance (Roblox client User-Agent, logged in) returns that IP, a batch lookup turns it into a city,
+-- TeleportToPlaceInstance joins. Servers are checked 4 at a time and cached for the session, the lookup is one request per 12 servers.
+local SRV = { byId = {}, ip = {}, busy = false, stop = false }
+ctx.SRV = SRV
+do
+	local csrf
+	local G = (getgenv and getgenv()) or _G
+	local function jdec(s) local ok, v = pcall(S.HttpService.JSONDecode, S.HttpService, s); return ok and v or nil end
+	local function hdr(res, name)
+		for k, v in pairs(res.Headers or {}) do if tostring(k):lower() == name then return v end end
+	end
+	local function cookie() -- only used when the executor's request does not already send your login
+		for _, n in ipairs({ "getrbxcookie", "get_roblox_cookie", "getrobloxcookie", "getcookie" }) do
+			if type(G[n]) == "function" then
+				local ok, c = pcall(G[n])
+				if ok and type(c) == "string" and #c > 20 then return c end
+			end
+		end
+	end
+	-- three ways to reach gamejoin with your login, the first one that works is remembered (SRV.mode):
+	-- internal = the engine's own request (carries your session), api = HttpRbxApiService, request = the executor's request with a cookie
+	local URL = "https://gamejoin.roblox.com/v1/join-game-instance"
+	local function viaInternal(body)
+		local res
+		for _ = 1, 2 do
+			res = nil
+			local ok, rq = pcall(function()
+				return S.HttpService:RequestInternal({ Url = URL, Method = "POST", Headers = { ["Content-Type"] = "application/json", ["x-csrf-token"] = csrf }, Body = body })
+			end)
+			if not (ok and rq) then return nil end
+			if not pcall(function() rq:Start(function(_, r) res = r or false end) end) then return nil end
+			local t = os.clock()
+			while res == nil and os.clock() - t < 10 do task.wait(0.05) end
+			if type(res) ~= "table" then return nil end
+			if res.StatusCode == 403 and hdr(res, "x-csrf-token") then csrf = hdr(res, "x-csrf-token") else break end
+		end
+		return { StatusCode = res.StatusCode, Body = res.Body }
+	end
+	local function viaApi(body)
+		local ok, out = pcall(function()
+			return game:GetService("HttpRbxApiService"):PostAsyncFullUrl(URL, body, Enum.ThrottlingPriority.Default, Enum.HttpContentType.ApplicationJson)
+		end)
+		if ok and type(out) == "string" then return { StatusCode = 200, Body = out } end
+	end
+	-- executors differ on whether they honour the Cookie header, the Cookies field or both, so try each and remember the one Roblox accepts (SRV.how)
+	local HOW = { "both", "header", "table" }
+	local function send(o, how, c)
+		o.Headers = o.Headers or {}
+		o.Headers["User-Agent"] = "Roblox/WinInet"
+		if how ~= "table" then o.Headers.Cookie = ".ROBLOSECURITY=" .. c end
+		if how ~= "header" then o.Cookies = { [".ROBLOSECURITY"] = c } end
+		local ok, r = pcall(request, o)
+		if ok and type(r) == "table" then return r end
+	end
+	local function viaRequest(body)
+		SRV.cookie = SRV.cookie or cookie()
+		if not SRV.cookie then return nil, "needs your cookie (Servers tab, cookie field)" end
+		local res
+		for _, how in ipairs(SRV.how and { SRV.how } or HOW) do
+			for _ = 1, 2 do
+				res = send({ Url = URL, Method = "POST", Body = body, Headers = { ["Content-Type"] = "application/json", Referer = "https://www.roblox.com/", Origin = "https://www.roblox.com", ["x-csrf-token"] = csrf } }, how, SRV.cookie)
+				if not res then return nil end
+				if res.StatusCode == 403 and hdr(res, "x-csrf-token") then csrf = hdr(res, "x-csrf-token") else break end
+			end
+			if res.StatusCode ~= 401 then SRV.how = how; break end
+		end
+		return res
+	end
+	local function authCheck() -- bad cookie, or a cookie the executor never sent? status per way of attaching it, and what the executor really sends
+		local c, out = tostring(SRV.cookie), {}
+		for _, how in ipairs(HOW) do
+			local r = send({ Url = "https://users.roblox.com/v1/users/authenticated", Method = "GET" }, how, c)
+			out[#out + 1] = how .. "=" .. (r and tostring(r.StatusCode) or "fail")
+		end
+		local e = send({ Url = "https://httpbin.org/headers", Method = "GET" }, "header", "TEST")
+		return "cookie check: " .. table.concat(out, " ") .. " | len " .. #c .. (c:find("_|WARNING", 1, true) and "" or " | no _|WARNING prefix")
+			.. (e and (tostring(e.Body):find("ROBLOSECURITY=TEST", 1, true) and " | executor sends the Cookie header" or " | executor DROPS the Cookie header") or " | echo test failed")
+	end
+	local MODES, ORDER = { internal = viaInternal, api = viaApi, request = viaRequest }, { "internal", "api", "request" }
+	local function resolve(placeId, jobId)
+		local body = S.HttpService:JSONEncode({ placeId = placeId, isTeleport = false, gameId = jobId, gameJoinAttemptId = S.HttpService:GenerateGUID(false) })
+		local notes = {}
+		for _, m in ipairs(SRV.mode and { SRV.mode } or ORDER) do
+			local res, why = MODES[m](body)
+			if not res then
+				notes[#notes + 1] = m .. ": " .. (why or "unavailable")
+			else
+				if res.StatusCode == 429 then return nil, "rate" end
+				if res.StatusCode == 200 then
+					local d = jdec(res.Body)
+					local js = d and d.joinScript
+					local ep = js and js.UdmuxEndpoints and js.UdmuxEndpoints[1]
+					local ip = (ep and ep.Address) or (js and js.MachineAddress)
+					if type(ip) == "string" and not ip:match("^10%.") then
+						SRV.mode = m
+						SRV.byId[jobId] = { ip = ip }
+						return SRV.byId[jobId]
+					end
+					notes[#notes + 1] = m .. ": " .. ((d and d.message) or "reply has no server address")
+				else
+					local extra = ((tostring(res.Body or ""):gsub("%s+", " "))):sub(1, 90)
+					if m == "request" and res.StatusCode == 401 then
+						SRV.authNote = SRV.authNote or authCheck()
+						extra = extra .. " | " .. SRV.authNote .. (csrf and "" or " | no csrf token received")
+					end
+					notes[#notes + 1] = m .. ": HTTP " .. tostring(res.StatusCode) .. " " .. extra
+				end
+			end
+		end
+		SRV.mode = nil
+		return nil, table.concat(notes, " | ")
+	end
+	local function put(r, ip)
+		if not r or not r.city or r.city == "" then return end
+		local cc, region, country = r.countryCode or r.country_code or "", r.regionName or r.region or "", r.country or ""
+		SRV.ip[ip] = { label = r.city .. ", " .. cc, key = (r.city .. " " .. region .. " " .. country .. " " .. cc):lower() }
+	end
+	local function geo(ips) -- one batch request; per IP fallback over https
+		local q = {}
+		for _, ip in ipairs(ips) do q[#q + 1] = { query = ip, fields = "status,country,countryCode,regionName,city,query" } end
+		local ok, res = pcall(request, { Url = "http://ip-api.com/batch", Method = "POST", Headers = { ["Content-Type"] = "application/json" }, Body = S.HttpService:JSONEncode(q) })
+		local arr = ok and res and res.StatusCode == 200 and jdec(res.Body)
+		if arr then
+			for _, r in ipairs(arr) do if r.status == "success" then put(r, r.query) end end
+			return true
+		end
+		for _, ip in ipairs(ips) do
+			local body = ctx.fetch("https://ipwho.is/" .. ip)
+			local r = body and jdec(body)
+			if r and r.success then put(r, ip) end
+		end
+		return next(SRV.ip) ~= nil
+	end
+
+	function SRV.region(id) local e = SRV.byId[id]; return e and SRV.ip[e.ip] end
+	function SRV.match(id, q) local r = SRV.region(id); return r and r.key:find(q, 1, true) ~= nil end
+	function SRV.list(placeId, pages)
+		local out, cursor = {}, nil
+		for _ = 1, pages or 1 do
+			local url = ("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true%s"):format(placeId, cursor and ("&cursor=" .. cursor) or "")
+			local body, err = ctx.fetch(url)
+			local d = body and jdec(body)
+			if not (d and d.data) then return out, err or "bad reply" end
+			for _, s in ipairs(d.data) do out[#out + 1] = s end
+			cursor = d.nextPageCursor
+			if not cursor then break end
+		end
+		return out
+	end
+	-- checks the servers in chunks of 12 (4 at a time); onChunk(chunk) after each chunk, return true to stop; onChunk(nil) when finished
+	function SRV.scan(placeId, servers, onChunk)
+		if SRV.busy then return false end
+		SRV.busy, SRV.stop, SRV.err, SRV.okN, SRV.failN = true, false, nil, 0, 0
+		task.spawn(function()
+			local i = 1
+			while i <= #servers and not SRV.stop and S.alive do
+				local chunk = {}
+				for j = i, math.min(i + 11, #servers) do chunk[#chunk + 1] = servers[j] end
+				i = i + 12
+				local nxt, running = 1, 0
+				for _ = 1, 4 do
+					running = running + 1
+					task.spawn(function()
+						while not SRV.stop do
+							local s = chunk[nxt]
+							if not s then break end
+							nxt = nxt + 1
+							if not (SRV.byId[s.id] and SRV.byId[s.id].ip) then
+								local e, why = resolve(placeId, s.id)
+								if e then
+									SRV.okN = SRV.okN + 1
+								else
+									SRV.failN = SRV.failN + 1
+									if why == "rate" or (SRV.okN == 0 and SRV.failN >= 4) then
+										SRV.err = why == "rate" and "Roblox rate limit, try again in a minute" or why
+										SRV.stop = true
+									end
+								end
+								task.wait(0.2)
+							end
+						end
+						running = running - 1
+					end)
+				end
+				while running > 0 do task.wait(0.05) end
+				local need, seen = {}, {}
+				for _, s in ipairs(chunk) do
+					local e = SRV.byId[s.id]
+					if e and not SRV.ip[e.ip] and not seen[e.ip] then seen[e.ip] = true; need[#need + 1] = e.ip end
+				end
+				if #need > 0 and not geo(need) then SRV.err = SRV.err or "IP lookup failed (ip-api.com / ipwho.is)"; SRV.stop = true end
+				if onChunk and onChunk(chunk) then break end
+			end
+			SRV.busy = false
+			if onChunk then onChunk(nil) end
+		end)
+		return true
+	end
+	function SRV.join(placeId, id)
+		ctx.notify("Joining server...", 3)
+		local ok, err = pcall(function() S.TeleportService:TeleportToPlaceInstance(placeId, id, lp) end)
+		if not ok then ctx.notify("Teleport failed: " .. tostring(err), 5) end
+	end
+	-- first server that matches and has room
+	function SRV.find(servers, q)
+		for _, s in ipairs(servers) do
+			if s.id ~= game.JobId and (s.playing or 0) < (s.maxPlayers or 1) and SRV.match(s.id, q) then return s end
+		end
+	end
+end
+def({ "region", "joinregion" }, "<region>", "Join a server in a region: city, country or code (singapore, de, frankfurt, us). Checks servers 4 at a time and joins the first match with room", "server region location ping hop join", function(q)
+	if not q or q == "" then return ctx.notify("Usage: region <city / country / code>") end
+	q = q:lower()
+	local pid = game.PlaceId
+	ctx.notify("Looking for a server in " .. q .. "...", 4)
+	local list, err = SRV.list(pid, 2)
+	if #list == 0 then return ctx.notify("Server list failed: " .. tostring(err), 5) end
+	local hit = SRV.find(list, q)
+	if hit then return SRV.join(pid, hit.id) end
+	local found = false
+	if not SRV.scan(pid, list, function(chunk)
+		if not chunk then
+			if not found then ctx.notify(SRV.err or ("No server with room in '" .. q .. "' among " .. #list .. " checked"), 6) end
+			return
+		end
+		local s = SRV.find(chunk, q)
+		if s then found = true; SRV.stop = true; SRV.join(pid, s.id); return true end
+	end) then ctx.notify("A region scan is already running", 4) end
+end)
+
 -- ===== VOICE: listen / unlisten (same routing as the Players page button), nostereo / stereo =====
 def({ "listen" }, "<player>", "Listen to a player's voice chat from anywhere (the game's own voice from them is muted for you)", "voice vc audio hear", function(q)
 	if not q or q == "" then return ctx.notify("Usage: listen <player>") end
@@ -3096,13 +3724,14 @@ do
 		local oa = math.clamp(tonumber(M.chOutlineAlpha) or 1, 0, 1)
 		local col = parseHex(M.chColor) or rgb(0, 255, 0)
 		local h1 = math.floor(th / 2)
+		local od = th % 2 -- odd thickness: the line sits on one pixel, so the far side arms start 1px later to keep the gap symmetric
 		local rects = {}
 		if M.chStyle == "Dot" then
 			rects[1] = { -h1, -h1, th, th }
 		elseif len > 0 then
-			rects[#rects + 1] = { -h1, gap, th, len } -- bottom
+			rects[#rects + 1] = { -h1, gap + od, th, len } -- bottom
 			rects[#rects + 1] = { -(gap + len), -h1, len, th } -- left
-			rects[#rects + 1] = { gap, -h1, len, th } -- right
+			rects[#rects + 1] = { gap + od, -h1, len, th } -- right
 			if M.chStyle ~= "T" then rects[#rects + 1] = { -h1, -(gap + len), th, len } end -- top (a T has none)
 		end
 		CH.root:ClearAllChildren()
@@ -3124,6 +3753,8 @@ do
 			end)
 		else
 			CH.root.Position = UDim2.fromScale(0.5, 0.5)
+			local gsz = CH.gui and CH.gui.AbsoluteSize
+			if gsz then CH.root.Position = UDim2.fromOffset(math.floor(gsz.X / 2), math.floor(gsz.Y / 2)) end -- whole pixel, no half pixel blur on odd screen sizes
 			ctx.connect("chFollow", RS.RenderStepped, function() -- the cursor would only sit next to the fixed crosshair
 				local hide = UIS.MouseBehavior == Enum.MouseBehavior.LockCenter and not S.mouseFree and not GuiService.MenuIsOpen
 				if hide then
@@ -3155,7 +3786,11 @@ do
 	end
 	-- Module Cfg calls this after any value changes, so the crosshair updates live
 	function ctx.onMod(key)
-		if CH.gui and tostring(key):match("^ch%u") then build(); place() end
+		key = tostring(key)
+		if CH.gui and key:match("^ch%u") then build(); place() end
+		if key:match("^esp") and ctx.espRefresh then ctx.espRefresh() end
+		if (key:match("^srv") or key:match("^pred")) and ctx.srvRefresh then ctx.srvRefresh() end
+		if key == "actCorner" and ui.actLayout then ui.actLayout() end
 	end
 end
 def({ "crosshair", "xhair" }, "", "Show a static CS style crosshair (mode, length, gap, thickness, outline, colour in Module Cfg)", "aim reticle cs dot", function()
@@ -3820,7 +4455,7 @@ local function btn(parent, str, x, y, w, h, key, tr, cb, pt)
 			tw(sc, { Scale = 0.95 }, 0.06)
 		end
 	end)
-	b.MouseButton1Up:Connect(function() tw(sc, { Scale = 1 }, 0.1, Enum.EasingStyle.Back) end)
+	b.MouseButton1Up:Connect(function() tw(sc, { Scale = 1 }, 0.1) end)
 	b.MouseButton1Click:Connect(function()
 		if b.Active then
 			ripple(b)
@@ -3911,7 +4546,7 @@ do
 		t.Visible = true
 		t.Position = UDim2.new(0.5, 0, 1, -50)
 		t.BackgroundTransparency, t.TextTransparency = 1, 1
-		tw(t, { Position = UDim2.new(0.5, 0, 1, -70), BackgroundTransparency = 0.1, TextTransparency = 0 }, 0.2, Enum.EasingStyle.Back)
+		tw(t, { Position = UDim2.new(0.5, 0, 1, -70), BackgroundTransparency = 0.1, TextTransparency = 0 }, 0.2)
 		prog.BackgroundTransparency, prog.Size = 0.2, UDim2.new(1, 28, 0, 2)
 		if cfg.anim ~= 0 then
 			S.TweenService:Create(prog, TweenInfo.new(secs or 3, Enum.EasingStyle.Linear), { Size = UDim2.new(0, 0, 0, 2) }):Play()
@@ -3924,6 +4559,56 @@ do
 			end
 		end)
 	end
+end
+
+-- activation notices: a small stack in a screen corner (Module Cfg: actOn, actCorner). One line per command with its value, fades in and out
+do
+	local CORNER = { TL = { 0, 0 }, TR = { 1, 0 }, BL = { 0, 1 }, BR = { 1, 1 } }
+	local holder = new("Frame", { Name = "ActFeed", BackgroundTransparency = 1, Size = UDim2.fromOffset(300, 0), AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 40 }, gui)
+	local lay = new("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, holder)
+	ui.actScale = new("UIScale", {}, holder)
+	local items, n = {}, 0
+	function ui.actLayout()
+		local c = CORNER[cfg.mod.actCorner] or CORNER.BL
+		holder.AnchorPoint = Vector2.new(c[1], c[2])
+		holder.Position = UDim2.new(c[1], c[1] == 0 and 16 or -16, c[2], c[2] == 0 and 16 or -16)
+		lay.HorizontalAlignment = c[1] == 0 and Enum.HorizontalAlignment.Left or Enum.HorizontalAlignment.Right
+		lay.VerticalAlignment = c[2] == 0 and Enum.VerticalAlignment.Top or Enum.VerticalAlignment.Bottom
+	end
+	function ui.act(label, value)
+		if not cfg.mod.actOn then return end
+		local txt = (value and value ~= "") and ("<b>%s</b>  %s"):format(esc(label), esc(value)) or ("<b>%s</b>"):format(esc(label))
+		local e = items[label]
+		if not (e and e.l.Parent) then
+			n = n + 1
+			local top = (CORNER[cfg.mod.actCorner] or CORNER.BL)[2] == 0
+			local l = new("TextLabel", { AutomaticSize = Enum.AutomaticSize.XY, Size = UDim2.fromOffset(0, 0), BackgroundTransparency = 1, TextTransparency = 1,
+				BorderSizePixel = 0, Font = FONT, TextSize = fs(10), RichText = true, Text = txt, LayoutOrder = top and -n or n, ZIndex = 40 }, holder)
+			paint(l, "BackgroundColor3", "bar"); paint(l, "TextColor3", "text")
+			new("UICorner", { CornerRadius = UDim.new(0, 8) }, l)
+			new("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), PaddingTop = UDim.new(0, 5), PaddingBottom = UDim.new(0, 5) }, l)
+			local st = new("UIStroke", { Thickness = 1, Transparency = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, l)
+			paint(st, "Color", "accent")
+			e = { l = l, st = st, id = 0 }
+			items[label] = e
+		end
+		e.l.Text = txt
+		e.id = e.id + 1
+		local my = e.id
+		tw(e.l, { BackgroundTransparency = 0.1, TextTransparency = 0 }, 0.12)
+		tw(e.st, { Transparency = 0.4 }, 0.12)
+		task.delay(2.5, function()
+			if e.id ~= my or not e.l.Parent then return end
+			tw(e.l, { BackgroundTransparency = 1, TextTransparency = 1 }, 0.15)
+			tw(e.st, { Transparency = 1 }, 0.15)
+			task.delay(dur(0.15) + 0.05, function()
+				if e.id ~= my then return end
+				pcall(function() e.l:Destroy() end)
+				if items[label] == e then items[label] = nil end
+			end)
+		end)
+	end
+	ui.actLayout()
 end
 
 -- startup popup: page 1 is always the same, page 2 is a random line. Each page stays 5 seconds (click to skip ahead).
@@ -4448,7 +5133,7 @@ end
 		tw(barFade, { GroupTransparency = 0 }, 0.07)
 		local s = ui.curScale()
 		ui.barScale.Scale = s * 0.96
-		tw(ui.barScale, { Scale = s }, 0.16, Enum.EasingStyle.Back)
+		tw(ui.barScale, { Scale = s }, 0.16)
 		tw(ui.blur, { Size = 18 * cfg.blur }, 0.2)
 		if S.panelOpen and ui.shade then ui.shade.Visible = true end
 		ui.syncMouse()
@@ -4567,8 +5252,8 @@ do
 	ui.inner = inner
 
 	-- tab y positions copied from the deck (8 tabs now); text right-aligned with the deck's 9.6px inset
-	local TABS = { { "Home", 66 }, { "Players", 102 }, { "Look and feel", 137 }, { "Load scripts", 173 }, { "Autostart", 208 },
-		{ "Keybinds", 244 }, { "Module Cfg", 279 }, { "Commands", 315 }, { "Preferences", 350 } }
+	local TABS = { { "Home", 66 }, { "Players", 102 }, { "Servers", 137 }, { "Look and feel", 173 }, { "Load scripts", 208 }, { "Autostart", 244 },
+		{ "Keybinds", 279 }, { "Module Cfg", 315 }, { "Commands", 350 }, { "Preferences", 385 } }
 	for _, t in ipairs(TABS) do
 		local name = t[1]
 		local b = new("TextButton", { Position = UDim2.fromOffset(0, t[2]), Size = UDim2.fromOffset(141, 35), AutoButtonColor = false, BorderSizePixel = 0,
@@ -4601,7 +5286,7 @@ do
 		if first then
 			ui.tabBar.Position = goal
 		else
-			tw(ui.tabBar, { Position = goal }, 0.18, Enum.EasingStyle.Quart)
+			tw(ui.tabBar, { Position = goal }, 0.18)
 			if cfg.anim ~= 0 then -- page slides up into place
 				pages[name].Position = UDim2.fromOffset(0, 14)
 				tw(pages[name], { Position = UDim2.new() }, 0.15)
@@ -4619,7 +5304,7 @@ do
 		if open then
 			local s = ui.curScale()
 			ui.panelScale.Scale = s * 0.94
-			tw(ui.panelScale, { Scale = s }, 0.18, Enum.EasingStyle.Back)
+			tw(ui.panelScale, { Scale = s }, 0.18)
 			ui.placePanel(24, false)
 			panelFade.Visible = true
 			tw(panelFade, { GroupTransparency = 0 }, 0.07)
@@ -4734,13 +5419,18 @@ end
 -- [/PG_HOME]
 
 -- [PG_PLAYERS]
--- ===== page: Players (slide 5: search 299x32 at 9,10; rows 77px flush; 95x23 buttons in a 2x2 grid) =====
+-- ===== page: Players: search 299x32 at 9,10 + status text; cards 511 wide (80 tall, 64 for you) in a list with 6px gaps; group headers 20 tall =====
 do
 	local pg = pages["Players"]
 	local sbox = input(pg, "Search for player…", 9, 10, 299, 32, 11)
+	local stat = txt(pg, "", 9, "sub", 316, 10, 207, 32, { TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Center })
 	local plist = scroller(pg, 0, 53, 532, 326)
-	new("UIListLayout", { Padding = UDim.new(0, 0), SortOrder = Enum.SortOrder.LayoutOrder }, plist)
+	plist.AutomaticCanvasSize = Enum.AutomaticSize.None -- the height is known exactly, so the scroll position survives a rebuild
+	new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, plist)
+	new("UIPadding", { PaddingLeft = UDim.new(0, 9), PaddingRight = UDim.new(0, 12), PaddingTop = UDim.new(0, 2), PaddingBottom = UDim.new(0, 8) }, plist)
 	local friends = {} -- userId -> bool, filled in the background
+	local rows = {} -- userId -> { ring, bars, lvl, fb } of the cards on screen
+	local render
 
 	-- a name you can double click: copies it, or (no clipboard) selects it so you can copy it by hand
 	local clicks = {}
@@ -4780,78 +5470,321 @@ do
 		setFill(b, isFriend and "tabOff" or "btnFill", isFriend and 0.5 or BTN_OFF)
 	end
 
-	local function render()
-		clear(plist)
-		local q = sbox.Text:lower()
-		local ps = S.Players:GetPlayers()
-		table.sort(ps, function(a, b)
-			if a == b then return false end
-			if a == lp then return true end
-			if b == lp then return false end
-			return a.DisplayName:lower() < b.DisplayName:lower()
+	-- friend status: fetched in the background, a card only moves when someone turns out to be (or stops being) a friend
+	local fetching, sched = {}, false
+	local function visible() return S.panelOpen and ui.tab == "Players" end
+	local function later() -- one refresh for a burst of changes
+		if sched then return end
+		sched = true
+		task.delay(0.15, function()
+			sched = false
+			if visible() then render() end
 		end)
-		local n = 0
-		for _, p in ipairs(ps) do
+	end
+	local function fetchFriends(force)
+		for _, p in ipairs(S.Players:GetPlayers()) do
+			local uid = p.UserId
+			if p ~= lp and not fetching[uid] and (force or friends[uid] == nil) then
+				fetching[uid] = true
+				task.spawn(function()
+					local ok, res = pcall(function() return lp:IsFriendsWith(uid) end)
+					fetching[uid] = nil
+					local v = ok and res == true
+					local was = friends[uid] or false
+					friends[uid] = v
+					local row = rows[uid]
+					if row and row.fb then greyOut(row.fb, v) end
+					if was ~= v then later() end
+				end)
+			end
+		end
+	end
+	local function blockedSet()
+		local set = {}
+		pcall(function()
+			for _, id in ipairs(ctx.StarterGui:GetCore("GetBlockedUserIds")) do set[id] = true end
+		end)
+		return set
+	end
+
+	-- volume slider: 0 to 200 % in 5 % steps, snaps to 100 %, right click resets. One shared drag handler for every slider.
+	local drag
+	conn(S.UserInputService.InputChanged, function(i)
+		if drag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then drag(i.Position.X) end
+	end)
+	conn(S.UserInputService.InputEnded, function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then drag = nil end
+	end)
+	local function slider(parent, x, y, w, uid)
+		local hit = new("TextButton", { Text = "", AutoButtonColor = false, BackgroundTransparency = 1, Position = UDim2.fromOffset(x, y), Size = UDim2.fromOffset(w, 18) }, parent)
+		local track = fr(hit, 0, 7, w, 4, "ctrlOff", 0.2, 2)
+		local fill = fr(track, 0, 0, 0, 4, "accent", 0.1, 2)
+		local knob = fr(hit, 0, 3, 12, 12, "accent", 0, 6, "edge", 1, 0)
+		local pct = txt(parent, "", 9, "sub", x + w + 6, y, 38, 18, { TextXAlignment = Enum.TextXAlignment.Center, TextYAlignment = Enum.TextYAlignment.Center })
+		local function show(v)
+			local f = v / 2
+			fill.Size = UDim2.new(f, 0, 1, 0)
+			knob.Position = UDim2.new(f, -6, 0, 3)
+			pct.Text = math.floor(v * 100 + 0.5) .. "%"
+		end
+		local function set(px)
+			local f = math.clamp((px - hit.AbsolutePosition.X) / math.max(hit.AbsoluteSize.X, 1), 0, 1)
+			local v = math.floor(f * 40 + 0.5) / 20
+			if math.abs(v - 1) < 0.04 then v = 1 end
+			show(v)
+			ctx.setVoiceVol(uid, v)
+		end
+		hit.InputBegan:Connect(function(i)
+			if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+				drag = set
+				set(i.Position.X)
+			end
+		end)
+		hit.MouseButton2Click:Connect(function() show(1); ctx.setVoiceVol(uid, 1) end)
+		show(state.vcVol and state.vcVol[uid] or 1)
+	end
+
+	local CW, BW, BH, BG = 511, 78, 24, 5 -- card width, button size and gap
+	local BX = CW - 12 - (3 * BW + 2 * BG) -- left edge of the 3 x 2 button grid
+	local TITLE = { listening = "Listening", friends = "Friends", players = "Players", hidden = "Blocked / Hidden" }
+	local function header(key, count, order)
+		local h = new("Frame", { Size = UDim2.new(1, 0, 0, 20), BackgroundTransparency = 1, LayoutOrder = order }, plist)
+		fr(h, 2, 5, 3, 11, "accent", 0, 2)
+		txt(h, (TITLE[key]):upper() .. "  ·  " .. count, 8, "sub", 12, 0, 400, 20, { Font = FONT_B, TextYAlignment = Enum.TextYAlignment.Center })
+	end
+
+	local function card(p, order, key, blocked, q)
+		local uid, me = p.UserId, p == lp
+		local h = me and 64 or 80
+		local listening = state.listen[uid] ~= nil
+		local r = fr(plist, 0, 0, CW, h, "row", 0.85, 8, "edge", 1, 0.55)
+		r.Size, r.LayoutOrder = UDim2.new(1, 0, 0, h), order
+		if listening then paint(r:FindFirstChildOfClass("UIStroke"), "Color", "accent"); r:FindFirstChildOfClass("UIStroke").Transparency = 0.4 end
+		-- avatar; the ring around it is the voice activity indicator
+		local a = new("ImageLabel", { Position = UDim2.fromOffset(12, (h - 52) / 2), Size = UDim2.fromOffset(52, 52), BorderSizePixel = 0, BackgroundTransparency = 0.9,
+			Image = thumb("AvatarHeadShot", uid, 150), ImageTransparency = key == "hidden" and 0.5 or 0 }, r)
+		paint(a, "BackgroundColor3", "row")
+		new("UICorner", { CornerRadius = UDim.new(1, 0) }, a)
+		local ring = new("UIStroke", { Thickness = 1.5, Transparency = 0.55, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, a)
+		paint(ring, "Color", "accent")
+		local ny = me and 14 or 12
+		local tag = key == "hidden" and (blocked[uid] and "  ·  blocked" or "  ·  hidden") or ""
+		copyable(r, p.DisplayName, hl(p.DisplayName, q) .. (me and " (you)" or ""), 76, ny, 141, 16, 10, "text2", { Font = FONT_B })
+		copyable(r, p.Name, hl("@" .. p.Name, q) .. tag, 76, ny + 18, 141, 13, 8, "sub")
+		-- level bars, bottom aligned next to the name
+		local bars = {}
+		for i = 1, 4 do
+			local b = new("Frame", { AnchorPoint = Vector2.new(0, 1), Position = UDim2.fromOffset(BX - 30 + (i - 1) * 5, ny + 15), Size = UDim2.fromOffset(3, 3),
+				BorderSizePixel = 0, BackgroundTransparency = 0.7 }, r)
+			paint(b, "BackgroundColor3", "accent")
+			new("UICorner", { CornerRadius = UDim.new(0, 1) }, b)
+			bars[i] = b
+		end
+		rows[uid] = { ring = ring, bars = bars, lvl = 0 }
+		if me then
+			btn(r, "Respawn", BX + 2 * (BW + BG), (h - BH) / 2, BW, BH, "btnFill", BTN_OFF, function() ctx.Run("reset") end)
+			return
+		end
+		local function cell(label, c, rw, on, cb)
+			return btn(r, label, BX + c * (BW + BG), rw == 1 and 12 or 44, BW, BH, on and "ctrlOn" or nil, on and BTN_ON or nil, cb)
+		end
+		local viewing, muted, hidden = state.viewing == p, state.muted[uid] ~= nil, ctx.isHidden(uid)
+		cell(viewing and "Unview" or "View", 0, 1, viewing, function()
+			ctx.Run(viewing and "unview" or ("view " .. p.Name))
+			render()
+		end)
+		cell("Go to", 1, 1, false, function() ctx.Run("goto " .. p.Name) end)
+		local fb = cell("Add Friend", 2, 1, false, function() ctx.Run("friend " .. p.Name) end)
+		rows[uid].fb = fb
+		greyOut(fb, friends[uid])
+		cell(muted and "Unmute" or "Mute", 0, 2, muted, function()
+			ctx.setMuted(uid, not state.muted[uid])
+			render()
+		end)
+		cell(listening and "Unlisten" or "Listen", 1, 2, listening, function()
+			local on = not state.listen[uid]
+			if on and state.muted[uid] then ctx.setMuted(uid, false) end
+			local ok, why = ctx.setListen(uid, on)
+			if on and not ok then return ctx.notify(why, 5) end
+			render(on) -- listening pins the card to the top, so scroll up to it
+		end)
+		cell(hidden and "Unhide" or "Hide", 2, 2, hidden, function()
+			ctx.Run((ctx.isHidden(uid) and "unhide " or "hide ") .. p.Name)
+			render()
+		end)
+		slider(r, 76, 53, 120, uid)
+	end
+
+	function render(toTop)
+		local keep = plist.CanvasPosition
+		clear(plist)
+		rows = {}
+		local q = sbox.Text:lower()
+		local blocked = blockedSet()
+		local groups = { listening = {}, friends = {}, players = {}, hidden = {} }
+		local me
+		for _, p in ipairs(S.Players:GetPlayers()) do
 			if q == "" or p.Name:lower():find(q, 1, true) or p.DisplayName:lower():find(q, 1, true) then
-				n = n + 1
-				local r = fr(plist, 0, 0, 532, 77, "row", 0.9)
-				r.Size, r.LayoutOrder = UDim2.new(1, 0, 0, 77), n
-				local a = new("ImageLabel", { Position = UDim2.fromOffset(9, 7), Size = UDim2.fromOffset(61, 61), BorderSizePixel = 0, BackgroundTransparency = 0.9,
-					Image = thumb("AvatarHeadShot", p.UserId, 150) }, r)
-				paint(a, "BackgroundColor3", "row")
-				new("UICorner", { CornerRadius = UDim.new(1, 0) }, a)
-				paint(new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, a), "Color", "accent")
-				copyable(r, p.DisplayName, hl(p.DisplayName, q) .. (p == lp and " (you)" or ""), 80, 21, 175, 16, 10, "text2", { Font = FONT_B })
-				copyable(r, p.Name, hl("@" .. p.Name, q), 80, 39, 175, 13, 8, "sub")
 				if p == lp then
-					btn(r, "Respawn", 439, 27, 81, 23, "btnFill", BTN_OFF, function() ctx.Run("reset") end)
+					me = p
 				else
-					btn(r, state.viewing == p and "Unview" or "View", 265, 12, 81, 23, state.viewing == p and "ctrlOn" or nil, state.viewing == p and BTN_ON or nil, function()
-						ctx.Run(state.viewing == p and "unview" or ("view " .. p.Name))
-						render()
-					end)
-					local fb = btn(r, "Add Friend", 439, 12, 81, 23, nil, nil, function() ctx.Run("friend " .. p.Name) end)
-					if friends[p.UserId] == nil then
-						task.spawn(function()
-							local ok, res = pcall(function() return lp:IsFriendsWith(p.UserId) end)
-							friends[p.UserId] = ok and res or false
-							greyOut(fb, friends[p.UserId])
-						end)
-					else
-						greyOut(fb, friends[p.UserId])
-					end
-					btn(r, "Go to", 352, 12, 81, 23, nil, nil, function() ctx.Run("goto " .. p.Name) end)
-					btn(r, state.listen[p.UserId] and "Unlisten" or "Listen", 352, 41, 81, 23, state.listen[p.UserId] and "ctrlOn" or nil, state.listen[p.UserId] and BTN_ON or nil, function()
-						local on = not state.listen[p.UserId]
-						if on and state.muted[p.UserId] then ctx.setMuted(p.UserId, false) end
-						local ok, why = ctx.setListen(p.UserId, on)
-						if on and not ok then return ctx.notify(why, 5) end
-						render()
-					end)
-					btn(r, ctx.isHidden(p.UserId) and "Unhide" or "Hide", 439, 41, 81, 23, ctx.isHidden(p.UserId) and "ctrlOn" or nil, ctx.isHidden(p.UserId) and BTN_ON or nil, function()
-						ctx.Run((ctx.isHidden(p.UserId) and "unhide " or "hide ") .. p.Name)
-						render()
-					end)
-					btn(r, state.muted[p.UserId] and "Unmute" or "Mute", 265, 41, 81, 23, state.muted[p.UserId] and "ctrlOn" or nil, state.muted[p.UserId] and BTN_ON or nil, function(b)
-						local on = not state.muted[p.UserId]
-						ctx.setMuted(p.UserId, on)
-						b.Text = on and "Unmute" or "Mute"
-						render()
-					end)
+					local uid = p.UserId
+					local g = state.listen[uid] and "listening" or ((blocked[uid] or ctx.isHidden(uid)) and "hidden") or (friends[uid] and "friends") or "players"
+					table.insert(groups[g], p)
 				end
 			end
 		end
-		if n == 0 then
-			empty(plist, "No players match.")
+		for _, list in pairs(groups) do
+			table.sort(list, function(a, b) return a.DisplayName:lower() < b.DisplayName:lower() end)
 		end
+		local order, y, count = 0, 0, 0
+		local function add(hh) y = y + (count > 0 and 6 or 0) + hh; count = count + 1 end
+		if me then order = order + 1; add(64); card(me, order, nil, blocked, q) end
+		for _, key in ipairs({ "listening", "friends", "players", "hidden" }) do
+			local list = groups[key]
+			if #list > 0 then
+				order = order + 1; add(20); header(key, #list, order)
+				for _, p in ipairs(list) do
+					order = order + 1; add(80); card(p, order, key, blocked, q)
+				end
+			end
+		end
+		if count == 0 then
+			empty(plist, "No players match.")
+			y = 56
+		end
+		plist.CanvasSize = UDim2.fromOffset(0, y + 10)
+		plist.CanvasPosition = toTop == true and Vector2.zero or keep
+		local nl = 0
+		for _ in pairs(state.listen) do nl = nl + 1 end
+		stat.Text = ("%d players  ·  %d listening"):format(#S.Players:GetPlayers(), nl)
 	end
-	sbox:GetPropertyChangedSignal("Text"):Connect(render)
-	onShow["Players"] = render
-	conn(S.Players.PlayerAdded, function() if S.panelOpen and ui.tab == "Players" then render() end end)
+
+	-- voice activity: the ring grows and the bars dance with the player's level (smoothed, fast attack, slow release)
+	local EQ, wasVisible = { 0.75, 1, 0.9, 0.6 }, false
+	conn(ctx.RunService.Heartbeat, function(dt)
+		if not visible() then
+			if wasVisible then wasVisible = false; ctx.vcClear() end
+			return
+		end
+		wasVisible = true
+		local t = os.clock()
+		for uid, rw in pairs(rows) do
+			local m = ctx.vcMeter(uid)
+			local target = 0
+			if m then
+				local ok, pk = pcall(function() return m.an.PeakLevel end)
+				if ok and pk then target = math.clamp(math.sqrt(math.max(pk, 0)) * 1.8, 0, 1) end
+			end
+			if target < 0.08 then target = 0 end
+			rw.lvl = target > rw.lvl and target or math.max(target, rw.lvl - dt * 2.2)
+			rw.ring.Thickness = 1.5 + rw.lvl * 3.5
+			rw.ring.Transparency = 0.55 - rw.lvl * 0.55
+			for i, b in ipairs(rw.bars) do
+				local f = math.clamp(rw.lvl * EQ[i] * (1 + 0.25 * math.sin(t * 14 + i * 1.7)), 0, 1)
+				b.Size = UDim2.fromOffset(3, math.floor(3 + 11 * f))
+				b.BackgroundTransparency = 0.7 - 0.7 * math.clamp(rw.lvl * 1.5, 0, 1)
+			end
+		end
+	end)
+
+	sbox:GetPropertyChangedSignal("Text"):Connect(function() render() end)
+	onShow["Players"] = function() fetchFriends(true); render(true) end
+	conn(S.Players.PlayerAdded, function() if visible() then fetchFriends(); render() end end)
 	conn(S.Players.PlayerRemoving, function(p)
 		if state.viewing == p then state.viewing = nil end
-		task.defer(function() if S.panelOpen and ui.tab == "Players" then render() end end)
+		task.defer(function() if visible() then render() end end)
 	end)
+end
+-- ===== page: Servers: region filter + Scan regions + Join match, one 46px card per public server =====
+do
+	local pg = pages["Servers"]
+	local SR = ctx.SRV
+	local box = input(pg, "Region (city, country or code)…", 9, 10, 299, 32, 11)
+	box.Text = cfg.srvRegion or ""
+	-- the cookie is only kept in memory (SRV.cookie): never saved, never in the command history, and the box is emptied as soon as it is taken
+	local ck = input(pg, "Roblox cookie (session only)…", 9, 46, 299, 26, 10)
+	ck.FocusLost:Connect(function()
+		local raw = ck.Text
+		local c = raw:match('"(.-)"') or raw:match("'(.-)'") or raw -- whatever is between the quotes, else the whole text
+		c = c:gsub("%s+", ""):gsub("^%.?ROBLOSECURITY[:=]", ""):gsub(";$", "")
+		if #c < 50 then return end
+		ck.Text = ""
+		SR.cookie, SR.mode, SR.how, SR.err, SR.authNote = c, nil, nil, nil, nil
+		ck.PlaceholderText = "Cookie set for this session (paste again to replace)"
+		ctx.notify("Cookie taken (kept in memory only). Press Scan regions", 4)
+	end)
+	local stat = txt(pg, "", 9, "sub", 316, 46, 207, 26, { TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Center, TextTruncate = Enum.TextTruncate.AtEnd })
+	local list = scroller(pg, 0, 78, 532, 301)
+	list.AutomaticCanvasSize = Enum.AutomaticSize.None
+	new("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, list)
+	new("UIPadding", { PaddingLeft = UDim.new(0, 9), PaddingRight = UDim.new(0, 12), PaddingTop = UDim.new(0, 2), PaddingBottom = UDim.new(0, 8) }, list)
+	local servers, listErr, sched, scanBtn = {}, nil, false, nil
+	local render
+	local function visible() return S.panelOpen and ui.tab == "Servers" end
+	local function later()
+		if sched then return end
+		sched = true
+		task.delay(0.2, function() sched = false; if visible() then render() end end)
+	end
+	function render()
+		clear(list)
+		local q = box.Text:lower():match("^%s*(.-)%s*$")
+		local rows, known = {}, 0
+		for _, s in ipairs(servers) do
+			local r = SR.region(s.id)
+			if r then known = known + 1 end
+			if q == "" or (r and r.key:find(q, 1, true)) then rows[#rows + 1] = { s = s, r = r } end
+		end
+		table.sort(rows, function(a, b) -- known regions first (A to Z), then by ping
+			if (a.r ~= nil) ~= (b.r ~= nil) then return a.r ~= nil end
+			if a.r and b.r and a.r.label ~= b.r.label then return a.r.label < b.r.label end
+			return (a.s.ping or 9e9) < (b.s.ping or 9e9)
+		end)
+		for i, row in ipairs(rows) do
+			local s, r = row.s, row.r
+			local c = fr(list, 0, 0, 511, 46, "row", 0.85, 8, "edge", 1, 0.55)
+			c.Size, c.LayoutOrder = UDim2.new(1, 0, 0, 46), i
+			txt(c, r and r.label or "Not scanned yet", 10, r and "text2" or "sub", 14, 7, 330, 16, { Font = FONT_B })
+			txt(c, ("%d/%d players  ·  %s  ·  %s"):format(s.playing or 0, s.maxPlayers or 0, s.ping and (s.ping .. " ms") or "ping ?", s.fps and (math.floor(s.fps + 0.5) .. " fps") or "fps ?"),
+				8, "sub", 14, 26, 330, 13)
+			local cur = s.id == game.JobId
+			local b = btn(c, cur and "Current" or "Join", 511 - 12 - 78, 11, 78, 24, nil, nil, function() SR.join(game.PlaceId, s.id) end)
+			if cur then b.Active = false; b.TextTransparency = 0.55 end
+		end
+		if #rows == 0 then
+			empty(list, listErr and ("Server list failed: " .. listErr) or (#servers == 0 and "No public servers found." or "No scanned server matches. Press Scan regions."))
+		end
+		list.CanvasSize = UDim2.fromOffset(0, math.max(#rows, 1) * 50 + 10)
+		stat.Text = ("%d servers  ·  %d regions%s"):format(#servers, known, SR.busy and "  ·  scanning..." or "")
+	end
+	local function refresh()
+		task.spawn(function()
+			local l, err = SR.list(game.PlaceId, 1)
+			if #l > 0 then servers, listErr = l, nil else listErr = err end
+			if visible() then render() end
+		end)
+	end
+	scanBtn = btn(pg, "Scan regions", 316, 13, 100, 26, nil, nil, function(b)
+		if SR.busy then SR.stop = true; return end
+		if #servers == 0 then return ctx.notify("No servers to scan yet, press Refresh") end
+		b.Text = "Stop"
+		SR.scan(game.PlaceId, servers, function(chunk)
+			if chunk then later() else
+				b.Text = "Scan regions"
+				if SR.err then ctx.notify(SR.err, 10) end
+				later()
+			end
+		end)
+	end)
+	btn(pg, "Join match", 422, 13, 100, 26, nil, nil, function()
+		local q = box.Text:lower():match("^%s*(.-)%s*$")
+		if q == "" then return ctx.notify("Type a region first (city, country or code)") end
+		ctx.Run("region " .. q)
+	end)
+	box:GetPropertyChangedSignal("Text"):Connect(function() render() end)
+	box.FocusLost:Connect(function() cfg.srvRegion = box.Text; save() end)
+	onShow["Servers"] = function() render(); refresh() end
 end
 -- [/PG_PLAYERS]
 
@@ -5400,6 +6333,17 @@ do
 		seg(frow(pg, label, #opts * (w + 8) - 8), 0, xs, w, opts, key, function() if ctx.onMod then ctx.onMod(key) end end, M)
 	end
 
+	local function hexRow(label, key)
+		local g = frow(pg, label, 96)
+		local o = input(g, "", 0, 0, 96, 23, 9, "ctrlOff", BTN_OFF, { Text = tostring(M[key]), TextXAlignment = Enum.TextXAlignment.Center })
+		o.FocusLost:Connect(function()
+			local t = o.Text:match("^%s*(.-)%s*$")
+			if not t:match("^#") then t = "#" .. t end
+			if parseHex(t) then M[key] = t:upper(); save(); if ctx.onMod then ctx.onMod(key) end end
+			o.Text = tostring(M[key])
+		end)
+	end
+
 	fhdr(pg, "Speed and fly")
 	numRow("Fly: default speed", "flyDef"); numRow("Fly: multiplier", "flyMult")
 	numRow("Speed: default", "speedDef"); numRow("Speed: multiplier", "speedMult")
@@ -5419,30 +6363,29 @@ do
 	fhdr(pg, "Back attach (;backa / ;backattach)")
 	numRow("Distance (behind the back)", "backDist"); numRow("Height", "backHeight"); numRow("Side", "backSide")
 	togRow("Sweep front / back", "backSweep"); numRow("Sweep amplitude (studs)", "backSweepAmp"); numRow("Sweep speed (radians/s)", "backSweepSpeed")
-	fhdr(pg, "Ragdoll limbs (a limb switched off stays stiff)")
-	togRow("Head", "ragHead"); togRow("Torso", "ragTorso")
-	togRow("Left arm", "ragLeftArm"); togRow("Right arm", "ragRightArm")
-	togRow("Left leg", "ragLeftLeg"); togRow("Right leg", "ragRightLeg")
-	fhdr(pg, "Display and misc")
-	optRow("Show FPS corner", "fpsCorner", { { "TL", "TL" }, { "TR", "TR" }, { "BL", "BL" }, { "BR", "BR" } }, 47)
-	togRow("Ragdoll blocks game reset", "ragdollBlock")
-	fhdr(pg, "Streamer mode")
-	strRow("Your name", "streamMe"); strRow("Other players (comma separated)", "streamOthers")
+	fhdr(pg, "Offense prediction (backpack, baby, headsit, heada, backa)")
+	togRow("Prediction (server sees you in sync)", "predOn")
+	numRow("Prediction strength (1 = your ping)", "predMult")
+	fhdr(pg, "Server position (;serverpos / ;unserverpos)")
+	togRow("Show server position", "srvShow")
+	numRow("Auto hide within (studs, 0 to 5)", "srvHide")
+	fhdr(pg, "ESP (;esp)")
+	togRow("Custom colour (off = team colour)", "espCustom")
+	hexRow("Custom colour (hex)", "espColor")
 	fhdr(pg, "Crosshair (;crosshair / ;removecrosshair)")
 	optRow("Mode", "chStyle", { { "Cross", "Cross" }, { "T", "T" }, { "Dot", "Dot" } }, 84)
 	numRow("Length", "chLen"); numRow("Gap", "chGap"); numRow("Thickness", "chThick")
 	numRow("Outline thickness (0 = none)", "chOutline"); numRow("Outline opacity (0 to 1)", "chOutlineAlpha")
-	do
-		local g = frow(pg, "Colour (hex)", 96)
-		local o = input(g, "", 0, 0, 96, 23, 9, "ctrlOff", BTN_OFF, { Text = tostring(M.chColor), TextXAlignment = Enum.TextXAlignment.Center })
-		o.FocusLost:Connect(function()
-			local t = o.Text:match("^%s*(.-)%s*$")
-			if not t:match("^#") then t = "#" .. t end
-			if parseHex(t) then M.chColor = t:upper(); save(); if ctx.onMod then ctx.onMod("chColor") end end
-			o.Text = tostring(M.chColor)
-		end)
-	end
+	hexRow("Colour (hex)", "chColor")
 	togRow("Replace Roblox cursor (off = screen center)", "chCursor")
+	fhdr(pg, "Notifications and display")
+	togRow("Activation notices", "actOn")
+	optRow("Notice corner", "actCorner", { { "TL", "TL" }, { "TR", "TR" }, { "BL", "BL" }, { "BR", "BR" } }, 47)
+	optRow("Show FPS corner", "fpsCorner", { { "TL", "TL" }, { "TR", "TR" }, { "BL", "BL" }, { "BR", "BR" } }, 47)
+	fhdr(pg, "Ragdoll (;ragdoll)")
+	togRow("Ragdoll blocks game reset", "ragdollBlock")
+	fhdr(pg, "Streamer mode")
+	strRow("Your name", "streamMe"); strRow("Other players (comma separated)", "streamOthers")
 	fhdr(pg, "Placeholder1 (;placeholder1)")
 	numRow("Animation speed (1 = default)", "ph1Mult")
 	fhdr(pg, "Defense")
@@ -5465,6 +6408,9 @@ do
 	seg(frow(pg, "Auto execute", 102), 0, { 0, 55 }, 47, { { "On", true }, { "Off", false } }, "autoExec", function(v) ctx.setAutoExec(v) end)
 	seg(frow(pg, "Auto rejoin on VC ban", 102), 0, { 0, 55 }, 47, { { "On", true }, { "Off", false } }, "avc", function(v) ctx.setAvc(v) end)
 	seg(frow(pg, "Command list: up to 3 columns", 102), 0, { 0, 55 }, 47, { { "On", true }, { "Off", false } }, "sugCols")
+	fhdr(pg, "Voice")
+	if cfg.listenPad == -3 then cfg.listenPad = -6 end -- old option, nearest new one
+	seg(frow(pg, "Listen pad (attenuation)", 168), 0, { 0, 59, 118 }, 50, { { "0 dB", 0 }, { "-6 dB", -6 }, { "-12 dB", -12 } }, "listenPad", function() ctx.applyListenPad() end)
 	fhdr(pg, "Active effects")
 	local active = txt(pg, "none", 11, "sub", 0, 0, 400, 20, { LayoutOrder = nx(), TextWrapped = true })
 	local br = new("Frame", { Size = UDim2.new(1, 0, 0, 23), BackgroundTransparency = 1, LayoutOrder = nx() }, pg)
@@ -5488,6 +6434,7 @@ function ui.curScale() return cfg.scale end
 function ui.rescale()
 	local s = ui.curScale()
 	ui.panelScale.Scale, ui.barScale.Scale, ui.toastScale.Scale, ui.hudScale.Scale, ui.popScale.Scale = s, s, s, s, s
+	ui.actScale.Scale = s
 end
 
 -- Roblox's shift lock listens on both Shift keys. When one of them is the panel / bar key, a higher priority action eats it
@@ -5565,8 +6512,11 @@ function ui.unload()
 	pcall(ctx.resetAll)
 	pcall(function() S.ContextActionService:UnbindAction("KLOSAD_Shift") end)
 	for uid in pairs(state.listen) do pcall(ctx.setListen, uid, false) end
+	for uid in pairs(state.vcVol or {}) do pcall(ctx.setVoiceVol, uid, 1) end
+	pcall(ctx.vcClear)
 	pcall(ctx.noStereo, false)
 	pcall(ctx.crosshair, false)
+	pcall(ctx.syncStop)
 	for _, c in ipairs(S.cons) do pcall(function() c:Disconnect() end) end
 	for k in pairs(state.conns) do ctx.disconnect(k) end
 	for uid in pairs(state.muted) do pcall(ctx.setMuted, uid, false) end
