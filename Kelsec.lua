@@ -5,19 +5,19 @@
 -- [GUIROOT] ScreenGui root, screenSize, zTop, overFrame | gui, screenSize(), front(), overFrame() | deps: SETTINGS | L125-146
 -- [PANELS] panel frame, pop/fade, drag | newPanel(), setTL(), popOpen(), fadeClose(), makeDrag() | deps: GUIROOT | L148-249
 -- [WIDGETS] box2, label, icon, inner, window buttons, scrollbar | box2(), label(), inner(), xButton(), minButton(), scrollbar() | deps: PANELS | L251-381
--- [HIGHLIGHT] Lua syntax highlighter | highlight() | deps: none | L383-444
--- [LOGSTATE] log queue, unread dot | emit(), updateDot(), stamp() | deps: WIDGETS | L446-477
--- [KEEP] keep executor after teleport, auto re-join, server hop | queueSelf(), findServer() | deps: LOGSTATE, SETTINGS | L479-544
--- [EXEC_PANEL] executor panel, title morph, header, window buttons | ex, titleMorph(), minBtn, closeBtn | deps: PANELS, WIDGETS | L546-594
--- [WINMODEL] windowed editor text helpers, unit tested | lineStart(), cut() | deps: none | L596-620
--- [EDITOR] windowed code editor: TextBox holds ~180 lines, scrolling moves the window | box, sf, setWindow(), rehighlight(), updateCaret() | deps: EXEC_PANEL, HIGHLIGHT, WINMODEL | L622-844
--- [EXEC_BTNS] bottom row buttons settings / logs / run | gearBtn, logsBtn, runBtn, dot | deps: EXEC_PANEL | L846-853
--- [LOGS] logs panel, log list, LogService hook | logsP, pushLine() | deps: WIDGETS, LOGSTATE | L855-927
--- [SETTINGS_UI] settings panel with its toggles | setP | deps: WIDGETS, SETTINGS | L929-969
--- [PLACE] open / place panels | place(), toggleLogs(), toggleSettings() | deps: LOGS, SETTINGS_UI | L971-995
--- [RUN] run the script | run() | deps: EDITOR | L997-1015
--- [WINDOW] minimize / restore / close, header drag | minimize(), restore(), closeExecutor(), api | deps: all | L1017-1088
--- [ENTRY] startup | popOpen(ex) | deps: all | L1090-1094
+-- [HIGHLIGHT] Lua syntax highlighter | highlight() | deps: none | L383-447
+-- [LOGSTATE] log queue, unread dot | emit(), updateDot(), stamp() | deps: WIDGETS | L449-480
+-- [KEEP] keep executor after teleport, auto re-join, server hop | queueSelf(), findServer() | deps: LOGSTATE, SETTINGS | L482-547
+-- [EXEC_PANEL] executor panel, title morph, header, window buttons | ex, titleMorph(), minBtn, closeBtn | deps: PANELS, WIDGETS | L549-597
+-- [WINMODEL] script model: head lines + window + tail lines, unit tested | newDoc(), lineStart(), cut() | deps: none | L599-709
+-- [EDITOR] windowed + culled code editor, whole-script selection (Ctrl+A, drag, shift+click, Ctrl+Home/End) | box, doc, sf, setWindow(), renderSlice(), onEdited(), syncNative() | deps: EXEC_PANEL, HIGHLIGHT, WINMODEL | L711-1142
+-- [EXEC_BTNS] bottom row buttons settings / logs / run | gearBtn, logsBtn, runBtn, dot | deps: EXEC_PANEL | L1144-1151
+-- [LOGS] logs panel, log list, LogService hook | logsP, pushLine() | deps: WIDGETS, LOGSTATE | L1153-1225
+-- [SETTINGS_UI] settings panel with its toggles | setP | deps: WIDGETS, SETTINGS | L1227-1267
+-- [PLACE] open / place panels | place(), toggleLogs(), toggleSettings() | deps: LOGS, SETTINGS_UI | L1269-1293
+-- [RUN] run the script | run() | deps: EDITOR | L1295-1313
+-- [WINDOW] minimize / restore / close, header drag | minimize(), restore(), closeExecutor(), api | deps: all | L1315-1385
+-- [ENTRY] startup | popOpen(ex) | deps: all | L1387-1391
 
 --// >kelsec v1.0.0 : LocalScript executor
 --// All sizes are the deck's 1080p pixels (1 slide inch = 144 px).
@@ -114,7 +114,7 @@ end
 
 if settings.code == OLD_SAMPLE then settings.code = nil end -- old starter -> new starter
 
-local box, head, tail, fullText -- editor TextBox; head / tail = the script lines outside its window (assigned below)
+local box, doc, fullText -- editor TextBox; doc = the script model: lines above / below the TextBox window (assigned below)
 local function save()
 	if not writefile then return end
 	if fullText then settings.code = fullText() end
@@ -382,13 +382,15 @@ end
 
 -- [HIGHLIGHT]
 ---------------------------------------------------------------- lua highlighter
+local highlight
+do -- the highlighter's tables stay out of the main chunk (Luau allows 200 locals per function)
 local function set(t) local s = {} for _, v in ipairs(t) do s[v] = true end return s end
 local KW = set({ "and", "break", "do", "else", "elseif", "end", "false", "for", "function", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true", "until", "while", "continue" })
 local BI = set({ "game", "workspace", "script", "self", "shared", "_G", "_VERSION", "task", "table", "string", "math", "os", "debug", "coroutine", "utf8", "bit32", "Instance", "Vector3", "Vector2", "CFrame", "Color3", "UDim2", "UDim", "Enum", "TweenInfo", "Random", "Ray", "Region3", "BrickColor", "Rect", "NumberSequence", "ColorSequence" })
 local H = { kw = "#5AA6E0", bi = "#4EC9B0", fn = "#DCDCAA", str = "#CE9178", num = "#B5CEA8", com = "#6A9955" }
 local ESC = { ["&"] = "&amp;", ["<"] = "&lt;", [">"] = "&gt;", ['"'] = "&quot;", ["'"] = "&apos;" }
 
-local function highlight(src)
+function highlight(src)
 	local out, n, i = {}, #src, 1
 	local function put(col, s)
 		if s and s ~= "" then
@@ -441,6 +443,7 @@ local function highlight(src)
 	end
 	return table.concat(out)
 end
+end -- do
 -- [/HIGHLIGHT]
 
 -- [LOGSTATE]
@@ -594,7 +597,9 @@ local closeBtn = xButton(content, 622, 20)
 -- [/EXEC_PANEL]
 
 -- [WINMODEL]
--- pure text helpers of the windowed editor (no Roblox objects, so test_winmodel.lua can run them on their own)
+-- pure script model of the windowed editor (no Roblox objects, so test_winmodel.lua can run it on its own).
+-- The whole script = head lines + the window (what the TextBox holds) + tail lines. Moving the window only moves the lines
+-- it passes over, so scrolling through a huge script never re-copies the script.
 local function lineStart(s, a) -- byte where line a starts; stops at the last line if the script has fewer
 	local pos, ln = 1, 1
 	while ln < a do
@@ -605,8 +610,7 @@ local function lineStart(s, a) -- byte where line a starts; stops at the last li
 	return pos, ln
 end
 
--- splits s into head / window / tail, the window being the n lines that start at line a (head .. window .. tail == s).
--- Returns head, window, tail and the number of lines in head. The tail starts with the newline that ends the window.
+-- the n lines of s that start at line a: returns head, window, tail (head .. window .. tail == s) and the lines in head
 local function cut(s, a, n)
 	local from, la = lineStart(s, a)
 	local stop, q = nil, from
@@ -617,9 +621,95 @@ local function cut(s, a, n)
 	end
 	return s:sub(1, from - 1), s:sub(from, (stop or #s + 1) - 1), stop and s:sub(stop) or "", la - 1
 end
+
+local function split(s)
+	local t, n = {}, 0
+	for line in (s .. "\n"):gmatch("(.-)\n") do
+		n = n + 1
+		t[n] = line
+	end
+	return t
+end
+
+local Doc = {}
+Doc.__index = Doc
+-- H = head lines, T = tail lines in reverse (T[#T] is the first tail line), hLen / tLen = their bytes with one "\n" each
+local function newDoc() return setmetatable({ H = {}, T = {}, hLen = 0, tLen = 0 }, Doc) end
+
+-- moves the window to the n lines that start at line a (clamped) and returns the new window text. win = the current window text
+function Doc:reframe(win, a, n)
+	local H, T, W = self.H, self.T, split(win)
+	local hN, wN, tN = #H, #W, #T
+	local total = hN + wN + tN
+	a = math.max(1, math.min(a, total))
+	local b = math.min(a + math.max(n, 1) - 1, total)
+	local function line(i) -- line i of the script as it is now
+		if i <= hN then return H[i] end
+		if i <= hN + wN then return W[i - hN] end
+		return T[tN - (i - hN - wN) + 1]
+	end
+	local nw, grow, push = {}, {}, {}
+	for i = a, b do nw[#nw + 1] = line(i) end
+	for i = hN + 1, a - 1 do grow[#grow + 1] = line(i) end -- head grows: window lines (or tail lines) it passed over
+	for i = hN + wN, b + 1, -1 do push[#push + 1] = line(i) end -- tail grows: lines the window left behind
+	for i = hN, a, -1 do
+		self.hLen = self.hLen - #H[i] - 1
+		H[i] = nil
+	end
+	for _, l in ipairs(grow) do
+		H[#H + 1] = l
+		self.hLen = self.hLen + #l + 1
+	end
+	for _ = 1, b - hN - wN do -- tail shrinks: the window moved down over its first lines
+		local l = T[#T]
+		T[#T] = nil
+		self.tLen = self.tLen - #l - 1
+	end
+	for _, l in ipairs(push) do
+		T[#T + 1] = l
+		self.tLen = self.tLen + #l + 1
+	end
+	return table.concat(nw, "\n")
+end
+
+-- whole script as a string
+function Doc:full(win)
+	local parts = {}
+	if #self.H > 0 then parts[1] = table.concat(self.H, "\n") .. "\n" end
+	parts[#parts + 1] = win
+	for i = #self.T, 1, -1 do parts[#parts + 1] = "\n" .. self.T[i] end
+	return table.concat(parts)
+end
+
+-- replaces the script by text and returns the window of n lines from line a
+function Doc:load(text, a, n)
+	self.H, self.T, self.hLen, self.tLen = {}, {}, 0, 0
+	return self:reframe(text, a, n)
+end
+
+-- line number that holds byte position abs of the whole script (#script + 1 = the end of the last line)
+function Doc:lineAt(win, abs)
+	if abs <= self.hLen then
+		local p = 0
+		for i = 1, #self.H do
+			p = p + #self.H[i] + 1
+			if abs <= p then return i end
+		end
+	end
+	local rel = abs - self.hLen
+	local wl = select(2, win:gsub("\n", "")) + 1
+	if rel <= #win + 1 then return #self.H + select(2, win:sub(1, rel - 1):gsub("\n", "")) + 1 end
+	local p, line = self.hLen + #win, #self.H + wl
+	for i = #self.T, 1, -1 do
+		p, line = p + #self.T[i] + 1, line + 1
+		if abs <= p + 1 then return line end
+	end
+	return line
+end
 -- [/WINMODEL]
 
 -- [EDITOR]
+do local function buildEditor() -- its own function = its own 200-local budget, so the editor's ~70 locals don't count against the main chunk
 local ebox = inner(content, 12, 40, 624, 228)
 local GUT = px(31)
 local VW, VH = px(624) - GUT - 1, px(228) -- visible text area
@@ -633,9 +723,11 @@ local gutter = new("TextLabel", {
 }, gclip)
 new("Frame", { Position = UDim2.fromOffset(GUT, 0), Size = UDim2.new(0, 1, 1, 0), BackgroundColor3 = WHITE, BackgroundTransparency = 0.88, BorderSizePixel = 0 }, ebox)
 
--- The TextBox only holds a window of lines (head .. box.Text .. tail is the whole script), so a huge script never becomes
--- one giant text object (that is what broke selecting and clicking lines). Scrolling moves the window: the canvas is as tall
--- as the whole script, "win" sits at the window's line, and the TextBox / highlight / selection / caret all live inside it.
+-- HOW IT WORKS. The script lives in `doc` (head lines + window + tail lines). The TextBox only holds the window (~180 lines), so
+-- a huge script never becomes one giant text object. The ScrollingFrame is as tall as the whole script, `win` sits at the window's
+-- line, and only the lines in view are coloured / numbered / selected (culling). The selection and caret are kept as byte
+-- positions in the WHOLE script (aA / cA), so a selection can span any number of windows; the TextBox's own selection only mirrors
+-- the part inside the window. Edits that reach outside the window rebuild the script from those positions.
 local sf = new("ScrollingFrame", {
 	Position = UDim2.fromOffset(GUT + 1, 0), Size = UDim2.new(1, -(GUT + 1), 1, 0), BackgroundTransparency = 1, BorderSizePixel = 0,
 	ScrollBarThickness = 0, CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.None,
@@ -651,22 +743,28 @@ local function textW(s) return (utf8.len(s) or #s) * ADV end
 local function rnd(n) return math.floor(n + 0.5) end
 local function count(s) return select(2, s:gsub("\n", "")) end
 
--- lines kept above / below the view, window size that forces a re-cut (a paste), margin before the view reaches the window edge
-local WIN_BUF, WIN_MAX, WIN_MARGIN = 80, 400, 30
+-- lines kept above / below the view, window size that forces a re-cut (a paste), margin before the view reaches the window edge,
+-- lines drawn around the view
+local WIN_BUF, WIN_MAX, WIN_MARGIN, SLICE_BUF = 80, 400, 30, 8
 local ROWS = math.ceil(VH / PITCH) + 1 -- lines in view
 -- the saved script may hold tabs / CRLF from an older version or a paste: normalise it like typing does
 local startText = (type(settings.code) == "string" and settings.code or SAMPLE):gsub("\r\n?", "\n"):gsub("\t", "    ")
-local h0, w0, tl0, hN0 = cut(startText, 1, ROWS + 2 * WIN_BUF)
-head, tail = h0, tl0
-local hN, tN, wN, winY = hN0, count(tl0), count(w0) + 1, 0 -- lines above / below / inside the window, window top in the canvas
+doc = newDoc()
+local win0 = doc:load(startText, 1, ROWS + 2 * WIN_BUF)
+local hN, tN, wN, winY = #doc.H, #doc.T, count(win0) + 1, 0 -- lines above / below / inside the window, window top in the canvas
+-- shortcut: the canvas width only ever grows (longest line seen so far), when to upgrade: keep a per-line length index
+local maxCols = 0
+for line in (startText .. "\n"):gmatch("(.-)\n") do
+	if #line > maxCols then maxCols = #line end
+end
 
 box = new("TextBox", {
 	Position = UDim2.fromOffset(TX, TY), Size = UDim2.fromOffset(VW - TX, VH - TY), AutomaticSize = Enum.AutomaticSize.XY,
 	BackgroundTransparency = 1, ClearTextOnFocus = false, MultiLine = true, TextWrapped = false, Font = F_MONO, TextSize = fsC,
 	TextColor3 = WHITE, TextTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top,
-	Text = w0,
+	Text = win0,
 }, win)
-fullText = function() return head .. box.Text .. tail end
+fullText = function() return doc:full(box.Text) end
 local hl = new("TextLabel", {
 	Position = box.Position, Size = UDim2.new(), AutomaticSize = Enum.AutomaticSize.XY, BackgroundTransparency = 1, RichText = true,
 	Font = F_MONO, TextSize = fsC, TextColor3 = Color3.fromRGB(0xD4, 0xD4, 0xD4), TextWrapped = false,
@@ -678,85 +776,125 @@ local barHost = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTranspare
 scrollbar(sf, true, barHost)
 scrollbar(sf, false, barHost)
 
-local setWindow
-local hlPending, lastKey = false, ""
+---------------- state
+local aA, cA = 1, 1 -- selection anchor / caret: byte positions in the whole script
+local mirC, mirS = -1, -1 -- TextBox cursor / selection as we last wrote or read them (tells us when the user changed them)
+local lastText = win0 -- window text we last saw
+local internal, hlPending = false, false -- internal: we are assigning box.Text ourselves
+local pressed, dragging, pressAt, dragT = false, false, V2(0, 0), 0
+local hold, dirty, follow = 0, false, false -- hold: frames we keep re-writing the selection after a command; dirty: redraw; follow: scroll to caret
+local undoSnap, redoSnap -- { whole script, anchor, caret } from before the last edit that reached outside the window
+-- shortcut: undo of such an edit works until you type again (the TextBox undo can't see text outside its window), when to upgrade: own undo stack
+local c0, c1 = 0, -1 -- window lines currently drawn
+local lastMove, caretOn = os.clock(), false
+local setWindow, updateCaret, onEdited, syncNative
 
--- window frame, canvas size (whole script tall, longest window line wide) and gutter follow the window
+local function toWin(a) return math.clamp(a - doc.hLen, 1, #box.Text + 1) end
+-- writes the whole-script selection into the TextBox (the part that falls inside the window)
+local function mirror()
+	local lc, ls = toWin(cA), toWin(aA)
+	if aA == cA or lc == ls then ls = -1 end
+	box.CursorPosition = lc
+	box.SelectionStart = ls
+	mirC, mirS = box.CursorPosition, box.SelectionStart
+end
+
+---------------- drawing (culled: only the lines in view)
+local function visRange() -- first / last window line in view
+	local top = math.floor((sf.CanvasPosition.Y - winY - TY) / PITCH) + 1
+	return math.max(top, 1), math.min(top + ROWS, wN)
+end
+
+local function placeGutter()
+	gutter.Position = UDim2.fromOffset(0, winY + TY + rnd((c0 - 1) * PITCH) - sf.CanvasPosition.Y)
+end
+
+local function renderSlice(force)
+	local vt, vb = visRange()
+	if not force and vt >= c0 and vb <= c1 and (c0 == 1 or vt - c0 >= 3) and (c1 == wN or c1 - vb >= 3) then return end
+	local txt = box.Text
+	c0, c1 = math.max(vt - SLICE_BUF, 1), math.min(vb + SLICE_BUF, wN)
+	c0 = math.min(c0, c1)
+	-- shortcut: a long [[ ]] string / comment is only coloured right when it starts inside the window, when to upgrade: carry the lexer state into the window
+	if txt:find("[[", 1, true) or txt:find("[=", 1, true) then c0, c1 = 1, wN end
+	local _, part = cut(txt, c0, c1 - c0 + 1)
+	hl.Text = highlight(part)
+	hl.Position = UDim2.fromOffset(TX, TY + rnd((c0 - 1) * PITCH))
+	local t = table.create(c1 - c0 + 1)
+	for k = c0, c1 do t[k - c0 + 1] = hN + k end
+	gutter.Text = table.concat(t, "\n")
+	placeGutter()
+end
+
+-- window frame, canvas size (whole script tall, longest line wide)
+-- shortcut: the canvas can't be taller than about 1M lines (engine float limit), when to upgrade: scale scrolling for bigger scripts
 local function layout()
 	winY = rnd(hN * PITCH)
 	win.Position = UDim2.fromOffset(0, winY)
-	local m = 0
 	for line in (box.Text .. "\n"):gmatch("(.-)\n") do
-		if #line > m then m = #line end
+		if #line > maxCols then maxCols = #line end
 	end
-	sf.CanvasSize = UDim2.fromOffset(math.max(VW, TX + rnd(m * ADV) + px(24)), 2 * TY + rnd((hN + wN + tN) * PITCH))
-	gutter.Position = UDim2.fromOffset(0, winY + TY - sf.CanvasPosition.Y)
+	sf.CanvasSize = UDim2.fromOffset(math.max(VW, TX + rnd(maxCols * ADV) + px(24)), 2 * TY + rnd((hN + wN + tN) * PITCH))
+	placeGutter()
 end
 
 local function rehighlight()
 	hlPending = false
 	if not alive then return end
+	onEdited()
+	syncNative()
 	local txt = box.Text
 	wN = count(txt) + 1
 	if wN > WIN_MAX then -- a paste made the window huge: cut it again around the caret
-		local cl = hN + count(txt:sub(1, math.max(box.CursorPosition, 1) - 1)) + 1
-		return setWindow(cl - WIN_BUF, 2 * WIN_BUF + 1)
-	end
-	-- shortcut: a block comment / long string that starts above the window is not coloured, when to upgrade: carry the lexer state into the window
-	hl.Text = highlight(txt)
-	local key = hN .. ":" .. wN
-	if key ~= lastKey then
-		lastKey = key
-		local t = table.create(wN)
-		for k = 1, wN do t[k] = hN + k end
-		gutter.Text = table.concat(t, "\n")
+		return setWindow(doc:lineAt(txt, cA) - WIN_BUF, 2 * WIN_BUF + 1)
 	end
 	layout()
+	renderSlice(true)
 end
 
--- re-cuts the window to n lines from line a. The caret and selection stay on the same text; if they would fall outside
--- the new window (you scrolled far away) the box simply loses focus.
--- shortcut: a selection can't span more than the window (Ctrl+A selects the window), when to upgrade: draw the selection ourselves
+-- re-cuts the window to n lines from line a. The selection stays on the same text (it is kept in whole-script positions); the
+-- TextBox only loses focus when neither the caret nor the selection touches the new window.
 setWindow = function(a, n)
-	local focused, cp, ss = box:IsFocused(), box.CursorPosition, box.SelectionStart
-	local nh, nw, nt, nhN = cut(head .. box.Text .. tail, a, n)
-	local ncp, nss
-	if focused then
-		local shift = #head - #nh
-		ncp = cp + shift
-		nss = ss > 0 and ss + shift or ncp
-		if ncp < 1 or ncp > #nw + 1 or nss < 1 or nss > #nw + 1 then focused = false end
-	end
-	head, tail, hN, tN = nh, nt, nhN, count(nt)
-	box.Text = nw
-	if focused then
-		box.CursorPosition = ncp
-		box.SelectionStart = nss
-	else
-		box:ReleaseFocus()
+	onEdited()
+	syncNative()
+	local text = doc:reframe(box.Text, a, n)
+	lastText, internal = text, true
+	box.Text = text
+	internal = false
+	hN, tN = #doc.H, #doc.T
+	mirror()
+	if box:IsFocused() and not dragging then
+		local wS, wE = doc.hLen + 1, doc.hLen + #text + 1
+		local lo, hi = math.min(aA, cA), math.max(aA, cA)
+		if (cA < wS or cA > wE) and not (lo < hi and lo <= wE and hi > wS) then box:ReleaseFocus() end
 	end
 	rehighlight()
 end
 
 -- scrolling: keep the view well inside the window, otherwise re-cut it around the view
 local function onScroll()
-	gutter.Position = UDim2.fromOffset(0, winY + TY - sf.CanvasPosition.Y)
 	local top = math.floor((sf.CanvasPosition.Y - TY) / PITCH) + 1
 	if (hN > 0 and top - WIN_MARGIN < hN + 1) or (tN > 0 and top + ROWS + WIN_MARGIN > hN + wN) then
 		setWindow(top - WIN_BUF, ROWS + 2 * WIN_BUF)
+	else
+		renderSlice(false)
+		placeGutter()
 	end
 end
 bind(sf:GetPropertyChangedSignal("CanvasPosition"), onScroll)
 
--- selection highlight (drawn by us, behind the text)
+-- selection highlight (drawn by us, behind the text), only for the lines in view
 local selPool = {}
 local function updateSelection()
 	local used = 0
-	local a, b = box.SelectionStart, box.CursorPosition
-	if box:IsFocused() and a ~= -1 and b ~= -1 and a ~= b then
-		local s, e = math.min(a, b), math.max(a, b) -- selects chars s .. e-1
-		local idx, lineNo = 1, 0
-		for line in (box.Text .. "\n"):gmatch("(.-)\n") do
+	local lo, hi = math.min(aA, cA), math.max(aA, cA)
+	if (box:IsFocused() or dragging) and lo < hi then
+		local txt = box.Text
+		local s, e = lo - doc.hLen, hi - doc.hLen -- positions in the window (may lie outside it)
+		local top, bot = visRange()
+		local idx, lineNo = lineStart(txt, top)
+		for line in (txt:sub(idx) .. "\n"):gmatch("(.-)\n") do
+			if lineNo > bot then break end
 			local le = idx + #line -- position of this line's newline
 			if e > idx and s <= le then
 				local x1 = textW(line:sub(1, math.max(s, idx) - idx))
@@ -769,33 +907,30 @@ local function updateSelection()
 						f = new("Frame", { BackgroundColor3 = SEL, BorderSizePixel = 0, ZIndex = 1 }, win)
 						selPool[used] = f
 					end
-					f.Position = UDim2.fromOffset(TX + rnd(x1), TY + rnd(lineNo * PITCH))
+					f.Position = UDim2.fromOffset(TX + rnd(x1), TY + rnd((lineNo - 1) * PITCH))
 					f.Size = UDim2.fromOffset(rnd(x2) - rnd(x1), lineH)
 					f.Visible = true
 				end
 			end
 			idx = le + 1
 			lineNo += 1
-			if idx > e then break end
 		end
 	end
 	for k = used + 1, #selPool do selPool[k].Visible = false end
 end
 
--- caret: drawn by us (the real one is hidden with the text), also scrolls the view to follow typing
-local lastMove = os.clock()
-local cCP, cSS, cN -- last seen cursor / selection / length (polled every frame)
-local function updateCaret()
+-- caret: drawn by us (the real one is hidden with the text); scroll = also move the view to it
+updateCaret = function(scroll)
 	updateSelection()
-	if not box:IsFocused() then caret.Visible = false return end
-	local cp = box.CursorPosition
-	if cp < 1 then return end
+	local cp = cA - doc.hLen
+	if not box:IsFocused() or cp < 1 or cp > #box.Text + 1 then caretOn = false return end
+	caretOn = true
 	local before = box.Text:sub(1, cp - 1)
-	local lines = select(2, before:gsub("\n", ""))
 	local colText = before:sub(before:match(".*\n()") or 1)
-	local cx, cy = TX + rnd(textW(colText)), TY + rnd(lines * PITCH)
+	local cx, cy = TX + rnd(textW(colText)), TY + rnd(count(before) * PITCH)
 	caret.Position = UDim2.fromOffset(cx, cy)
 	lastMove = os.clock()
+	if not scroll then return end
 	local gy, pos = winY + cy, sf.CanvasPosition -- gy = caret line in the canvas
 	if gy < pos.Y then pos = V2(pos.X, gy)
 	elseif gy + lineH > pos.Y + VH then pos = V2(pos.X, gy + lineH - VH) end
@@ -804,35 +939,193 @@ local function updateCaret()
 	if pos ~= sf.CanvasPosition then sf.CanvasPosition = pos end
 end
 
-local fixing = false
-bind(box:GetPropertyChangedSignal("Text"), function()
-	-- tabs -> 4 spaces so the monospace caret math stays exact
-	if not fixing and box.Text:find("\t", 1, true) then
-		fixing = true
-		local txt, cp = box.Text, box.CursorPosition
-		local tabs = cp > 0 and select(2, txt:sub(1, cp - 1):gsub("\t", "")) or 0
-		box.Text = txt:gsub("\t", "    ")
-		if cp > 0 then box.CursorPosition = cp + tabs * 3 end
-		fixing = false
-	end
-	if not hlPending then hlPending = true task.defer(rehighlight) end
-end)
-bind(box.FocusLost, function() caret.Visible = false cCP = nil updateSelection() save() end)
-rehighlight()
+---------------- reading the TextBox (typing, clicking, arrow keys) into the whole-script selection
+syncNative = function()
+	if dragging or hold > 0 or not box:IsFocused() then return false end
+	local cp, ss = box.CursorPosition, box.SelectionStart
+	if cp < 1 or (cp == mirC and ss == mirS) then return false end
+	cA = doc.hLen + cp
+	if ss == -1 then aA = cA elseif ss ~= mirS then aA = doc.hLen + ss end -- an untouched anchor stays where it was (it may be outside the window)
+	mirC, mirS = cp, ss
+	dirty, follow = true, true
+	return true
+end
 
--- every frame: redraw caret + selection when they moved, blink the caret
-bind(RunService.Heartbeat, function()
-	if box:IsFocused() and ex.state == "open" then
-		local cp, ss, n = box.CursorPosition, box.SelectionStart, #box.Text
-		if cp ~= cCP or ss ~= cSS or n ~= cN then
-			cCP, cSS, cN = cp, ss, n
-			updateCaret()
-		end
-		caret.Visible = (os.clock() - lastMove) % 1.06 < 0.53
-	else
-		caret.Visible = false
-		cCP = nil
+-- replaces the script by text (window cut around caret) and puts the caret there
+local function reload(text, caret)
+	local line = count(text:sub(1, caret - 1)) + 1
+	local text0 = doc:load(text, line - WIN_BUF, ROWS + 2 * WIN_BUF)
+	lastText, internal = text0, true
+	box.Text = text0
+	internal = false
+	hN, tN = #doc.H, #doc.T
+	aA, cA, hold = caret, caret, 2
+	mirror()
+	rehighlight()
+	updateCaret(true)
+end
+
+-- the user changed the window text (typed, pasted, cut, deleted)
+onEdited = function()
+	local t = box.Text
+	if t == lastText then return end
+	local old = lastText
+	if t:find("\t", 1, true) then -- tabs -> 4 spaces so the monospace caret math stays exact
+		local cp = box.CursorPosition
+		local tabs = cp > 1 and select(2, t:sub(1, cp - 1):gsub("\t", "")) or 0
+		t = t:gsub("\t", "    ")
+		internal = true
+		box.Text = t
+		internal = false
+		if cp > 0 then box.CursorPosition = cp + tabs * 3 end
 	end
+	lastText = t
+	local lo, hi = math.min(aA, cA), math.max(aA, cA)
+	local wS = doc.hLen + 1
+	if lo < hi and (lo < wS or hi > wS + #old) then
+		-- the selection reached outside the window (Ctrl+A, long drag...): the TextBox replaced only the part inside it,
+		-- so rebuild the whole script: everything before the selection + what was typed + everything after it
+		local full0 = doc:full(old)
+		local os_ = math.max(lo - wS + 1, 1) -- selected part of the old window
+		local oe = math.min(hi - wS + 1, #old + 1)
+		local typed = t:sub(os_, #t - (#old - oe + 1))
+		undoSnap, redoSnap = { full0, aA, cA }, nil
+		return reload(full0:sub(1, lo - 1) .. typed .. full0:sub(hi), lo + #typed)
+	end
+	undoSnap, redoSnap = nil, nil
+	dirty = true
+end
+
+bind(box:GetPropertyChangedSignal("Text"), function()
+	if not internal and not hlPending then hlPending = true task.defer(rehighlight) end
+end)
+bind(box.FocusLost, function()
+	caretOn, caret.Visible, pressed, dragging = false, false, false, false
+	updateSelection()
+	save()
+end)
+
+---------------- mouse: drag-select with edge scrolling, shift + click
+local function mouseAbs(m) -- byte position in the whole script under the mouse (the view is always inside the window)
+	local ap, as, pos = sf.AbsolutePosition, sf.AbsoluteSize, sf.CanvasPosition
+	local y = math.clamp(m.Y - ap.Y, 0, as.Y - 1) + pos.Y - winY - TY
+	local x = math.clamp(m.X - ap.X, 0, as.X - 1) + pos.X - TX
+	local txt = box.Text
+	local ls = lineStart(txt, math.clamp(math.floor(y / PITCH), 0, wN - 1) + 1)
+	local line = txt:sub(ls, (txt:find("\n", ls, true) or #txt + 1) - 1)
+	return doc.hLen + ls + (utf8.offset(line, math.max(math.floor(x / ADV + 0.5), 0) + 1) or #line + 1) - 1
+end
+
+local function dragStep(dt)
+	local m, ap, as = UIS:GetMouseLocation(), sf.AbsolutePosition, sf.AbsoluteSize
+	local ox = m.X < ap.X and m.X - ap.X or (m.X > ap.X + as.X and m.X - ap.X - as.X or 0)
+	local oy = m.Y < ap.Y and m.Y - ap.Y or (m.Y > ap.Y + as.Y and m.Y - ap.Y - as.Y or 0)
+	if ox ~= 0 or oy ~= 0 then -- mouse outside the editor: scroll, faster the farther out and the longer it stays
+		dragT += dt
+		local k = (1 + math.min(dragT * 3, 30)) * dt
+		local mx, pos = sf.AbsoluteCanvasSize - sf.AbsoluteWindowSize, sf.CanvasPosition
+		sf.CanvasPosition = V2(
+			math.clamp(pos.X + math.clamp(ox * 8, -1500, 1500) * k, 0, math.max(mx.X, 0)),
+			math.clamp(pos.Y + math.clamp(oy * 12, -2400, 2400) * k, 0, math.max(mx.Y, 0)))
+		onScroll()
+	else
+		dragT = 0
+	end
+	cA = mouseAbs(m)
+	dirty = true
+	mirror()
+end
+
+bind(UIS.InputBegan, function(i)
+	local t = i.UserInputType
+	if t == Enum.UserInputType.MouseButton1 then
+		if overFrame(sf) then
+			local m, ap, as = UIS:GetMouseLocation(), sf.AbsolutePosition, sf.AbsoluteSize
+			if m.X < ap.X + as.X - px(14) and m.Y < ap.Y + as.Y - px(14) then -- not on a scrollbar
+				pressed, pressAt = true, m
+if UIS:IsKeyDown(Enum.KeyCode.LeftShift) or UIS:IsKeyDown(Enum.KeyCode.RightShift) then
+	syncNative()
+	dragging, dragT = true, 0 -- shift + click: extend the selection from its anchor, however far away (even if scrolling released the focus)
+	if not box:IsFocused() then box:CaptureFocus() end
+end
+			end
+		end
+	elseif t == Enum.UserInputType.Keyboard and box:IsFocused() then
+		local K = Enum.KeyCode
+		local ctrl = UIS:IsKeyDown(K.LeftControl) or UIS:IsKeyDown(K.RightControl) or UIS:IsKeyDown(K.LeftMeta) or UIS:IsKeyDown(K.RightMeta)
+		if not ctrl then return end
+		local shift = UIS:IsKeyDown(K.LeftShift) or UIS:IsKeyDown(K.RightShift)
+		local k = i.KeyCode
+		syncNative()
+		if k == K.A then -- the whole script, not just the window
+			aA, cA, hold, dirty = 1, doc.hLen + #box.Text + doc.tLen + 1, 3, true
+			mirror()
+		elseif k == K.C or k == K.X then -- copy / cut what is selected, also the part outside the window
+			local lo, hi, wS = math.min(aA, cA), math.max(aA, cA), doc.hLen + 1
+			if lo < hi and (lo < wS or hi > wS + #box.Text) then
+				local s = doc:full(box.Text):sub(lo, hi - 1)
+				local clip = setclipboard or toclipboard
+				if clip then
+					task.delay(0.05, function() pcall(clip, s) end) -- after the TextBox put its own (window only) copy there
+				else
+					emit("setclipboard is unavailable: copy only gets the part inside the window", LOG_WARN, true, true)
+				end
+			end
+		elseif (k == K.Z and not shift and undoSnap) or ((k == K.Y or (k == K.Z and shift)) and redoSnap) then
+			local undo = k == K.Z and not shift
+			local s, cur = undo and undoSnap or redoSnap, { doc:full(box.Text), aA, cA }
+			task.delay(0.05, function() -- after the TextBox's own undo, which can't see outside the window
+				if not alive then return end
+				reload(s[1], s[3])
+				aA = s[2]
+				mirror()
+				if undo then redoSnap = cur else undoSnap = cur end
+				dirty = true
+			end)
+		elseif k == K.Home or k == K.End then -- start / end of the whole script
+			local total = doc.hLen + #box.Text + doc.tLen + 1
+			cA = k == K.Home and 1 or total
+			if not shift then aA = cA end
+			setWindow(doc:lineAt(box.Text, cA) - WIN_BUF, ROWS + 2 * WIN_BUF)
+			hold = 2
+			mirror()
+			updateCaret(true)
+		end
+	end
+end)
+bind(UIS.InputEnded, function(i)
+	if i.UserInputType == Enum.UserInputType.MouseButton1 then
+		pressed = false
+		if dragging then
+			dragging, hold, dirty = false, 2, true
+			mirror()
+		end
+	end
+end)
+
+-- every frame: pick up what the TextBox did, run a drag, redraw caret + selection when they moved, blink the caret
+bind(RunService.Heartbeat, function(dt)
+	if ex.state ~= "open" then caretOn, caret.Visible = false, false return end
+	onEdited()
+	if pressed and not dragging and box:IsFocused() and (UIS:GetMouseLocation() - pressAt).Magnitude > 4 then
+		syncNative() -- the click has put the anchor where it was pressed
+		dragging, dragT = true, 0
+	end
+	if dragging then
+		dragStep(dt)
+	elseif hold > 0 then
+		hold -= 1
+		mirror()
+		dirty = true
+	else
+		syncNative()
+	end
+	if dirty then
+		dirty = false
+		updateCaret(follow)
+		follow = false
+	end
+	caret.Visible = caretOn and (os.clock() - lastMove) % 1.06 < 0.53
 end)
 
 -- shift + wheel scrolls sideways
@@ -841,6 +1134,11 @@ bind(UIS.InputChanged, function(i)
 		sf.CanvasPosition = V2(math.max(0, sf.CanvasPosition.X - i.Position.Z * 60), sf.CanvasPosition.Y)
 	end
 end)
+
+rehighlight()
+end
+buildEditor()
+end -- do
 -- [/EDITOR]
 
 -- [EXEC_BTNS]
@@ -1020,7 +1318,6 @@ bind(runBtn.MouseButton1Click, run)
 local function minimize()
 	if ex.busy or ex.state ~= "open" then return end
 	ex.busy, ex.state = true, "min"
-	caret.Visible = false
 	for _, p in ipairs({ logsP, setP }) do
 		p.reopen = p.isOpen
 		if p.isOpen then fadeClose(p) end
