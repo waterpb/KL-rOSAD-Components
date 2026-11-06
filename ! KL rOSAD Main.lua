@@ -7300,7 +7300,7 @@ do -- experience-specific keybind tabs: leave a tab that belongs to another expe
 	if at and at.es and at.exp ~= game.GameId then cfg.kbActive = "default" end
 	for _, x in ipairs(cfg.kbTabs) do
 		if x.es and x.exp == game.GameId then cfg.kbActive = x.id; break end
-	enda
+	end
 end
 ui.selectTab("Home")
 env.KLOSAD = { Unload = ui.unload, ctx = ctx, cfg = cfg, ui = ui, S = S, version = VERSION }
