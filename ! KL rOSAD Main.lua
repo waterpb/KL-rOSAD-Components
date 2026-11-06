@@ -1,30 +1,32 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py). Markers use "--" (Lua), not "//".
--- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), single-run guard (env.KLOSAD_BOOT), unload every previous run (env.KLOSAD_ALL registry) | VERSION, DIR, env | deps: none | L140-160
--- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L162-283
--- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L285-369
--- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L371-517
--- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L519-1090
--- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1092-1867
--- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart, ctx.SRV.hop / scanregions / serverbrowser commands, notifyuser/nuser + unnotifyuser/unuser (ctx.nuAdd/nuRemove/nuScan/nuPoll/nuStatus/nuInfo, cfg.notifyUsers, cfg.nuPoll), cleanup/clean (ctx.cleanup), loaderLine single-run guard, SRV.here / SRV.relay (this server's region for Home), ptp/pulsetp, look/lookat + unlook (live/seen/pick helpers), keepemotes/kemote + unkeepemotes/unkemote (emoteLike/take/attach/playHere) | deps: CMD_CORE | L1869-4829
--- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.alertUser (user notifier card: avatar, names, status), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L4831-5293
--- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L5295-5714
--- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade) | deps: UI_SHARED | L5716-5848
--- [PG_HOME] Home page (stats+icon centered, Region row via ctx.SRV.here, experience name carry) | stats loop, bio, ctx.curExp | deps: UI_PANEL | L5850-5960
--- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, Sort drop down (cfg.plSort: A-Z / Z-A / Nearest / Farthest; sortList, resort re-orders in place every cfg.plPoll s), voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L5962-6447
--- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L6449-6479
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L6481-6558
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L6560-6589
--- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L6591-6610
--- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L6612-6734
--- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L6736-6962
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L6964-7061
--- [PG_PREFS] Preferences page (incl. Players tab sort refresh, User notifier list) | refresh(), ui.refreshNu() | deps: PG_FLOW | L7063-7126
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L7128-7254
+-- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), single-run guard (env.KLOSAD_BOOT), unload every previous run (env.KLOSAD_ALL registry) | VERSION, DIR, env | deps: none | L142-162
+-- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L164-285
+-- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L287-372
+-- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L374-520
+-- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L522-1093
+-- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1095-1870
+-- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart, ctx.SRV.hop / scanregions / serverbrowser commands, notifyuser/nuser + unnotifyuser/unuser (ctx.nuAdd/nuRemove/nuScan/nuPoll/nuStatus/nuInfo, cfg.notifyUsers, cfg.nuPoll), cleanup/clean (ctx.cleanup), loaderLine single-run guard, SRV.here / SRV.relay (this server's region for Home), ptp/pulsetp, look/lookat + unlook (live/seen/pick helpers), keepemotes/kemote + unkeepemotes/unkemote (emoteLike/take/attach/playHere) | deps: CMD_CORE | L1872-4832
+-- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.alertUser (user notifier card: avatar, names, status), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L4834-5296
+-- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L5298-5717
+-- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade), ui.rel (relay dot + PID, polls GET /sys every 3 s) | deps: UI_SHARED | L5719-5881
+-- [PG_HOME] Home page (stats+icon centered, Region row via ctx.SRV.here, experience name carry) | stats loop, bio per UserId (cfg.bios), ctx.curExp | deps: UI_PANEL | L5883-5994
+-- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, Sort drop down (cfg.plSort: A-Z / Z-A / Nearest / Farthest; sortList, resort re-orders in place every cfg.plPoll s), voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L5996-6481
+-- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L6483-6513
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L6515-6592
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L6594-6623
+-- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L6625-6644
+-- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L6646-6768
+-- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L6770-6996
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L6998-7095
+-- [PG_PREFS] Preferences page (incl. Players tab sort refresh, User notifier list, System block: relay/PID/CPU/GPU/RAM) | refresh(), refreshSys(), ui.refreshNu() | deps: PG_FLOW | L7097-7186
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L7188-7314
 
 --[[
 	KL rOSAD v1.1  |  open-source admin/dev panel  |  client-side only
 
 	CHANGELOG (newest first; every change adds a line here and updates the NAV INDEX, then navfix)
+	v1.1  Bio is stored per UserId (cfg.bios), so each account keeps its own; the old single bio moves to the account that opens the panel first
+	v1.1  Relay indicator at the top of the panel next to the close button (green working, orange rate limited, red errors / lost, hidden until the relay answers once) with the client PID beside it; region-relay.py answers GET /sys (status, CPU, GPU, RAM, Roblox PIDs). Preferences: new System block (relay, PID, CPU, GPU, RAM, Roblox memory, frame time, ping)
 	v1.1  ;spider: walls are seen earlier (a ray reaches about 3.4 studs ahead, at chest AND knee height, so low walls count) and the turn onto a wall is faster (rate 14, was 8), so you start going up before you hit it. While the surface turns, the walk speed is kept (it used to shrink with the angle and stall at corners)
 	v1.1  New ;keepemotes / ;kemote (+ ;unkeepemotes / ;unkemote): the newest emote / non-default animation gets priority Action4 (beats walk, jump, fall, sit) and is played again the moment it stops early, so moving, jumping or falling no longer cancels it. A looped one stays until you start another or run ;unkemote; a one-shot ends normally. Humanoid:PlayEmote / "/e" only works while standing: when the game's Animate script refuses, the default emotes (wave, point, dance, laugh, cheer) are played by rOSAD instead, so they work mid air too (needs getcallbackmember)
 	v1.1  Players tab: the Sort button is now a drop down (A-Z / Z-A / Nearest / Farthest) like the Servers tab, and sits clear of the search box
@@ -305,7 +307,7 @@ local HAS_LOAD = pcall(function() return loadstring("return 1")() end)
 local DEFAULTS = {
 	theme = "Dark", opacity = 0.8, accent = "#FFFF00", anim = 1, scale = 1,
 	lines = 12, blur = 1, pos = "Center", barKey = "Semicolon", panelKey = "RightShift",
-	toasts = true, bio = "", binds = {}, autoExec = false, avc = false, mod = {}, exp = {}, hist = {}, startBar = true, autostart = {},
+	toasts = true, bio = "", bios = {}, binds = {}, autoExec = false, avc = false, mod = {}, exp = {}, hist = {}, startBar = true, autostart = {},
 	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false, selfPath = "", aliases = {}, kbDefName = "Default", listenPad = 0, srvRegion = "", srvSort = "Ping", srvDesc = false, srvMax = 50, notifyUsers = {}, nuPoll = 60, plSort = "A-Z", plPoll = 1,
 }
 local cfg = {}
@@ -319,6 +321,7 @@ cfg.expIcon = {}
 cfg.carry = {}
 cfg.aliases = {}
 cfg.notifyUsers = {}
+cfg.bios = {}
 cfg.autostart = { onExec = true, items = {} }
 
 local function save()
@@ -5750,6 +5753,36 @@ do
 
 	btn(panel, "×", 641, 13, 32, 26, "ctrlOff", BTN_OFF, function() ui.setPanel(false) end, 13)
 
+	-- relay indicator: hidden until region-relay.py answers once; green ok, orange rate limited, red errors / connection lost. PID beside it
+	do
+		local rel = { sys = {}, pid = "-", col = { ok = Color3.fromRGB(70, 200, 90), warn = Color3.fromRGB(255, 165, 40), bad = Color3.fromRGB(230, 60, 60) } }
+		ui.rel = rel
+		local rdot = new("Frame", { Position = UDim2.fromOffset(622, 21), Size = UDim2.fromOffset(10, 10), BorderSizePixel = 0, Visible = false }, panel)
+		new("UICorner", { CornerRadius = UDim.new(1, 0) }, rdot)
+		local rpid = txt(panel, "", 8, "sub", 540, 19, 76, 14, { TextXAlignment = Enum.TextXAlignment.Right, TextTruncate = Enum.TextTruncate.AtEnd, Visible = false })
+		local function poll()
+			local ok, r = pcall(request, { Url = "http://127.0.0.1:47653/sys", Method = "GET" })
+			local d
+			if ok and type(r) == "table" and r.StatusCode == 200 then ok, d = pcall(S.HttpService.JSONDecode, S.HttpService, r.Body) end
+			if type(d) == "table" then rel.sys, rel.s = d, d.err and "bad" or d.warn and "warn" or "ok"
+			elseif rel.s then rel.s = "bad" end -- answered before, silent now
+			local f = (getgenv and getgenv() or {}).getpid or (getgenv and getgenv() or {}).get_pid
+			local pk, p = pcall(function() return f() end)
+			local ps = rel.sys.pids
+			-- shortcut: with several Roblox clients open the relay lists every PID, it cannot tell which one is this client; upgrade if an executor exposes its own PID
+			rel.pid = pk and tonumber(p) and tostring(p) or (ps and #ps > 0 and table.concat(ps, "/")) or "-"
+			rdot.Visible, rpid.Visible = rel.s ~= nil, rel.s ~= nil
+			if rel.s then rdot.BackgroundColor3, rpid.Text = rel.col[rel.s], "PID " .. rel.pid end
+		end
+		task.spawn(function()
+			local first = true
+			while S.alive do
+				if S.panelOpen or first then first = false; pcall(poll) end
+				task.wait(3)
+			end
+		end)
+	end
+
 	-- drag by the title bar; moves in screen fractions
 	local header = new("Frame", { Size = UDim2.fromOffset(640, 50), BackgroundTransparency = 1 }, panel)
 	local drag, d0, p0
@@ -5911,15 +5944,16 @@ do
 	txt(h, lp.DisplayName, 12, "text2", 398, 139, 110, 17, { Font = FONT_B, TextXAlignment = Enum.TextXAlignment.Center, TextTruncate = Enum.TextTruncate.AtEnd })
 	txt(h, "@" .. lp.Name, 8, "sub", 398, 159, 110, 12, { TextXAlignment = Enum.TextXAlignment.Center, TextTruncate = Enum.TextTruncate.AtEnd })
 
-	-- bio: black at 20% with a 20% edge, 3px corners, 4.8px side insets
+	if cfg.bio ~= "" then cfg.bios[tostring(lp.UserId)] = cfg.bios[tostring(lp.UserId)] or cfg.bio; cfg.bio = ""; save() end -- old single bio -> this account
+	-- bio (per UserId): black at 20% with a 20% edge, 3px corners, 4.8px side insets
 	local bio = new("TextBox", { Position = UDim2.fromOffset(384, 176), Size = UDim2.fromOffset(140, 187), BorderSizePixel = 0, BackgroundTransparency = 0.8,
-		Font = FONT, TextSize = fs(9), MultiLine = true, TextWrapped = true, ClearTextOnFocus = false, Text = cfg.bio, PlaceholderText = "customizable bio",
+		Font = FONT, TextSize = fs(9), MultiLine = true, TextWrapped = true, ClearTextOnFocus = false, Text = cfg.bios[tostring(lp.UserId)] or "", PlaceholderText = "customizable bio",
 		TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top }, h)
 	paint(bio, "BackgroundColor3", "tabOff"); paint(bio, "TextColor3", "text"); paint(bio, "PlaceholderColor3", "dim")
 	new("UICorner", { CornerRadius = UDim.new(0, 3) }, bio)
 	paint(new("UIStroke", { Thickness = 1, Transparency = 0.8, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, bio), "Color", "tabOff")
 	new("UIPadding", { PaddingLeft = UDim.new(0, 5), PaddingRight = UDim.new(0, 5), PaddingTop = UDim.new(0, 4) }, bio)
-	bio.FocusLost:Connect(function() cfg.bio = bio.Text; save() end)
+	bio.FocusLost:Connect(function() cfg.bios[tostring(lp.UserId)] = bio.Text ~= "" and bio.Text or nil; save() end)
 
 	-- this server's region: cached, or looked up once (ctx.SRV.here); a failure retries every 30 s while Home is open
 	local rTry, rBusy, rDone = 0, false, rg ~= nil
@@ -7109,6 +7143,32 @@ do
 		end
 	end
 	ui.refreshNu()
+	fhdr(pg, "System")
+	local rr = new("Frame", { Size = UDim2.new(1, 0, 0, 16), BackgroundTransparency = 1, LayoutOrder = nx() }, pg)
+	local rdot = new("Frame", { Position = UDim2.fromOffset(2, 3), Size = UDim2.fromOffset(10, 10), BorderSizePixel = 0 }, rr)
+	new("UICorner", { CornerRadius = UDim.new(1, 0) }, rdot)
+	local rtx = txt(rr, "", 11, "text", 18, 0, 400, 16, { TextTruncate = Enum.TextTruncate.AtEnd })
+	local sysT = {}
+	for _, k in ipairs({ "cpu", "gpu", "ram", "mem", "ft", "ping" }) do sysT[k] = txt(pg, "", 11, "text", 0, 0, 400, 16, { LayoutOrder = nx(), TextTruncate = Enum.TextTruncate.AtEnd }) end
+	local function refreshSys()
+		local r = ui.rel
+		local s = r.sys
+		rdot.BackgroundColor3, rdot.Visible = r.col[r.s or "bad"], r.s ~= nil
+		rtx.Text = "Relay: " .. (({ ok = "connected", warn = "connected, rate limited", bad = "errors / connection lost" })[r.s or ""] or "not connected") .. "   PID " .. r.pid
+		sysT.cpu.Text = "CPU: " .. (s.cpu or "needs relay")
+		sysT.gpu.Text = "GPU: " .. (s.gpu or "needs relay")
+		sysT.ram.Text = "RAM: " .. (s.ram and (s.ram .. " GB, " .. s.load .. "% used") or "needs relay")
+		local function v(f, u) local ok, x = pcall(f); return ok and tonumber(x) and (("%.1f"):format(x) .. u) or "-" end
+		sysT.mem.Text = "Roblox memory: " .. v(function() return S.Stats:GetTotalMemoryUsageMb() end, " MB")
+		sysT.ft.Text = "Frame time: CPU " .. v(function() return S.Stats.PerformanceStats.CPU:GetValue() end, " ms") .. ", GPU " .. v(function() return S.Stats.PerformanceStats.GPU:GetValue() end, " ms")
+		sysT.ping.Text = "Ping: " .. v(function() return S.Stats.Network.ServerStatsItem["Data Ping"]:GetValue() end, " ms")
+	end
+	task.spawn(function()
+		while S.alive do
+			if S.panelOpen and ui.tab == "Preferences" then pcall(refreshSys) end
+			task.wait(2)
+		end
+	end)
 	fhdr(pg, "Active effects")
 	local active = txt(pg, "none", 11, "sub", 0, 0, 400, 20, { LayoutOrder = nx(), TextWrapped = true })
 	local br = new("Frame", { Size = UDim2.new(1, 0, 0, 23), BackgroundTransparency = 1, LayoutOrder = nx() }, pg)
@@ -7121,7 +7181,7 @@ do
 	btn(br, "Reset all effects", 0, 0, 120, 23, "btnFill", BTN_OFF, function() ctx.resetAll(); refresh() end)
 	btn(br, "Unload panel", 126, 0, 100, 23, "btnFill", BTN_OFF, function() ui.unload() end)
 	txt(pg, "KL rOSAD v" .. VERSION, 8, "dim", 0, 0, 300, 14, { LayoutOrder = nx() })
-	onShow["Preferences"] = function() refresh(); ui.refreshNu() end
+	onShow["Preferences"] = function() refresh(); ui.refreshNu(); pcall(refreshSys) end
 end
 -- [/PG_PREFS]
 
@@ -7240,7 +7300,7 @@ do -- experience-specific keybind tabs: leave a tab that belongs to another expe
 	if at and at.es and at.exp ~= game.GameId then cfg.kbActive = "default" end
 	for _, x in ipairs(cfg.kbTabs) do
 		if x.es and x.exp == game.GameId then cfg.kbActive = x.id; break end
-	end
+	enda
 end
 ui.selectTab("Home")
 env.KLOSAD = { Unload = ui.unload, ctx = ctx, cfg = cfg, ui = ui, S = S, version = VERSION }
