@@ -1,30 +1,44 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py). Markers use "--" (Lua), not "//".
--- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), single-run guard (env.KLOSAD_BOOT), unload every previous run (env.KLOSAD_ALL registry) | VERSION, DIR, env | deps: none | L169-189
--- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L191-312
--- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L314-399
--- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L401-558
--- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L560-1205
--- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1207-1990
--- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart, ctx.SRV.hop / scanregions / serverbrowser commands, notifyuser/nuser + unnotifyuser/unuser (ctx.nuAdd/nuRemove/nuScan/nuPoll/nuStatus/nuInfo, cfg.notifyUsers, cfg.nuPoll), cleanup/clean (ctx.cleanup), loaderLine single-run guard, SRV.here / SRV.relay (this server's region for Home), ptp/pulsetp, look/lookat + unlook (live/seen/pick helpers), keepemotes/kemote + unkeepemotes/unkemote (emoteLike/take/attach/playHere) | deps: CMD_CORE | L1992-5048
--- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.alertUser (user notifier card: avatar, names, status), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L5050-5525
--- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L5527-5945
--- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade), ui.rel (relay dot + PID, polls GET /sys every 3 s) | deps: UI_SHARED | L5947-6138
--- [PG_HOME] Home page (stats+icon centered, Region row via ctx.SRV.here, experience name carry) | stats loop, bio per UserId (cfg.bios), ctx.curExp | deps: UI_PANEL | L6140-6251
--- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, Sort drop down (cfg.plSort: A-Z / Z-A / Nearest / Farthest; sortList, resort re-orders in place every cfg.plPoll s), voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L6253-6742
--- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L6744-6774
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L6776-6853
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L6855-6884
--- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L6886-6905
--- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L6907-7029
--- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L7031-7257
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L7259-7359
--- [PG_PREFS] Preferences page (incl. Players tab sort refresh, User notifier list, System block: relay/PID/CPU/GPU/RAM) | refresh(), refreshSys(), ui.refreshNu() | deps: PG_FLOW | L7361-7450
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L7452-7585
+-- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), single-run guard (env.KLOSAD_BOOT), unload every previous run (env.KLOSAD_ALL registry) | VERSION, DIR, env | deps: none | L183-203
+-- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L205-326
+-- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L328-413
+-- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L415-572
+-- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L574-1219
+-- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1221-2004
+-- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart, ctx.SRV.hop / scanregions / serverbrowser commands, notifyuser/nuser + unnotifyuser/unuser (ctx.nuAdd/nuRemove/nuScan/nuPoll/nuStatus/nuInfo, cfg.notifyUsers, cfg.nuPoll), cleanup/clean (ctx.cleanup), loaderLine single-run guard, SRV.here / SRV.relay (this server's region for Home), ptp/pulsetp, look/lookat + unlook (live/seen/pick helpers), keepemotes/kemote + unkeepemotes/unkemote (emoteLike/take/attach/playHere) | deps: CMD_CORE | L2006-5117
+-- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.alertUser (user notifier card: avatar, names, status), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L5119-5600
+-- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L5602-6042
+-- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade), ui.rel (relay dot + PID, polls GET /sys every 3 s), soft drifting background glows (ui.orbitTween) | deps: UI_SHARED | L6044-6269
+-- [PG_HOME] Home page (stats+icon centered, Region row via ctx.SRV.here, experience name carry) | stats loop, bio per UserId (cfg.bios), ctx.curExp | deps: UI_PANEL | L6271-6382
+-- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, Sort drop down (cfg.plSort: A-Z / Z-A / Nearest / Farthest; sortList, resort re-orders in place every cfg.plPoll s), voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L6384-6901
+-- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L6903-6933
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L6935-7012
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L7014-7043
+-- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L7045-7064
+-- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L7066-7188
+-- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L7190-7416
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L7418-7518
+-- [PG_PREFS] Preferences page (incl. Players tab sort refresh, User notifier list, System block: relay/PID/CPU/GPU/RAM) | refresh(), refreshSys(), ui.refreshNu() | deps: PG_FLOW | L7520-7609
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L7611-7751
 
 --[[
 	KL rOSAD v1.1  |  open-source admin/dev panel  |  client-side only
 
 	CHANGELOG (newest first; every change adds a line here and updates the NAV INDEX, then navfix)
+	v1.1  Light mode tiles no longer darken: the "glass" veil is white in light mode (a grey one turned the glows muddy); dark mode keeps the black veil
+	v1.1  Tiles darken again (the white veil lightened them): theme key "glass" is pure black in dark mode and a soft grey in light mode, raw transparency 0.75, still scaled by UI Opacity
+	v1.1  Glows no longer poke out of the rounded window corners: their holder is a CanvasGroup with the window's corner radius
+	v1.1  Tiles (page area + sidebar) are a faint white veil (theme key "glass", raw transparency 0.9, still scaled by UI Opacity) instead of a dark fill, so the glows behind them stay clean instead of going muddy
+	v1.1  Glass look: all tile / panel / card gradients removed (fr depth gradient, wash() on the tiles, window sheen); only buttons keep a subtle sheen, now in both themes (white in dark, black in light, theme key "sheen"). The accent glows show in light mode too (the white one stays dark only)
+	v1.1  UI Opacity is relative for everything in the panel: tiles, cards, buttons, fields, washes and the sheen are scaled by opacity / 0.8 (S.opx, attribute "raw"; ui.apply rescales live), so 20 % and 50 % are see-through all over instead of solid buttons on a faint panel. 80 % looks as before, 100 % is a bit denser
+	v1.1  Glows were too faint to see (peak 0.04 to 0.09 behind a half transparent tile): peaks raised to 0.12 to 0.3
+	v1.1  Glows: the four older glow experiments are gone, one set remains: bigger, fainter, smoother (18 layers), random drift over 14 to 28 s, strength wanders a few percent. Page area and sidebar tiles are fixed at the 80 % look whatever UI Opacity is, so the glows still show at 100 %
+	v1.1  Dark mode: a soft light circles behind the panel content (accent glow + a fainter white one on the opposite side, one rotation per 18 s, ui.orbitTween; paused with Animation Speed: none, hidden in light mode)
+	v1.1  Dark mode: soft wavy lights drift behind the panel content (accent, white and two red glows plus a dim accent one; each turns at its own speed and direction and slowly breathes; ui.orbitTween; paused with Animation Speed: none, hidden in light mode)
+	v1.1  New ;all [@alt] <command>: runs the command on this account and on your other accounts (;sudo = the other accounts only, the account you type it in does not run it); if the relay is down ;all still runs it here
+	v1.1  New ;sudo [@alt] <command>: runs a command on your other accounts too (instances of this script on the same PC), through region-relay.py (new endpoints /alt/ping and /alt/send; every instance pings it every 1.5 s, gets its queued commands and the list of the other accounts). Players tab: new Accounts group (your alts that are in this server get the normal card tagged "alt", alts in other servers a row with a Join button), needs the relay
+	v1.1  Command bar: for commands that take a <player> the server's players are suggested while you type the first argument (Up / Down to pick, Tab to fill)
+	v1.1  ;noplayercollision also answers to ;noplayercollide / ;nopcol, ;playercollision to ;playercollide / ;pcol
 	v1.1  Light mode is flat again: every gradient, wash, sheen, glow and the comet border is decoration registered through S.deco and only shown in dark mode (S.applyDeco on theme change)
 	v1.1  UI Opacity now fades the page area and the sidebar back too (they were fixed at 50 %): 80 % opacity = the old look, 100 % = solid
 	v1.1  Dark mode polish: bigger corners (window 12, areas 10), pill tabs (inset 6 px, rounded selection, bar inside), metallic title gradient, fading hairline under the header
@@ -405,11 +419,11 @@ local rgb = Color3.fromRGB
 local THEMES = {
 	Dark = { panel = rgb(8, 8, 10), panelEdge = rgb(52, 50, 58), inner = rgb(15, 15, 18), edge = rgb(72, 70, 80), bar = rgb(15, 15, 18),
 		tabOn = rgb(110, 106, 120), tabOff = rgb(0, 0, 0), row = rgb(32, 31, 37), ctrlOn = rgb(110, 106, 120), ctrlOff = rgb(22, 22, 26),
-		btnFill = rgb(14, 14, 17), text = rgb(255, 255, 255), text2 = rgb(238, 237, 242), sub = rgb(158, 156, 168),
+		btnFill = rgb(14, 14, 17), glass = rgb(0, 0, 0), sheen = rgb(255, 255, 255), text = rgb(255, 255, 255), text2 = rgb(238, 237, 242), sub = rgb(158, 156, 168),
 		dim = rgb(112, 110, 124), hint = rgb(122, 122, 134), line = rgb(72, 70, 80) },
 	Light = { panel = rgb(242, 242, 242), panelEdge = rgb(242, 242, 242), inner = rgb(231, 230, 230), edge = rgb(158, 155, 155), bar = rgb(231, 230, 230),
 		tabOn = rgb(138, 134, 134), tabOff = rgb(255, 255, 255), row = rgb(191, 191, 191), ctrlOn = rgb(138, 134, 134), ctrlOff = rgb(250, 250, 250),
-		btnFill = rgb(214, 213, 213), text = rgb(13, 13, 13), text2 = rgb(31, 31, 31), sub = rgb(84, 81, 81),
+		btnFill = rgb(214, 213, 213), glass = rgb(255, 255, 255), sheen = rgb(0, 0, 0), text = rgb(13, 13, 13), text2 = rgb(31, 31, 31), sub = rgb(84, 81, 81),
 		dim = rgb(107, 103, 103), hint = rgb(107, 103, 103), line = rgb(138, 134, 134) },
 }
 if not THEMES[cfg.theme] then cfg.theme = "Dark" end
@@ -4156,7 +4170,7 @@ do
 		for part in pairs(was) do pcall(function() part.CanCollide = true end) end
 		was = setmetatable({}, { __mode = "k" })
 	end
-	def({ "noplayercollision", "nopc", "nopcollide", "noplayercollusion" }, "", "Walk through other players (client side)", "collide collision collusion ghost pass through players", function()
+	def({ "noplayercollision", "noplayercollide", "nopc", "nopcol", "nopcollide", "noplayercollusion" }, "", "Walk through other players (client side)", "collide collision collusion ghost pass through players", function()
 		local function sweep() -- the humanoid / game switches collision back on every frame: set it again right before physics, whatever it reads now
 			for _, p in ipairs(Players:GetPlayers()) do
 				local c = p ~= lp and p.Character
@@ -4171,11 +4185,66 @@ do
 		ctx.connect("noPlayerCol", RS.Stepped, sweep)
 		ctx.connect("noPlayerCol2", RS.PreSimulation, sweep)
 	end)
-	def({ "playercollision", "pc", "pcollide", "playercollusion" }, "", "Other players are solid again (undoes ;noplayercollision)", "collide collision collusion players", function()
+	def({ "playercollision", "playercollide", "pc", "pcol", "pcollide", "playercollusion" }, "", "Other players are solid again (undoes ;noplayercollision)", "collide collision collusion players", function()
 		ctx.disconnect("noPlayerCol")
 		ctx.disconnect("noPlayerCol2")
 		restore()
 	end)
+end
+
+-- ===== ALTS: ;sudo and the Accounts list, through region-relay.py (one relay for every instance on this PC) =====
+do
+	local HS, BASE = S.HttpService, "http://127.0.0.1:47653/alt"
+	state.alts = {} -- userId -> info of the OTHER accounts connected to the relay
+	local function post(path, t)
+		local ok, r = pcall(request, { Url = BASE .. path, Method = "POST", Headers = { ["Content-Type"] = "application/json" }, Body = HS:JSONEncode(t) })
+		if ok and type(r) == "table" and r.StatusCode == 200 then
+			local ok2, d = pcall(HS.JSONDecode, HS, r.Body)
+			if ok2 and type(d) == "table" then return d end
+		end
+	end
+	local sig = ""
+	task.spawn(function()
+		local fails = 0
+		while S.alive do
+			local d = post("/ping", { id = tostring(lp.UserId), userId = lp.UserId, name = lp.Name, displayName = lp.DisplayName, placeId = game.PlaceId, jobId = game.JobId })
+			if d then
+				fails = 0
+				local alts, parts = {}, {}
+				for _, a in ipairs(d.alts or {}) do alts[a.userId] = a; parts[#parts + 1] = a.userId .. ":" .. tostring(a.jobId) end
+				table.sort(parts)
+				local s = table.concat(parts, ",")
+				if s ~= sig then sig, state.alts, state.altsRev = s, alts, (state.altsRev or 0) + 1 end
+				for _, c in ipairs(d.cmds or {}) do
+					if type(c) == "string" and not (c:lower():match("^%s*;?sudo") or c:lower():match("^%s*;?all%f[%A]")) then -- never sudo inside sudo: no loops between accounts
+						ctx.notify("sudo: " .. c)
+						task.spawn(ctx.Run, c)
+					end
+				end
+			else
+				fails = fails + 1 -- relay not running: back off to every 5 s
+				if sig ~= "" then sig, state.alts, state.altsRev = "", {}, (state.altsRev or 0) + 1 end
+			end
+			task.wait(fails > 3 and 5 or 1.5)
+		end
+	end)
+	-- sudo: the OTHER accounts run it (you do not); all: the other accounts and this one
+	local function bcast(withSelf, ...)
+		local a = { ... }
+		local to = "others"
+		if a[1] and a[1]:sub(1, 1) == "@" then to = table.remove(a, 1):sub(2):lower() end
+		local text = table.concat(a, " ")
+		if text == "" then return ctx.notify("Usage: " .. (withSelf and "all" or "sudo") .. " [@alt] <command>") end
+		local low = text:lower()
+		if low:match("^;?sudo") or low:match("^;?all%f[%A]") then return ctx.notify("Not inside sudo / all") end
+		local d = post("/send", { from = tostring(lp.UserId), to = to, cmd = text })
+		if withSelf then task.spawn(ctx.Run, text) end
+		if not d then return ctx.notify("The relay does not answer (start region-relay.py)" .. (withSelf and ", ran it here only" or "")) end
+		local n = d.sent or 0
+		ctx.notify(n > 0 and ("Sent to %d account(s): %s"):format(n, text) or "No other account is connected to the relay")
+	end
+	def({ "sudo" }, "[@alt] <command>", "Run a command on your OTHER accounts (not this one; needs region-relay.py running)", "alt alts multi instance accounts everywhere execute run", function(...) bcast(false, ...) end)
+	def({ "all" }, "[@alt] <command>", "Run a command on this account AND your other accounts (needs region-relay.py running)", "alt alts multi instance accounts everywhere execute run every", function(...) bcast(true, ...) end)
 end
 
 -- ===== MOUSE =====
@@ -5062,6 +5131,9 @@ if not gui.Parent then gui.Parent = lp:WaitForChild("PlayerGui") end
 ui.gui = gui
 ui.blur = new("BlurEffect", { Name = "KLOSAD_Blur", Size = 0 }, S.Lighting)
 
+-- UI Opacity is relative: every fill in the panel (tiles, cards, buttons, fields, washes) has a raw transparency designed at 80 %, and is scaled by opacity / 0.8 (20 % -> x0.25, 50 % -> x0.625, 100 % -> x1.25). Scaled elements carry the attribute "raw"; ui.apply rescales them live
+S.opK = math.clamp(tonumber(cfg.opacity) or 0.8, 0.2, 1) / 0.8
+function S.opx(tr) return math.clamp(1 - (1 - tr) * S.opK, 0, 1) end
 local ord = 0
 local function nx() ord = ord + 1; return ord end
 
@@ -5070,10 +5142,9 @@ local function fr(parent, x, y, w, h, fillKey, tr, r, strokeKey, st, str)
 	local f = new("Frame", { Position = UDim2.fromOffset(x, y), Size = UDim2.fromOffset(w, h), BorderSizePixel = 0,
 		BackgroundTransparency = fillKey and tr or 1 }, parent)
 	if fillKey then paint(f, "BackgroundColor3", fillKey) end
+	if S.opScope and fillKey and fillKey ~= "accent" and w >= 14 and h >= 14 then f:SetAttribute("raw", tr); f.BackgroundTransparency = S.opx(tr) end
 	if r then new("UICorner", { CornerRadius = UDim.new(0, r) }, f) end
-	if fillKey and w >= 14 and h >= 14 then -- very faint depth: dark at the top, a touch lighter at the bottom
-		S.deco(new("UIGradient", { Rotation = 90, Color = ColorSequence.new(Color3.fromRGB(228, 228, 232), Color3.new(1, 1, 1)) }, f))
-	end
+
 	if strokeKey then
 		paint(new("UIStroke", { Thickness = st or 1, Transparency = str or 0, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, f), "Color", strokeKey)
 	end
@@ -5082,7 +5153,8 @@ end
 -- soft wash for depth: black fading out from the top (bottom = false) or white fading in toward the bottom; tr = its strongest transparency
 local function wash(parent, x, y, w, h, bottom, tr, r)
 	local f = fr(parent, x, y, w, h, nil)
-	f.BackgroundColor3, f.BackgroundTransparency = bottom and Color3.new(1, 1, 1) or Color3.new(0, 0, 0), 0
+	f.BackgroundColor3, f.BackgroundTransparency = bottom and Color3.new(1, 1, 1) or Color3.new(0, 0, 0), S.opx(0)
+	f:SetAttribute("raw", 0)
 	if r then new("UICorner", { CornerRadius = UDim.new(0, r) }, f) end
 	S.deco(f)
 	new("UIGradient", { Rotation = 90, Transparency = bottom and NumberSequence.new(1, tr) or NumberSequence.new(tr, 1) }, f)
@@ -5100,6 +5172,8 @@ local function setFill(b, key, tr)
 	local on = key == "ctrlOn" -- selected = accent tinted fill + accent edge
 	if on then tr = 0.78 end
 	paint(b, "BackgroundColor3", on and "accent" or key)
+	b:SetAttribute("raw", tr)
+	tr = S.opx(tr)
 	b:SetAttribute("base", tr)
 	b:SetAttribute("on", on)
 	b.BackgroundTransparency = tr
@@ -5132,7 +5206,7 @@ local function btn(parent, str, x, y, w, h, key, tr, cb, pt)
 	local stroke = new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, b)
 	paint(stroke, "Color", b:GetAttribute("on") and "accent" or "edge")
 	local sheen = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0 }, b)
-	S.deco(sheen)
+	paint(sheen, "BackgroundColor3", "sheen") -- white in dark mode, black in light mode: a subtle gradient in both
 	new("UICorner", { CornerRadius = UDim.new(0, 5) }, sheen)
 	local sg = new("UIGradient", { Rotation = 90, Transparency = NumberSequence.new(0.93, 1) }, sheen)
 	local sc = new("UIScale", {}, b)
@@ -5167,7 +5241,8 @@ end
 -- reference text field: 1px edge, 5px corners, 10px left inset. The styled Frame holds a plain TextBox, because
 -- UIPadding / UIStroke on the TextBox itself shifts the caret. Returns the TextBox; its Frame is o.Parent.
 local function input(parent, ph, x, y, w, h, pt, fillKey, tr, props)
-	local f = new("Frame", { Position = UDim2.fromOffset(x, y), Size = UDim2.fromOffset(w, h), BorderSizePixel = 0, BackgroundTransparency = tr or BTN_OFF }, parent)
+	local f = new("Frame", { Position = UDim2.fromOffset(x, y), Size = UDim2.fromOffset(w, h), BorderSizePixel = 0, BackgroundTransparency = S.opx(tr or BTN_OFF) }, parent)
+	f:SetAttribute("raw", tr or BTN_OFF)
 	paint(f, "BackgroundColor3", fillKey or "ctrlOff")
 	new("UICorner", { CornerRadius = UDim.new(0, 5) }, f)
 	local stroke = new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, f)
@@ -5805,6 +5880,23 @@ end)
 			for _, e in ipairs(ui.entries()) do
 				if e.canon == ctx.Aliases[q] then S.cur = { e } end
 			end
+			-- a command that takes a <player>: suggest the server's players while the first argument is typed (Tab fills it)
+			local part = rest:match("^%s+(%S*)$")
+			if S.cur[1] and part and tostring(S.cur[1].args):find("^<player") then
+				local lq, list = part:lower(), {}
+				for _, pl in ipairs(S.Players:GetPlayers()) do
+					local nm, dn = pl.Name:lower(), pl.DisplayName:lower()
+					if lq == "" or nm:find(lq, 1, true) or dn:find(lq, 1, true) then
+						list[#list + 1] = { names = { pl.Name }, args = "", desc = pl.DisplayName ~= pl.Name and pl.DisplayName or "", canon = pl.Name, fill = q .. " " .. pl.Name .. " ", pre = nm:sub(1, #lq) == lq or dn:sub(1, #lq) == lq }
+					end
+				end
+				table.sort(list, function(x, z)
+					if x.pre ~= z.pre then return x.pre end
+					return x.names[1]:lower() < z.names[1]:lower()
+				end)
+				for i = 1, math.min(#list, 8) do S.cur[#S.cur + 1] = list[i] end
+				if #S.cur > 1 then S.sel, S.q = 2, part end
+			end
 		elseif rest ~= "" then
 			-- more than one word that isn't a command: search by what commands do
 			S.cur = ui.matches(line)
@@ -5873,6 +5965,11 @@ end
 		end
 		local e = S.cur[S.sel]
 		if not e then return end
+		if e.fill then -- a suggested player: fill the whole line
+			box.Text = e.fill
+			box.CursorPosition = #box.Text + 1
+			return
+		end
 		local q, name = S.q or "", e.canon
 		for _, nm in ipairs(e.names) do
 			if nm:sub(1, #q) == q then name = nm; break end
@@ -5947,6 +6044,7 @@ end
 -- [UI_PANEL]
 -- ===== UI: panel frame (slide 4: 685x443, sidebar 141x36 tabs, inner 532x379 at 141,52) ===========
 local pages, tabs, onShow = {}, {}, {}
+S.opScope = true -- from here on fr() registers its fills for opacity scaling (the command bar above is not scaled)
 do
 	local panelFade = new("CanvasGroup", { Name = "PanelFade", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0, GroupTransparency = 1, Visible = false }, gui)
 	local panel = new("Frame", { Name = "Panel", AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(685, 443), BorderSizePixel = 0 }, panelFade)
@@ -5959,14 +6057,47 @@ do
 	S.deco(pgr) -- light mode: a plain accent border
 	ui.borderTween = S.TweenService:Create(pgr, TweenInfo.new(7, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1), { Rotation = 360 })
 	if cfg.anim ~= 0 then ui.borderTween:Play() end
-	-- soft sheen over the top of the window
+	-- soft glows drifting behind the content: big, faint, each picks a random spot and drifts there over 14 to 28 s (Sine in / out), and its strength wanders by a few percent. A glow is stacked circles at tiny alpha inside a CanvasGroup (UIGradient is linear only; the group lets GroupTransparency vary the whole glow). Dark mode only (S.deco)
 	do
-		local sh = fr(panel, 0, 293, 685, 150, nil)
-		S.deco(sh)
-		sh.BackgroundTransparency, sh.BackgroundColor3 = 0.94, Color3.new(1, 1, 1)
-		new("UICorner", { CornerRadius = UDim.new(0, 12) }, sh)
-		new("UIGradient", { Rotation = 90, Transparency = NumberSequence.new(1, 0) }, sh)
+		-- a CanvasGroup clips to its UICorner (ClipsDescendants only clips to a rectangle, so the glows poked out of the rounded window corners)
+		local clip = new("CanvasGroup", { Size = UDim2.fromOffset(685, 443), BackgroundTransparency = 1, BorderSizePixel = 0 }, panel)
+		new("UICorner", { CornerRadius = UDim.new(0, 12) }, clip)
+
+		local holds, tws, live, gen = {}, {}, false, 0
+		-- accent?, diameter, alpha in the middle
+		for _, g in ipairs({ { true, 900, 0.3 }, { true, 760, 0.22 }, { true, 1000, 0.16 }, { false, 700, 0.12 } }) do
+			local d = g[2]
+			local hold = new("CanvasGroup", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(math.random(0, 685), math.random(0, 443)), Size = UDim2.fromOffset(d, d),
+				BackgroundTransparency = 1, BorderSizePixel = 0, GroupTransparency = math.random(0, 12) / 100 }, clip)
+			holds[#holds + 1] = hold
+			if not g[1] then S.deco(hold) end -- the white glow is dark mode only; the accent glows show in both themes
+			local n = 18
+			local a = 1 - (1 - g[3]) ^ (1 / n)
+			for i = 1, n do
+				local c = new("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(d * i / n, d * i / n), BorderSizePixel = 0, BackgroundTransparency = 1 - a }, hold)
+				if g[1] then paint(c, "BackgroundColor3", "accent") else c.BackgroundColor3 = Color3.new(1, 1, 1) end
+				new("UICorner", { CornerRadius = UDim.new(1, 0) }, c)
+			end
+		end
+		local function go(h, my)
+			if not live or my ~= gen then return end
+			local secs = math.random(140, 280) / 10
+			local t = S.TweenService:Create(h, TweenInfo.new(secs, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), { Position = UDim2.fromOffset(math.random(0, 685), math.random(0, 443)) })
+			local ta = S.TweenService:Create(h, TweenInfo.new(secs * 0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), { GroupTransparency = math.random(0, 12) / 100 })
+			tws[h] = { t, ta }
+			t.Completed:Connect(function() go(h, my) end)
+			t:Play(); ta:Play()
+		end
+		local function stop()
+			live, gen = false, gen + 1
+			for _, p in pairs(tws) do for _, t in ipairs(p) do t:Cancel() end end
+			tws = {}
+		end
+		-- one handle: ui.apply / ui.unload call :Play() / :Pause() / :Cancel() on it
+		ui.orbitTween = { Play = function() if live then return end live, gen = true, gen + 1 for _, h in ipairs(holds) do go(h, gen) end end, Pause = stop, Cancel = stop }
+		if cfg.anim ~= 0 then ui.orbitTween:Play() end
 	end
+
 	ui.panel = panel
 	ui.panelScale = new("UIScale", {}, panel)
 	-- accent line along the top edge: a dim base plus a highlight that glides across (paused with Animation Speed: none)
@@ -6054,18 +6185,18 @@ do
 		end
 	end)
 
-	local inner = fr(panel, 141, 52, 532, 379, "inner", 0.5, 10, "edge", 1, 0.7)
+	local inner = fr(panel, 141, 52, 532, 379, "glass", 0.75, 10, "edge", 1, 0.7) -- a darkening veil (pure black in dark mode, grey in light), no tinted fill, so it darkens without turning the glow muddy -- a faint white veil instead of a dark fill: it brightens whatever glows behind it, a dark fill turned the yellow glow muddy olive
 	inner.ClipsDescendants = true
 	ui.inner = inner
-	wash(inner, 0, 0, 532, 170, false, 0.8, 10) -- created before the pages, so the content draws above it
-	wash(inner, 0, 209, 532, 170, true, 0.95, 10)
+
+
 
 	-- tab y positions copied from the deck (8 tabs now); text right-aligned with the deck's 9.6px inset
 	local TABS = { { "Home", 66 }, { "Players", 101 }, { "Servers", 136 }, { "Look and feel", 171 }, { "Load scripts", 206 }, { "Autostart", 241 },
 		{ "Keybinds", 276 }, { "Module Cfg", 311 }, { "Commands", 346 }, { "Preferences", 381 } }
-	ui.side = fr(panel, 0, 52, 139, 379, "inner", 0.5, 10, "edge", 1, 0.7)
-	wash(panel, 0, 52, 139, 150, false, 0.8, 10)
-	wash(panel, 0, 281, 139, 150, true, 0.95, 10)
+	ui.side = fr(panel, 0, 52, 139, 379, "glass", 0.75, 10, "edge", 1, 0.7)
+
+
 	 -- one dark column behind every tab
 	for _, t in ipairs(TABS) do
 		local name = t[1]
@@ -6427,7 +6558,7 @@ do
 
 	local CW, BW, BH, BG = 511, 78, 24, 5 -- card width, button size and gap
 	local BX = CW - 12 - (3 * BW + 2 * BG) -- left edge of the 3 x 2 button grid
-	local TITLE = { listening = "Listening", friends = "Friends", players = "Players", hidden = "Blocked / Hidden" }
+	local TITLE = { accounts = "Accounts", listening = "Listening", friends = "Friends", players = "Players", hidden = "Blocked / Hidden" }
 	local function header(key, count, order)
 		local h = new("Frame", { Size = UDim2.new(1, 0, 0, 20), BackgroundTransparency = 1, LayoutOrder = order }, plist)
 		fr(h, 2, 5, 3, 11, "accent", 0, 2)
@@ -6449,7 +6580,7 @@ do
 		local ring = new("UIStroke", { Thickness = 1.5, Transparency = 0.55, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, a)
 		paint(ring, "Color", "accent")
 		local ny = me and 14 or 12
-		local tag = key == "hidden" and (blocked[uid] and "  ·  blocked" or "  ·  hidden") or ""
+		local tag = key == "hidden" and (blocked[uid] and "  ·  blocked" or "  ·  hidden") or (key == "accounts" and "  ·  alt" or "")
 		copyable(r, p.DisplayName, hl(p.DisplayName, q) .. (me and " (you)" or ""), 76, ny, 141, 16, 10, "text2", { Font = FONT_B })
 		copyable(r, p.Name, hl("@" .. p.Name, q) .. tag, 76, ny + 18, 141, 13, 8, "sub")
 		-- level bars, bottom aligned next to the name
@@ -6496,13 +6627,27 @@ do
 		slider(r, 76, 53, 120, uid)
 	end
 
+	-- an alt that is in another server: avatar, name, Join
+	local function altRow(a, order)
+		local r = fr(plist, 0, 0, CW, 56, "row", 0.85, 8, "edge", 1, 0.55)
+		r.Size, r.LayoutOrder = UDim2.new(1, 0, 0, 56), order
+		local av = new("ImageLabel", { Position = UDim2.fromOffset(12, 6), Size = UDim2.fromOffset(44, 44), BorderSizePixel = 0, BackgroundTransparency = 0.9, Image = thumb("AvatarHeadShot", a.userId, 150) }, r)
+		paint(av, "BackgroundColor3", "row")
+		new("UICorner", { CornerRadius = UDim.new(1, 0) }, av)
+		txt(r, (a.displayName and a.displayName ~= "") and a.displayName or a.name, 10, "text2", 68, 10, 220, 16, { Font = FONT_B })
+		txt(r, "@" .. a.name .. "  ·  other server", 8, "sub", 68, 30, 240, 13)
+		btn(r, "Join", BX + 2 * (BW + BG), 12, BW, BH, "btnFill", BTN_OFF, function()
+			pcall(function() game:GetService("TeleportService"):TeleportToPlaceInstance(a.placeId, a.jobId, lp) end)
+		end)
+	end
+
 	function render(toTop)
 		local keep = plist.CanvasPosition
 		clear(plist)
 		rows = {}
 		local q = sbox.Text:lower()
 		local blocked = blockedSet()
-		local groups = { listening = {}, friends = {}, players = {}, hidden = {} }
+		local groups = { accounts = {}, listening = {}, friends = {}, players = {}, hidden = {} }
 		local me
 		for _, p in ipairs(S.Players:GetPlayers()) do
 			if q == "" or p.Name:lower():find(q, 1, true) or p.DisplayName:lower():find(q, 1, true) then
@@ -6510,7 +6655,7 @@ do
 					me = p
 				else
 					local uid = p.UserId
-					local g = state.listen[uid] and "listening" or ((blocked[uid] or ctx.isHidden(uid)) and "hidden") or (friends[uid] and "friends") or "players"
+					local g = (state.alts and state.alts[uid]) and "accounts" or state.listen[uid] and "listening" or ((blocked[uid] or ctx.isHidden(uid)) and "hidden") or (friends[uid] and "friends") or "players"
 					table.insert(groups[g], p)
 				end
 			end
@@ -6518,15 +6663,28 @@ do
 		for _, list in pairs(groups) do
 			sortList(list)
 		end
+		local off = {} -- alts that are not in this server
+		do
+			local here = {}
+			for _, p in ipairs(S.Players:GetPlayers()) do here[p.UserId] = true end
+			for uid, a in pairs(state.alts or {}) do
+				if not here[uid] and (q == "" or a.name:lower():find(q, 1, true) or (a.displayName or ""):lower():find(q, 1, true)) then off[#off + 1] = a end
+			end
+			table.sort(off, function(x, z) return x.name:lower() < z.name:lower() end)
+		end
 		local order, y, count = 0, 0, 0
 		local function add(hh) y = y + (count > 0 and 6 or 0) + hh; count = count + 1 end
 		if me then order = order + 1; add(64); card(me, order, nil, blocked, q) end
-		for _, key in ipairs({ "listening", "friends", "players", "hidden" }) do
+		for _, key in ipairs({ "accounts", "listening", "friends", "players", "hidden" }) do
 			local list = groups[key]
-			if #list > 0 then
-				order = order + 1; add(20); header(key, #list, order); hdr[key] = order
+			local extra = key == "accounts" and off or {}
+			if #list + #extra > 0 then
+				order = order + 1; add(20); header(key, #list + #extra, order); hdr[key] = order
 				for _, p in ipairs(list) do
 					order = order + 1; add(80); card(p, order, key, blocked, q)
+				end
+				for _, a in ipairs(extra) do
+					order = order + 1; add(56); altRow(a, order)
 				end
 			end
 		end
@@ -6542,13 +6700,14 @@ do
 	end
 
 	-- voice activity: the ring grows and the bars dance with the player's level (smoothed, fast attack, slow release)
-	local EQ, wasVisible = { 0.75, 1, 0.9, 0.6 }, false
+	local EQ, wasVisible, altRev = { 0.75, 1, 0.9, 0.6 }, false, 0
 	conn(ctx.RunService.Heartbeat, function(dt)
 		if not visible() then
 			if wasVisible then wasVisible = false; ctx.vcClear() end
 			return
 		end
 		wasVisible = true
+		if (state.altsRev or 0) ~= altRev then altRev = state.altsRev or 0; render() end -- the accounts list changed
 		pollT = pollT + dt
 		if (cfg.plSort == "Nearest" or cfg.plSort == "Farthest") and pollT >= (tonumber(cfg.plPoll) or 1) then
 			pollT = 0
@@ -7482,11 +7641,17 @@ function ui.apply()
 	applyTheme()
 	ui.rescale()
 	ui.panel.BackgroundTransparency = 1 - cfg.opacity
-	-- the page area and the sidebar follow the opacity too: 80 % keeps the old look (50 %), 100 % is solid
-	local o = cfg.opacity
-	local a = o <= 0.8 and o * 0.625 or math.min(1, 0.5 + (o - 0.8) * 2.5)
-	ui.inner.BackgroundTransparency, ui.side.BackgroundTransparency = 1 - a, 1 - a
-	for _, tn in ipairs({ "glowTween", "borderTween" }) do
+	-- everything in the panel follows UI Opacity relative to its 80 % design (tiles, cards, buttons, fields, washes)
+	S.opK = math.clamp(tonumber(cfg.opacity) or 0.8, 0.2, 1) / 0.8
+	for _, o in ipairs(ui.panel:GetDescendants()) do
+		local r = o:GetAttribute("raw")
+		if r then
+			local v = S.opx(r)
+			o.BackgroundTransparency = v
+			if o:GetAttribute("base") ~= nil then o:SetAttribute("base", v) end
+		end
+	end
+	for _, tn in ipairs({ "glowTween", "borderTween", "orbitTween" }) do
 		if ui[tn] then pcall(function() if cfg.anim == 0 then ui[tn]:Pause() else ui[tn]:Play() end end) end
 	end
 	ui.title.Text = '<font color="' .. hex(S.accent) .. '">&gt;</font>KL rOSAD'
@@ -7547,6 +7712,7 @@ function ui.unload()
 	pcall(ctx.syncStop)
 	pcall(function() ui.borderTween:Cancel() end)
 	pcall(function() ui.glowTween:Cancel() end) -- endless tween: kept running after the gui was destroyed
+	pcall(function() ui.orbitTween:Cancel() end)
 	for _, c in ipairs(S.cons) do pcall(function() c:Disconnect() end) end
 	for k in pairs(state.conns) do ctx.disconnect(k) end
 	for uid in pairs(state.muted) do pcall(ctx.setMuted, uid, false) end
