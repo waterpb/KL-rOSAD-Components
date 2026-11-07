@@ -1,30 +1,57 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py). Markers use "--" (Lua), not "//".
--- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), single-run guard (env.KLOSAD_BOOT), unload every previous run (env.KLOSAD_ALL registry) | VERSION, DIR, env | deps: none | L142-162
--- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L164-285
--- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L287-372
--- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L374-520
--- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L522-1093
--- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1095-1870
--- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart, ctx.SRV.hop / scanregions / serverbrowser commands, notifyuser/nuser + unnotifyuser/unuser (ctx.nuAdd/nuRemove/nuScan/nuPoll/nuStatus/nuInfo, cfg.notifyUsers, cfg.nuPoll), cleanup/clean (ctx.cleanup), loaderLine single-run guard, SRV.here / SRV.relay (this server's region for Home), ptp/pulsetp, look/lookat + unlook (live/seen/pick helpers), keepemotes/kemote + unkeepemotes/unkemote (emoteLike/take/attach/playHere) | deps: CMD_CORE | L1872-4832
--- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.alertUser (user notifier card: avatar, names, status), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L4834-5296
--- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L5298-5717
--- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade), ui.rel (relay dot + PID, polls GET /sys every 3 s) | deps: UI_SHARED | L5719-5881
--- [PG_HOME] Home page (stats+icon centered, Region row via ctx.SRV.here, experience name carry) | stats loop, bio per UserId (cfg.bios), ctx.curExp | deps: UI_PANEL | L5883-5994
--- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, Sort drop down (cfg.plSort: A-Z / Z-A / Nearest / Farthest; sortList, resort re-orders in place every cfg.plPoll s), voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L5996-6481
--- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L6483-6513
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L6515-6592
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L6594-6623
--- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L6625-6644
--- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L6646-6768
--- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L6770-6996
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L6998-7095
--- [PG_PREFS] Preferences page (incl. Players tab sort refresh, User notifier list, System block: relay/PID/CPU/GPU/RAM) | refresh(), refreshSys(), ui.refreshNu() | deps: PG_FLOW | L7097-7186
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L7188-7314
+-- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), single-run guard (env.KLOSAD_BOOT), unload every previous run (env.KLOSAD_ALL registry) | VERSION, DIR, env | deps: none | L169-189
+-- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L191-312
+-- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L314-399
+-- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L401-558
+-- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L560-1205
+-- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1207-1990
+-- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart, ctx.SRV.hop / scanregions / serverbrowser commands, notifyuser/nuser + unnotifyuser/unuser (ctx.nuAdd/nuRemove/nuScan/nuPoll/nuStatus/nuInfo, cfg.notifyUsers, cfg.nuPoll), cleanup/clean (ctx.cleanup), loaderLine single-run guard, SRV.here / SRV.relay (this server's region for Home), ptp/pulsetp, look/lookat + unlook (live/seen/pick helpers), keepemotes/kemote + unkeepemotes/unkemote (emoteLike/take/attach/playHere) | deps: CMD_CORE | L1992-5048
+-- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.alertUser (user notifier card: avatar, names, status), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L5050-5525
+-- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L5527-5945
+-- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade), ui.rel (relay dot + PID, polls GET /sys every 3 s) | deps: UI_SHARED | L5947-6138
+-- [PG_HOME] Home page (stats+icon centered, Region row via ctx.SRV.here, experience name carry) | stats loop, bio per UserId (cfg.bios), ctx.curExp | deps: UI_PANEL | L6140-6251
+-- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, Sort drop down (cfg.plSort: A-Z / Z-A / Nearest / Farthest; sortList, resort re-orders in place every cfg.plPoll s), voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L6253-6742
+-- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L6744-6774
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L6776-6853
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L6855-6884
+-- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L6886-6905
+-- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L6907-7029
+-- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L7031-7257
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L7259-7359
+-- [PG_PREFS] Preferences page (incl. Players tab sort refresh, User notifier list, System block: relay/PID/CPU/GPU/RAM) | refresh(), refreshSys(), ui.refreshNu() | deps: PG_FLOW | L7361-7450
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L7452-7585
 
 --[[
 	KL rOSAD v1.1  |  open-source admin/dev panel  |  client-side only
 
 	CHANGELOG (newest first; every change adds a line here and updates the NAV INDEX, then navfix)
+	v1.1  Light mode is flat again: every gradient, wash, sheen, glow and the comet border is decoration registered through S.deco and only shown in dark mode (S.applyDeco on theme change)
+	v1.1  UI Opacity now fades the page area and the sidebar back too (they were fixed at 50 %): 80 % opacity = the old look, 100 % = solid
+	v1.1  Dark mode polish: bigger corners (window 12, areas 10), pill tabs (inset 6 px, rounded selection, bar inside), metallic title gradient, fading hairline under the header
+	v1.1  Sidebar: the accent bar and glow no longer slide between tabs; every tab owns a bar + glow that fade in (selected) and out (deselected) in place (ui.tabFx)
+	v1.1  Gradients inverted on everything that is not a button (dark at the top, light at the bottom): fr() frames, page area / sidebar washes, the window sheen is now at the bottom. Glow: soft accent glow behind the selected tab (slides with the bar), buttons brighten their sheen on hover, text fields get a thicker accent edge while focused
+	v1.1  Gradients: button sheen back to mild (0.93); every filled frame (cards, rows, fields, areas) gets a very faint top-to-bottom gradient (fr); the page area and sidebar get a soft light wash at the top and a dark wash at the bottom (wash()) so the UI is less flat
+	v1.1  Look: dark mode is darker and higher contrast (near black panel, darker buttons / fields, cooler grey edges, brighter text); the panel border is an accent comet that circles the window (paused with Animation Speed: none), a soft top sheen, thin outlines round the sidebar and page area, buttons: stronger sheen and a thicker accent edge on hover
+	v1.1  ;tp / ;goto and ;view work on players outside the streaming range: the last seen position of every player is kept (once a second), the area around it is requested from the server (RequestStreamAroundAsync); if that is not enough your character is parked (anchored) at the farthest spot that keeps the target inside the stream radius with a 100 stud margin (radius - 100, then half, then on top of it) until their body loads. ;tp then goes on to them; ;view keeps you parked and ;unview sends you back. ctx.reach(player) is the helper (other commands can use it)
+	v1.1  Panel open / close and tab switching are fades only: no slide up / down, pages no longer slide in
+	v1.1  Sidebar: tabs sit on one continuous dark column (they were separate bars with 0 / 1 px gaps alternating because the 35.5 px pitch was rounded); even 35 px pitch, inactive tabs transparent, a 2 px gutter to the page area
+	v1.1  Panel / command bar open + close: no scale pop any more (text re-rasterised at every scale step and snapped into size); the panel slides 24 px + fades (0.16 s) and slides 10 px + fades on close, the bar only fades (0.12 s)
+	v1.1  ;noclip rebuilt: instead of pulling you back to the last ground it keeps an invisible solid floor under your feet (follows the ground below you, never lets you sink, and follows ;float's level while floating); ;clip removes it
+	v1.1  ;float: the ground ray now ignores other players and non-solid parts (someone under or next to you used to move the platform / snap your level)
+	v1.1  ;noplayercollision: walk-through is set at two points before every physics step (Stepped and PreSimulation) and without reading the old value first, so a game / humanoid switching collision back on in between cannot win
+	v1.1  ;spider: the old smooth wall / surface transfer is back (no snapping or teleporting); walking into a 90 degree wall still turns you onto it. Edges: overhanging a ledge by up to 1.2 studs still counts as standing, past that you are pulled round the side face under the lip instead of falling (also when standing still). Other players are no longer seen as blocks (rays ignore every player's character)
+	v1.1  ;placeholder1 [speed]: spawns the tool with that animation speed, or changes the speed of the one you already have
+	v1.1  ;listen: the game's own voice wires are re-silenced every 0.5 s (a game re-enabling one used to double the voice) and right when you start listening
+	v1.1  New ;noplayercollision (nopc, nopcollide, noplayercollusion): walk through other players; ;playercollision (pc, pcollide, playercollusion) turns collision back on
+	v1.1  Targeted commands (;follow fre) show the player's username in the activation notice ("follow  Fread") and in Preferences > Active effects ("Follow: Fread")
+	v1.1  New ;autostart: launches / relaunches everything in Autostart now
+	v1.1  ;hide: also mutes the player (voice + chat, ;unhide undoes it); parts / sounds added to a hidden character are covered 40 per frame instead of all at once (no stalls or error spam when a game spawns many)
+	v1.1  Players tab: Sort button has no arrow; double click a volume slider = back to 100 %; ;float: E lifts you off the ground too (platform under your feet from the first press)
+	v1.1  ;spider edge catch: the feet are the reference. Going round an edge puts the body on the side face just under the lip (feet on the face, not floating at the old standing height), and every hook turns you to the new surface at once so the feet land where you are placed
+	v1.1  ;spider simplified: step detection (and Module Cfg step size) removed, hook speed removed (the hook always snaps at once). Wall height now also keeps stairs and curbs from hooking (lower than the wall height = not hooked)
+	v1.1  ;spider no longer drops off edges (fences, thin roofs, ledges): once you are past the edge the side face is found from a lower, longer ray and you are snapped onto it (while just off the ground). Module Cfg > Spider: Wall height (default 3 studs, 0 = any): a surface is only hooked when it is taller than this (above your feet); lower than the step size = stepped onto, in between = ignored
+	v1.1  ;spider detects steps: a surface in front whose top is within Module Cfg "Spider: step size" (default 2 studs) above your feet is stepped onto (stairs, curbs, low ledges) instead of hooked as a wall. Module Cfg > Spider: step size (0 = off) and hook speed (0 = instant snap, else the turn rate per second)
+	v1.1  ;spider hooks onto a wall at once: walking toward one (any direction, forward / sideways / back) from up to 4.5 studs away snaps your up to the wall and puts you on it, instead of turning slowly and bumping it. ;spider also starts ;nosit silently (no notice) so a seat cannot grab you while you climb
 	v1.1  Bio is stored per UserId (cfg.bios), so each account keeps its own; the old single bio moves to the account that opens the panel first
 	v1.1  Relay indicator at the top of the panel next to the close button (green working, orange rate limited, red errors / lost, hidden until the relay answers once) with the client PID beside it; region-relay.py answers GET /sys (status, CPU, GPU, RAM, Roblox PIDs). Preferences: new System block (relay, PID, CPU, GPU, RAM, Roblox memory, frame time, ping)
 	v1.1  ;spider: walls are seen earlier (a ray reaches about 3.4 studs ahead, at chest AND knee height, so low walls count) and the turn onto a wall is faster (rate 14, was 8), so you start going up before you hit it. While the surface turns, the walk speed is kept (it used to shrink with the angle and stall at corners)
@@ -356,7 +383,7 @@ local MODDEF = {
 	chStyle = "Cross", chLen = 6, chGap = 4, chThick = 2, chOutline = 1, chOutlineAlpha = 1, chColor = "#00FF00", chCursor = false,
 	headDist = 1.5, headHeight = 1.5, headSide = 0, headSweep = true, headSweepAmp = 0.5, headSweepSpeed = 10,
 	backDist = 1.2, backHeight = 0.5, backSide = 0, backSweep = true, backSweepAmp = 0.5, backSweepSpeed = 20, srvPingMult = 2,
-	ph1Mult = 1,
+	ph1Mult = 1, spWall = 3,
 }
 for k, v in pairs(MODDEF) do
 	if type(cfg.mod[k]) ~= type(v) then cfg.mod[k] = v end
@@ -376,10 +403,10 @@ if type(cfg.autostart.onExec) ~= "boolean" then cfg.autostart.onExec = true end
 local rgb = Color3.fromRGB
 -- Colors resolved from the reference deck (tx1=black, bg1=white, bg2=E7E6E6, with the lumMod values applied).
 local THEMES = {
-	Dark = { panel = rgb(13, 13, 13), panelEdge = rgb(70, 67, 67), inner = rgb(24, 23, 23), edge = rgb(88, 84, 84), bar = rgb(24, 23, 23),
-		tabOn = rgb(118, 113, 113), tabOff = rgb(0, 0, 0), row = rgb(59, 56, 56), ctrlOn = rgb(118, 113, 113), ctrlOff = rgb(52, 50, 50),
-		btnFill = rgb(40, 38, 38), text = rgb(255, 255, 255), text2 = rgb(231, 230, 230), sub = rgb(175, 171, 171),
-		dim = rgb(118, 113, 113), hint = rgb(128, 128, 128), line = rgb(118, 113, 113) },
+	Dark = { panel = rgb(8, 8, 10), panelEdge = rgb(52, 50, 58), inner = rgb(15, 15, 18), edge = rgb(72, 70, 80), bar = rgb(15, 15, 18),
+		tabOn = rgb(110, 106, 120), tabOff = rgb(0, 0, 0), row = rgb(32, 31, 37), ctrlOn = rgb(110, 106, 120), ctrlOff = rgb(22, 22, 26),
+		btnFill = rgb(14, 14, 17), text = rgb(255, 255, 255), text2 = rgb(238, 237, 242), sub = rgb(158, 156, 168),
+		dim = rgb(112, 110, 124), hint = rgb(122, 122, 134), line = rgb(72, 70, 80) },
 	Light = { panel = rgb(242, 242, 242), panelEdge = rgb(242, 242, 242), inner = rgb(231, 230, 230), edge = rgb(158, 155, 155), bar = rgb(231, 230, 230),
 		tabOn = rgb(138, 134, 134), tabOff = rgb(255, 255, 255), row = rgb(191, 191, 191), ctrlOn = rgb(138, 134, 134), ctrlOff = rgb(250, 250, 250),
 		btnFill = rgb(214, 213, 213), text = rgb(13, 13, 13), text2 = rgb(31, 31, 31), sub = rgb(84, 81, 81),
@@ -431,7 +458,18 @@ local function paint(inst, prop, key)
 	t[prop] = key
 	inst[prop] = col(key)
 end
+-- decoration (gradients, washes, sheens, glows) is dark mode only: light mode stays flat
+S.fxSet = setmetatable({}, { __mode = "k" })
+function S.deco(o)
+	S.fxSet[o] = true
+	o[o:IsA("UIGradient") and "Enabled" or "Visible"] = cfg.theme == "Dark"
+	return o
+end
+function S.applyDeco()
+	for o in pairs(S.fxSet) do pcall(function() o[o:IsA("UIGradient") and "Enabled" or "Visible"] = cfg.theme == "Dark" end) end
+end
 local function applyTheme()
+	S.applyDeco()
 	for inst, t in pairs(themed) do
 		if not inst.Parent then
 			themed[inst] = nil
@@ -541,12 +579,77 @@ function ctx.char() return lp.Character end
 function ctx.hum() local c = lp.Character; return c and c:FindFirstChildOfClass("Humanoid") end
 function ctx.root() local c = lp.Character; return c and c:FindFirstChild("HumanoidRootPart") end
 
+-- last seen position of every player, kept while they are in range (used by ctx.reach)
+state.seen = state.seen or {} -- filled by the "seenTrack" connection below ctx.connect
+-- back from where reach() parked you: back = true also returns you to where you were
+function ctx.unpark(back)
+	local pk, me = state.parked, ctx.root()
+	state.parked = nil
+	if not (pk and me) then return end
+	if back then ctx.markMove(); me.CFrame = pk.cf end
+	me.Anchored = pk.was
+end
+-- reach(p): the player's HumanoidRootPart, also when they are outside the streaming range (nil if impossible). Waits (yields).
+-- 1) RequestStreamAroundAsync at their last seen position; 2) if the body still is not there, park your anchored character at the farthest
+-- spot that streams the target in with a 100 stud margin (stream radius - 100, then half that, then on top of the spot). Needs a last seen position.
+-- shortcut: the target is searched at where they were last seen; if they moved far since, it fails with a notice
+function ctx.reach(p)
+	local function rootOf() local c = p.Character; return c and c:FindFirstChild("HumanoidRootPart") end
+	local r = rootOf()
+	if r or not workspace.StreamingEnabled then return r end
+	local seen = state.seen[p.UserId]
+	if not seen then ctx.notify(p.Name .. " is out of range and was never seen: no coordinates to load") return nil end
+	local function wait4(t)
+		local t0 = os.clock()
+		repeat
+			local x = rootOf()
+			if x then return x end
+			task.wait(0.1)
+		until os.clock() - t0 > t
+	end
+	ctx.notify(("Loading the area around %s (last seen %d s ago)..."):format(p.Name, math.floor(os.clock() - seen.t)))
+	if pcall(function() lp:RequestStreamAroundAsync(seen.pos, 4) end) then
+		r = wait4(3)
+		if r then return r end
+	end
+	local me = ctx.root()
+	if not me then return nil end
+	state.parked = state.parked or { cf = me.CFrame, was = me.Anchored }
+	local okR, R = pcall(function() return workspace.StreamingTargetRadius end)
+	R = okR and R or 1024
+	local far = Vector3.new(me.Position.X - seen.pos.X, 0, me.Position.Z - seen.pos.Z)
+	local dir = far.Magnitude > 1 and far.Unit or Vector3.xAxis
+	for _, f in ipairs({ 1, 0.5, 0 }) do
+		local at = seen.pos + dir * (math.min(math.max(R - 100, 0), far.Magnitude) * f) + Vector3.new(0, 20, 0)
+		ctx.markMove(); me.Anchored = true; me.CFrame = CFrame.new(at)
+		r = wait4(3)
+		if r then return r end
+		me = ctx.root() or me
+	end
+	ctx.unpark(true)
+	ctx.notify("Could not load " .. p.Name .. ": they are not where they were last seen")
+	return nil
+end
+
 function ctx.connect(key, signal, fn)
 	if state.conns[key] then state.conns[key]:Disconnect() end
 	state.conns[key] = signal:Connect(fn)
 end
 function ctx.disconnect(key)
 	if state.conns[key] then state.conns[key]:Disconnect(); state.conns[key] = nil end
+end
+do -- last seen position of every player, once a second (for ctx.reach)
+	local lastT = 0
+	ctx.connect("seenTrack", game:GetService("RunService").Heartbeat, function()
+		local now = os.clock()
+		if now - lastT < 1 then return end
+		lastT = now
+		for _, pl in ipairs(game:GetService("Players"):GetPlayers()) do
+			local c = pl.Character
+			local r = c and c:FindFirstChild("HumanoidRootPart")
+			if r then state.seen[pl.UserId] = { pos = r.Position, t = now } end
+		end
+	end)
 end
 
 -- me, all, others, random, exact name, or partial name / display name
@@ -671,9 +774,9 @@ local function quietWires(uid, rec)
 	if not p then return ctx.setListen(uid, false) end
 	for _, root in ipairs({ p, p.Character }) do
 		for _, w in ipairs(root:GetDescendants()) do
-			if w:IsA("Wire") and w.SourceInstance == rec.dev and w.TargetInstance ~= rec.out and rec.wires[w] == nil then
-				rec.wires[w] = w.Enabled
-				w.Enabled = false
+			if w:IsA("Wire") and w.SourceInstance == rec.dev and w.TargetInstance ~= rec.out then
+				if rec.wires[w] == nil then rec.wires[w] = w.Enabled end
+				if w.Enabled then w.Enabled = false end -- the game switching it back on used to double the voice
 			end
 		end
 	end
@@ -702,6 +805,7 @@ function ctx.setListen(uid, on)
 		w1.SourceInstance, w1.TargetInstance, w1.Parent = dev, pad, out
 		w2.SourceInstance, w2.TargetInstance, w2.Parent = pad, out, out
 		state.listen[uid] = { out = out, dev = dev, wires = {}, pad = pad }
+		pcall(quietWires, uid, state.listen[uid]) -- the game's own voice off right now, not at the next sweep
 	end)
 	if not ok then return false, "Couldn't create the audio route in this executor" end
 	if not S.listenLoop then
@@ -709,7 +813,7 @@ function ctx.setListen(uid, on)
 		task.spawn(function() -- re-silences the game's own wires if they are recreated (respawn)
 			while S.alive and next(state.listen) do
 				for id, r in pairs(state.listen) do pcall(quietWires, id, r) end
-				task.wait(2)
+				task.wait(0.5)
 			end
 			S.listenLoop = false
 		end)
@@ -894,7 +998,7 @@ local TOGGLES = {
 	antivoid = "unantivoid", antiteleport = "unantiteleport", antiknockback = "unantiknockback", antiattach = "unantiattach",
 	antiearrape = "unantiearrape", antiblur = "unantiblur", antiafk = "unantiafk", antispam = "unantispam",
 	antifreeze = "unantifreeze", blink = "unblink", ghost = "unghost", streamer = "unstreamer", name = "unname",
-	lockmouse = "unlockmouse", ctrllock = "unctrllock", showfps = "unshowfps", hide = "unhide all", placeholder1 = "unplaceholder1", hidecursor = "unhidecursor", look = "unlook", keepemotes = "unkeepemotes",
+	lockmouse = "unlockmouse", ctrllock = "unctrllock", showfps = "unshowfps", hide = "unhide all", placeholder1 = "unplaceholder1", noplayercollision = "playercollision", hidecursor = "unhidecursor", look = "unlook", keepemotes = "unkeepemotes",
 }
 TOGGLES.spider, TOGGLES.serverpos = "unspider", "unserverpos"
 -- commands that flip themselves on and off and keep state.active up to date on their own
@@ -942,10 +1046,16 @@ function ctx.Run(line)
 	end
 	local ok, err = pcall(ctx.Commands[cmd], table.unpack(args))
 	if not ok then return ctx.notify(cmd .. " error: " .. tostring(err)) end
+	local who -- targeted command (<player> first): show the username, not what was typed ("fre" -> Fread)
+	local meta = ctx.Meta[cmd]
+	if meta and tostring(meta.args):find("^<player") and args[1] and not ({ me = 1, all = 1, others = 1, random = 1 })[args[1]:lower()] then
+		local ps = ctx.findPlayers(args[1])
+		if #ps == 1 then who = ps[1].Name end
+	end
 	if ui.act and not state.noAct and not NOACT[cmd] then -- activation notice: "fly 80", "esp on", "esp off"
 		local offOf, cnt = nil, 0
 		for on, off in pairs(TOGGLES) do if off == cmd then offOf, cnt = on, cnt + 1 end end
-		local val = table.concat(args, " ")
+		local val = who and table.concat({ who, table.unpack(args, 2) }, " ") or table.concat(args, " ")
 		if #val > 30 then val = val:sub(1, 28) .. ".." end
 		if cnt > 0 then ui.act(cnt == 1 and offOf or (cmd:gsub("^un", "")), "off")
 		elseif SELF[cmd] then ui.act(cmd, state.active[cmd] and "on" or "off")
@@ -955,9 +1065,11 @@ function ctx.Run(line)
 	if SELF[cmd] then return end
 	if TOGGLES[cmd] then
 		state.active[cmd] = true
+		state.who = state.who or {}
+		state.who[cmd] = who
 	else
 		for on, off in pairs(TOGGLES) do
-			if off == cmd then state.active[on] = nil end
+			if off == cmd then state.active[on] = nil; if state.who then state.who[on] = nil end end
 		end
 	end
 end
@@ -1153,6 +1265,7 @@ return function(ctx)
 	return {
 		names = { "unview", "unspectate" },
 		run = function()
+			ctx.unpark(true) -- back to where you were if the view had parked you
 			if hum() then workspace.CurrentCamera.CameraSubject = hum() end
 			state.viewing = nil
 		end,
@@ -1183,6 +1296,7 @@ return function(ctx)
 		names = { "view", "spectate" },
 		run = function(q)
 			local p = findPlayer(q)
+			if p then ctx.reach(p) end -- out of range: load the area first (you stay parked until ;unview)
 			local h = p and p.Character and p.Character:FindFirstChildOfClass("Humanoid")
 			if h then
 				workspace.CurrentCamera.CameraSubject = h
@@ -1391,7 +1505,8 @@ return function(ctx)
 					if part.Parent then part.CanCollide = was end
 					nc.orig[part] = nil
 				end
-				nc.safe = nil
+				nc.y = nil
+				if nc.floor then nc.floor:Destroy(); nc.floor = nil end
 			end
 		end,
 	}
@@ -1424,7 +1539,7 @@ end)()
 CMD[#CMD + 1] = (function()
 -- noclip.lua  |  aliases: noclip  |  args: none
 -- FIX: noclip used to only turn collision off, so sinking under the floor / walking off the map was a free fall to the void.
--- Now it remembers the last spot with ground under you and pulls you back if you fall into nothing; clip restores collision.
+-- Now an invisible solid floor (8x1x8) follows you at ground level (or the ;float level), so you walk through walls but never fall; clip restores collision and removes it.
 return function(ctx)
 	local connect, RunService, char = ctx.connect, ctx.RunService, ctx.char
 	local nc = { orig = {} } -- orig = each part's CanCollide from before noclip, safe = last CFrame that had ground below
@@ -1435,7 +1550,7 @@ return function(ctx)
 	return {
 		names = { "noclip" },
 		run = function()
-			nc.safe = nil
+			nc.y = nil
 			connect("noclip", RunService.Stepped, function()
 				local c = char()
 				if not c then return end
@@ -1446,32 +1561,37 @@ return function(ctx)
 					end
 				end
 			end)
-			connect("noclip_safe", RunService.Heartbeat, function()
+			local function floorStep(dt)
 				local c = char()
 				local hrp = c and c:FindFirstChild("HumanoidRootPart")
 				local hum = c and c:FindFirstChildOfClass("Humanoid")
 				if not (hrp and hum) then return end
-				rp.FilterDescendantsInstances = { c }
-				local pos, vy = hrp.Position, hrp.AssemblyLinearVelocity.Y
-				if not nc.safe then nc.safe = hrp.CFrame end
-				local reach = hum.HipHeight + hrp.Size.Y / 2 + 3
-				if workspace:Raycast(pos, Vector3.new(0, -reach, 0), rp) and math.abs(vy) < 30 then
-					nc.safe = hrp.CFrame -- ground right under you and not mid-fall: remember this spot
+				local fl = nc.floor
+				if not (fl and fl.Parent) then
+					fl = Instance.new("Part")
+					fl.Name, fl.Anchored, fl.CanCollide, fl.Transparency, fl.Size, fl.Locked = "_noclipFloor", true, true, 1, Vector3.new(8, 1, 8), true
+					fl.Parent = workspace
+					nc.floor = fl
 				end
-				local fh = workspace.FallenPartsDestroyHeight
-				local void = fh > -1e6 and pos.Y < fh + 100 -- about to be killed by the map's kill height
-				local sunk = pos.Y < nc.safe.Position.Y - 25 and vy < -20
-					and not workspace:Raycast(pos, Vector3.new(0, -3000, 0), rp) -- falling with nothing below at all
-				if void or sunk then
-					ctx.markMove()
-					hrp.AssemblyLinearVelocity, hrp.AssemblyAngularVelocity = Vector3.zero, Vector3.zero
-					hrp.CFrame = nc.safe + Vector3.new(0, 3, 0)
-					if os.clock() - (nc.warned or 0) > 3 then
-						nc.warned = os.clock()
-						ctx.notify("Noclip: nothing under you, moved you back to the last ground")
-					end
+				local ex = { c, fl }
+				for _, pl in ipairs(ctx.Players:GetPlayers()) do
+					if pl ~= ctx.lp and pl.Character then ex[#ex + 1] = pl.Character end
 				end
-			end)
+				rp.FilterDescendantsInstances = ex
+				local feet = hrp.Position.Y - (hum.RigType == Enum.HumanoidRigType.R6 and 3 or (hum.HipHeight + hrp.Size.Y / 2))
+				nc.y = nc.y or feet
+				-- the level: ;float's level while floating, else the ground straight below you (up at once, down at 60 studs/s); nothing below = keep the last level
+				local target = ctx.state.floatY
+				if not target then
+					local hit = workspace:Raycast(hrp.Position, Vector3.new(0, -500, 0), rp)
+					target = hit and hit.Position.Y
+				end
+				if target then nc.y = (target >= nc.y) and target or math.max(target, nc.y - 60 * dt) end
+				nc.y = math.min(nc.y, feet + 1) -- never above your feet: it carries you, it never lifts you
+				fl.CFrame = CFrame.new(hrp.Position.X, nc.y - 0.5, hrp.Position.Z)
+			end
+			floorStep(0.016) -- already solid under you in the first frame, no drop while it switches on
+			connect("noclip_safe", RunService.Heartbeat, floorStep)
 		end,
 	}
 end
@@ -1963,7 +2083,7 @@ end
 def({ "float" }, "", "Float over drops deeper than the stair height (E up, Q down, run again to reset)", "hover levitate air step platform", function()
 	local fy = feetY()
 	if not fy then return end
-	state.floatY = fy
+	state.floatY, state.eLift = fy, nil
 	if not state.floatPart then
 		local p = Instance.new("Part")
 		p.Name, p.Anchored, p.CanCollide, p.Transparency, p.Size = "_float", true, false, 1, Vector3.new(8, 1, 8)
@@ -1973,18 +2093,28 @@ def({ "float" }, "", "Float over drops deeper than the stair height (E up, Q dow
 	ctx.connect("float", RS.Heartbeat, function(dt)
 		local r, h, p = ctx.root(), ctx.hum(), state.floatPart
 		if not (r and h and p and p.Parent) then return end
-		if down(Enum.KeyCode.E) then state.floatY = state.floatY + 24 * dt end
+		local curF = feetY()
+		if down(Enum.KeyCode.E) then -- E lifts you off the ground too: the platform starts right under your feet
+			state.eLift = true
+			if curF then state.floatY = math.max(state.floatY, curF) end
+			state.floatY = state.floatY + 24 * dt
+		end
 		if down(Enum.KeyCode.Q) then state.floatY = state.floatY - 24 * dt end
 		local params = RaycastParams.new()
-		params.FilterType = Enum.RaycastFilterType.Exclude
-		params.FilterDescendantsInstances = { ctx.char(), p }
+		params.FilterType, params.RespectCanCollide = Enum.RaycastFilterType.Exclude, true -- solid things only; other players are not ground
+		local ex = { ctx.char(), p }
+		for _, pl in ipairs(Players:GetPlayers()) do
+			if pl ~= lp and pl.Character then ex[#ex + 1] = pl.Character end
+		end
+		params.FilterDescendantsInstances = ex
 		local hit = workspace:Raycast(r.Position, Vector3.new(0, -2000, 0), params)
 		local groundY = hit and hit.Position.Y or -math.huge
 		local cur = feetY()
 		-- standing on real ground (a stair you dropped onto, a hill): that is the new level
-		if hit and cur and h.FloorMaterial ~= Enum.Material.Air and math.abs(cur - groundY) < 1.5 then state.floatY = groundY end
+		if state.eLift and state.floatY <= groundY + 0.1 then state.eLift = nil end -- back down on the ground: normal float again
+		if hit and cur and h.FloorMaterial ~= Enum.Material.Air and math.abs(cur - groundY) < 1.5 and not state.eLift then state.floatY = groundY end
 		p.CFrame = CFrame.new(r.Position.X, state.floatY - 0.5, r.Position.Z)
-		p.CanCollide = (state.floatY - groundY) > mod.floatStep
+		p.CanCollide = state.eLift or (state.floatY - groundY) > mod.floatStep
 	end)
 	active("float", true)
 end)
@@ -2422,7 +2552,7 @@ do
 		stopSpider()
 		local cam = workspace.CurrentCamera
 		local s = { up = Vector3.yAxis, dwell = 0, fall = Vector3.zero, face = r.CFrame.LookVector, objs = {}, tracks = {},
-			air = 0, jumpT = 0, grounded = false, autoRotate = h.AutoRotate }
+			air = 0, jumpT = 0, gT = 0, fT = 0, grounded = false, autoRotate = h.AutoRotate }
 		SP = s
 		local stand = h.RigType == Enum.HumanoidRigType.R6 and 3 or (h.HipHeight + r.Size.Y / 2) -- root centre to feet
 		-- the engine's gravity is cancelled by a force, ours acts along the surface normal
@@ -2433,6 +2563,18 @@ do
 		s.objs = { att, vf }
 		local rp = RaycastParams.new()
 		rp.FilterType, rp.RespectCanCollide, rp.FilterDescendantsInstances = Enum.RaycastFilterType.Exclude, true, { c }
+		-- height (studs above the feet) of the top of the step in front of you; nil = a real wall (higher than Module Cfg step size)
+		-- shortcut: one ray down just past the face, so a step whose tread is under 0.35 studs deep or a wall with a ledge right behind it can be misjudged
+		local function lowWall(fh, wd, up, feet, st) -- the surface in front is lower than st studs above your feet (its top is found by a ray down just past the face)
+			if not (st and st > 0) then return end
+			local o = fh.Position + wd * 0.35
+			o = o + up * (st + 0.05 - (o - feet):Dot(up))
+			local d = workspace:Raycast(o, -up * (st + 0.65), rp)
+			if d and d.Normal:Dot(up) > 0.7 then
+				local h = (d.Position - feet):Dot(up)
+				if h > 0.15 and h <= st + 0.05 then return h end
+			end
+		end
 		-- animations: the game's own walk / idle / fall, played by hand because the humanoid is in the Physics state
 		local an, animate = h:FindFirstChildOfClass("Animator"), c:FindFirstChild("Animate")
 		local function load(folder, name)
@@ -2469,12 +2611,27 @@ do
 			return x, z
 		end
 		h:ChangeState(Enum.HumanoidStateType.Physics)
+		if not state.conns.antisit then -- no seat can sit you mid climb; silent (no activation notice)
+			local na = state.noAct
+			state.noAct = true
+			pcall(ctx.Run, "nosit")
+			state.noAct = na
+		end
 		ctx.connect("spiderBeat", RS.PreSimulation, function(dt)
 			local hh, rr = ctx.hum(), ctx.root()
 			if not (hh and rr and rr.Parent == c) then return stopSpider() end
 			dt = math.min(dt, 0.1)
 			if hh:GetState() ~= Enum.HumanoidStateType.Physics then hh:ChangeState(Enum.HumanoidStateType.Physics) end
 			hh.AutoRotate = false
+			s.fT = s.fT - dt
+			if s.fT <= 0 then -- other players' characters are not surfaces: rays skip them (list refreshed every second)
+				s.fT = 1
+				local ex = { c }
+				for _, pl in ipairs(Players:GetPlayers()) do
+					if pl ~= lp and pl.Character then ex[#ex + 1] = pl.Character end
+				end
+				rp.FilterDescendantsInstances = ex
+			end
 			vf.Force = Vector3.new(0, rr.AssemblyMass * workspace.Gravity, 0)
 			local pos, up = rr.Position, s.up
 			-- walk direction: camera relative, flattened onto the surface you stand on
@@ -2494,30 +2651,38 @@ do
 			local moving = wish.Magnitude > 0.1
 			-- which surface is the floor now: wall in front > floor under you > the edge you are walking around
 			local hit = workspace:Raycast(pos, -up * (stand + 1.5), rp)
-			local want, ahead -- ahead = the new surface is a wall in front of you
+			local want, ahead, wh, edge -- edge = the new surface is the side of the part you just walked off; ahead = the new surface is a wall in front of you, wh = the ray hit on it
 			if s.jumpT > 0 then
 				s.jumpT = s.jumpT - dt
 				hit = nil
 			else
 				local wd = moving and wish.Unit
 				if wd then
-					local reach = math.max(3.2, stand + 0.4) -- further than the body is wide: the turn starts before you touch the wall
+					local reach = math.max(4.5, stand + 1.2) -- further than the body is wide: the turn starts before you touch the wall
 					for _, dy in ipairs({ 0, -stand * 0.5 }) do -- chest and knee height, so low walls count too
 						local fh = workspace:Raycast(pos + up * dy, wd * reach, rp)
-						if fh and s.dwell <= 0 and math.abs(fh.Normal:Dot(up)) < 0.9 then want, ahead = fh.Normal, true; break end
+						if fh and s.dwell <= 0 and math.abs(fh.Normal:Dot(up)) < 0.9 then if not lowWall(fh, wd, up, pos - up * stand, mod.spWall) then want, ahead, wh = fh.Normal, true, fh; break end -- lower than Module Cfg wall height (stairs, curbs): not hooked
+					end
 					end
 				end
+				if not hit then hit = workspace:Raycast(pos - (wd or s.face) * 1.2, -up * (stand + 1.5), rp) end -- overhanging an edge by up to 1.2 studs still counts as standing on it
 				if not want and hit then want = hit.Normal end
-				if not want and wd then
-					local eh = workspace:Raycast(pos + wd * 2.4 - up * (stand + 0.5), -wd * 3, rp)
-					if eh then want = eh.Normal end
+				if not want then
+					local ed = wd or s.face -- also when standing still half off an edge
+					local eh = workspace:Raycast(pos + ed * 2.4 - up * (stand + 0.15), -ed * 4.2, rp) -- under the feet, reaching back under you: finds the side of a thin roof / fence you just walked off
+					if eh then
+						want = eh.Normal
+						edge, wh = s.gT < 0.4, eh -- just off the ground (0.4 s): pulled round the edge under the lip instead of falling while turning
+					end
 				end
 			end
 			s.dwell = s.dwell - dt
-			if want and (not s.want or want:Dot(s.want) < 0.95) then s.want, s.dwell = want, 0.2 end -- new surface: no other wall switch for 0.2 s (no flip-flop at corners and bumps)
+			s.gT = hit and 0 or s.gT + dt
+			
+			if want and (not s.want or want:Dot(s.want) < 0.95) then s.want, s.dwell = want, 0.12 end -- new surface: no other wall switch for 0.2 s (no flip-flop at corners and bumps)
 			if want then
 				s.air = 0
-				s.up = toward(s.up, want, 1 - math.exp(-(ahead and 14 or 8) * dt))
+				s.up = toward(s.up, want, 1 - math.exp(-((ahead or edge) and 14 or 8) * dt)) -- smooth turn; a wall in front or an edge turns faster
 			else
 				s.air = s.air + dt
 				if s.air > 0.6 then s.up = toward(s.up, Vector3.yAxis, 1 - math.exp(-3 * dt)) end
@@ -2532,7 +2697,10 @@ do
 				s.fall = Vector3.zero
 				vel = up * math.clamp((stand - hit.Distance) * 14, -30, 30)
 			else
-				s.fall = s.fall - up * workspace.Gravity * dt
+				if edge then -- no falling while turning round an edge: carried to the standing spot on the face under the lip
+					s.fall = (wh.Position + want * stand - pos) * 12
+					if s.fall.Magnitude > 40 then s.fall = s.fall.Unit * 40 end
+				else s.fall = s.fall - up * workspace.Gravity * dt end
 				vel = s.fall
 			end
 			s.grounded = hit ~= nil
@@ -2745,8 +2913,8 @@ def({ "jumppower", "jp" }, "[n]", "Set jump power (default and multiplier in Mod
 end)
 def({ "goto", "tp" }, "<player>", "Teleport to a player", "teleport move", function(q)
 	local p = ctx.findPlayer(q)
-	local r = p and p.Character and p.Character:FindFirstChild("HumanoidRootPart")
-	if r and ctx.root() then ctx.markMove(); ctx.root().CFrame = r.CFrame * CFrame.new(0, 0, 3) end
+	local r = p and ctx.reach(p) -- also when they are outside the streaming range
+	if r and ctx.root() then ctx.markMove(); ctx.root().CFrame = r.CFrame * CFrame.new(0, 0, 3); ctx.unpark(false) end
 end)
 def({ "tpto" }, "<x> <y> <z>", "Teleport to coordinates", "teleport position", function(x, y, z)
 	if ctx.root() then ctx.markMove(); ctx.root().CFrame = CFrame.new(tonumber(x) or 0, tonumber(y) or 0, tonumber(z) or 0) end
@@ -3816,7 +3984,7 @@ end
 
 -- ===== HIDE: a player's avatar and every sound from them, client side only =====
 -- Avatar: parts / decals / name tag / effects under their character are made invisible. Sounds: every Sound in their character
--- (footsteps, held guns) is moved into a silent SoundGroup, All of it is put back by ;unhide. Voice and chat are not touched (that is ;mute).
+-- (footsteps, held guns) is moved into a silent SoundGroup, All of it is put back by ;unhide. Voice and chat are muted too (;mute), ;unhide undoes that.
 -- shortcut: only sounds that live inside the character are caught (a sound a game plays from a part elsewhere is not), when to upgrade: tag sounds by nearest hidden character position
 do
 	local H = {} -- uid -> { rec = { instance -> { prop -> { original } } } }
@@ -3844,12 +4012,24 @@ do
 		elseif o:IsA("Sound") then setp(h, o, "SoundGroup", group())
 		elseif o:IsA("AudioPlayer") then setp(h, o, "Volume", 0) end
 	end
+	local Q, qh, qt = {}, 1, 0
+	ctx.connect("hideQ", RS.Heartbeat, function() -- parts / sounds added to a hidden character are covered 40 per frame, so a game spawning many cannot stall a frame
+		for _ = 1, 40 do
+			if qh > qt then
+				if qt > 0 then Q, qh, qt = {}, 1, 0 end
+				return
+			end
+			local e = Q[qh]
+			Q[qh], qh = nil, qh + 1
+			if H[e[3]] == e[1] and e[2].Parent then pcall(cover, e[1], e[2]) end
+		end
+	end)
 	local function watch(p, h)
 		local key = "hide_" .. p.UserId
 		local function char(c)
 			if not c then return end
 			for _, o in ipairs(c:GetDescendants()) do cover(h, o) end
-			ctx.connect(key .. "d", c.DescendantAdded, function(o) cover(h, o) end) -- tools, sounds and accessories added later
+			ctx.connect(key .. "d", c.DescendantAdded, function(o) qt = qt + 1; Q[qt] = { h, o, p.UserId } end) -- tools, sounds and accessories added later (covered by hideQ)
 		end
 		char(p.Character)
 		ctx.connect(key, p.CharacterAdded, function(c) task.defer(char, c) end)
@@ -3864,7 +4044,7 @@ do
 			for inst, props in pairs(h.rec) do
 				for prop, box in pairs(props) do pcall(function() inst[prop] = box[1] end) end
 			end
-			-- (voice and chat are separate: ;mute / ;unmute)
+			if h.muted and state.muted[uid] then ctx.setMuted(uid, false) end -- only if hide muted them
 			if not next(H) and grp then pcall(function() grp:Destroy() end); grp = nil end
 			state.active.hide = next(H) and true or nil
 			return true
@@ -3873,13 +4053,13 @@ do
 		if h or not p or p == lp then return false end
 		h = { rec = setmetatable({}, { __mode = "k" }) }
 		H[uid] = h
-		-- voice and chat are not touched: that is ;mute
+		if not state.muted[uid] then h.muted = true; ctx.setMuted(uid, true) end -- gone for good: voice and chat muted too
 		watch(p, h)
 		state.active.hide = true
 		return true
 	end
 	ctx.connect("hideLeave", Players.PlayerRemoving, function(p) ctx.hidePlayer(p.UserId, false) end)
-	def({ "hide" }, "<player>", "Hide a player's avatar and silence every sound from their character (voice and chat are separate: ;mute)", "hide invisible mute footsteps audio avatar gun", function(q)
+	def({ "hide" }, "<player>", "Make a player gone: avatar hidden, every sound from their character silenced, voice and chat muted (;unhide undoes it)", "hide invisible mute footsteps audio avatar gun", function(q)
 		if not q then return ctx.notify("Usage: hide <player>") end
 		local n = 0
 		for _, p in ipairs(ctx.findPlayers(q)) do
@@ -3930,7 +4110,7 @@ do
 			local t, dir = lo, 1
 			while P.run == token and S.alive do
 				local dt = task.wait()
-				t = t + dir * math.max(tonumber(mod.ph1Mult) or 1, 0.05) * dt -- base speed 1; the Module Cfg value multiplies it, read live
+				t = t + dir * math.max(P.speed or tonumber(mod.ph1Mult) or 1, 0.05) * dt -- base speed 1; the Module Cfg value multiplies it, read live
 				if t >= hi then t, dir = hi, -1 elseif t <= lo then t, dir = lo, 1 end
 				track.TimePosition = t
 			end
@@ -3947,10 +4127,16 @@ do
 		end
 		P.tool = nil
 	end
-	def({ "placeholder1" }, "", "Get the Placeholder1 tool: equip it to play the animation (speed in Module Cfg)", "tool animation hand gesture", function()
+	def({ "placeholder1" }, "[animation speed]", "Get the Placeholder1 tool (equip it to play the animation); with a number it spawns with that speed, or changes the speed of the one you have", "tool animation hand gesture speed", function(sp)
+		local n = tonumber(sp)
+		if sp and not n then return ctx.notify("Placeholder1: the speed has to be a number") end
 		local bp, h = lp:FindFirstChildOfClass("Backpack"), ctx.hum()
 		if not (bp and h) then return end
-		if P.tool and (P.tool.Parent == bp or P.tool.Parent == ctx.char()) then return ctx.notify("Placeholder1 is already in your inventory") end
+		if P.tool and (P.tool.Parent == bp or P.tool.Parent == ctx.char()) then
+			if n then P.speed = n; return ctx.notify("Placeholder1 speed: " .. n) end
+			return ctx.notify("Placeholder1 is already in your inventory")
+		end
+		P.speed = n
 		stopAnim() -- a tool left over from before a death can still have a parent (the old character): it is not yours any more, drop its animation first
 		local t = Instance.new("Tool")
 		t.Name, t.ToolTip, t.RequiresHandle, t.CanBeDropped = "Placeholder1", "Placeholder1", false, false
@@ -3961,6 +4147,35 @@ do
 		ctx.connect("ph1Died", h.Died, stopAnim)
 	end)
 	def({ "unplaceholder1" }, "", "Remove the Placeholder1 tool from your inventory", "tool animation remove", strip)
+end
+
+-- ===== PLAYER COLLISION =====
+do
+	local was = setmetatable({}, { __mode = "k" }) -- parts that were solid before we made them walk-through
+	local function restore()
+		for part in pairs(was) do pcall(function() part.CanCollide = true end) end
+		was = setmetatable({}, { __mode = "k" })
+	end
+	def({ "noplayercollision", "nopc", "nopcollide", "noplayercollusion" }, "", "Walk through other players (client side)", "collide collision collusion ghost pass through players", function()
+		local function sweep() -- the humanoid / game switches collision back on every frame: set it again right before physics, whatever it reads now
+			for _, p in ipairs(Players:GetPlayers()) do
+				local c = p ~= lp and p.Character
+				for _, part in ipairs(c and c:GetChildren() or {}) do
+					if part:IsA("BasePart") then
+						if part.CanCollide then was[part] = true end
+						part.CanCollide = false
+					end
+				end
+			end
+		end
+		ctx.connect("noPlayerCol", RS.Stepped, sweep)
+		ctx.connect("noPlayerCol2", RS.PreSimulation, sweep)
+	end)
+	def({ "playercollision", "pc", "pcollide", "playercollusion" }, "", "Other players are solid again (undoes ;noplayercollision)", "collide collision collusion players", function()
+		ctx.disconnect("noPlayerCol")
+		ctx.disconnect("noPlayerCol2")
+		restore()
+	end)
 end
 
 -- ===== MOUSE =====
@@ -4643,6 +4858,7 @@ function ctx.runAutostart(reason)
 		if reason == "exec" or it.respawn then ctx.autoRun(it) end
 	end
 end
+def({ "autostart" }, "", "Launch (relaunch) everything in Autostart now, like on execute", "startup launch run exec relaunch autorun", function() ctx.runAutostart("exec") end)
 ctx.connect("autoRespawn", lp.CharacterAdded, function()
 	task.wait(1)
 	ctx.runAutostart("respawn")
@@ -4838,7 +5054,7 @@ end)
 -- fs(): pt -> px at 1080p, nudged 8% up because Source Sans runs a little smaller than Bahnschrift at the same size.
 local function fs(pt) return math.floor(pt * 4 / 3 * 1.08 + 0.5) end
 local FONT, FONT_B, FONT_CODE = Enum.Font.SourceSans, Enum.Font.SourceSansSemibold, Enum.Font.Code
-local BTN_ON, BTN_OFF = 0.2, 0.4 -- fill transparency of a selected / normal button
+local BTN_ON, BTN_OFF = 0.2, 0.25 -- fill transparency of a selected / normal button
 
 local gui = new("ScreenGui", { Name = "KLOSAD", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 10000, ZIndexBehavior = Enum.ZIndexBehavior.Sibling })
 pcall(function() gui.Parent = S.CoreGui end)
@@ -4855,9 +5071,21 @@ local function fr(parent, x, y, w, h, fillKey, tr, r, strokeKey, st, str)
 		BackgroundTransparency = fillKey and tr or 1 }, parent)
 	if fillKey then paint(f, "BackgroundColor3", fillKey) end
 	if r then new("UICorner", { CornerRadius = UDim.new(0, r) }, f) end
+	if fillKey and w >= 14 and h >= 14 then -- very faint depth: dark at the top, a touch lighter at the bottom
+		S.deco(new("UIGradient", { Rotation = 90, Color = ColorSequence.new(Color3.fromRGB(228, 228, 232), Color3.new(1, 1, 1)) }, f))
+	end
 	if strokeKey then
 		paint(new("UIStroke", { Thickness = st or 1, Transparency = str or 0, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, f), "Color", strokeKey)
 	end
+	return f
+end
+-- soft wash for depth: black fading out from the top (bottom = false) or white fading in toward the bottom; tr = its strongest transparency
+local function wash(parent, x, y, w, h, bottom, tr, r)
+	local f = fr(parent, x, y, w, h, nil)
+	f.BackgroundColor3, f.BackgroundTransparency = bottom and Color3.new(1, 1, 1) or Color3.new(0, 0, 0), 0
+	if r then new("UICorner", { CornerRadius = UDim.new(0, r) }, f) end
+	S.deco(f)
+	new("UIGradient", { Rotation = 90, Transparency = bottom and NumberSequence.new(1, tr) or NumberSequence.new(tr, 1) }, f)
 	return f
 end
 -- text box of the reference: zero insets, top aligned
@@ -4904,10 +5132,11 @@ local function btn(parent, str, x, y, w, h, key, tr, cb, pt)
 	local stroke = new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, b)
 	paint(stroke, "Color", b:GetAttribute("on") and "accent" or "edge")
 	local sheen = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0 }, b)
+	S.deco(sheen)
 	new("UICorner", { CornerRadius = UDim.new(0, 5) }, sheen)
-	new("UIGradient", { Rotation = 90, Transparency = NumberSequence.new(0.94, 1) }, sheen)
+	local sg = new("UIGradient", { Rotation = 90, Transparency = NumberSequence.new(0.93, 1) }, sheen)
 	local sc = new("UIScale", {}, b)
-	local function edge(hot) tw(stroke, { Color = col((hot or b:GetAttribute("on")) and "accent" or "edge") }, 0.1) end
+	local function edge(hot) tw(stroke, { Color = col((hot or b:GetAttribute("on")) and "accent" or "edge"), Thickness = hot and 1.5 or 1 }, 0.1); sg.Transparency = NumberSequence.new(hot and 0.86 or 0.93, 1) end
 	b.MouseEnter:Connect(function()
 		if b.Active then
 			tw(b, { BackgroundTransparency = math.max(b:GetAttribute("base") - 0.15, 0) }, 0.1)
@@ -4948,7 +5177,7 @@ local function input(parent, ph, x, y, w, h, pt, fillKey, tr, props)
 	paint(o, "TextColor3", "text"); paint(o, "PlaceholderColor3", "hint")
 	-- the edge turns accent only while the mouse is over the box or it has focus
 	local focused, hv = false, { f = false, o = false }
-	local function edge() tw(stroke, { Color = col((focused or hv.f or hv.o) and "accent" or "edge") }, 0.1) end
+	local function edge() tw(stroke, { Color = col((focused or hv.f or hv.o) and "accent" or "edge"), Thickness = focused and 2 or 1 }, 0.1) end
 	o.Focused:Connect(function() focused = true; edge() end)
 	o.FocusLost:Connect(function() focused = false; edge() end)
 	for k, g in pairs({ f = f, o = o }) do
@@ -5659,10 +5888,9 @@ end
 		ui.layoutBar()
 		box.Text = prefill or ""
 		barFade.Visible = true
-		tw(barFade, { GroupTransparency = 0 }, 0.07)
+		tw(barFade, { GroupTransparency = 0 }, 0.12)
 		local s = ui.curScale()
-		ui.barScale.Scale = s * 0.96
-		tw(ui.barScale, { Scale = s }, 0.16)
+		ui.barScale.Scale = s
 		tw(ui.blur, { Size = 18 * cfg.blur }, 0.2)
 		if S.panelOpen and ui.shade then ui.shade.Visible = true end
 		ui.syncMouse()
@@ -5677,8 +5905,8 @@ end
 		if not S.barOpen then return end
 		S.barOpen, S.sugOn = false, false
 		box:ReleaseFocus()
-		tw(barFade, { GroupTransparency = 1 }, 0.06)
-		task.delay(dur(0.06), function() -- hide (and clear the text) once faded, unless reopened meanwhile
+		tw(barFade, { GroupTransparency = 1 }, 0.1)
+		task.delay(dur(0.1), function() -- hide (and clear the text) once faded, unless reopened meanwhile
 			if not S.barOpen then barFade.Visible = false; box.Text = "" end
 		end)
 		if ui.shade then ui.shade.Visible = false end
@@ -5723,8 +5951,22 @@ do
 	local panelFade = new("CanvasGroup", { Name = "PanelFade", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0, GroupTransparency = 1, Visible = false }, gui)
 	local panel = new("Frame", { Name = "Panel", AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(685, 443), BorderSizePixel = 0 }, panelFade)
 	paint(panel, "BackgroundColor3", "panel") -- transparency comes from the UI Opacity setting (reference: 80%)
-	new("UICorner", { CornerRadius = UDim.new(0, 9) }, panel)
-	paint(new("UIStroke", { Thickness = 1, Transparency = 0.55, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, panel), "Color", "accent")
+	new("UICorner", { CornerRadius = UDim.new(0, 12) }, panel)
+	-- border: an accent comet circles the window (the gradient on the stroke rotates; seamless because both ends match)
+	local pst = new("UIStroke", { Thickness = 1.5, Transparency = 0.1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, panel)
+	paint(pst, "Color", "accent")
+	local pgr = new("UIGradient", { Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.3, 0.88), NumberSequenceKeypoint.new(0.7, 0.88), NumberSequenceKeypoint.new(1, 0) }) }, pst)
+	S.deco(pgr) -- light mode: a plain accent border
+	ui.borderTween = S.TweenService:Create(pgr, TweenInfo.new(7, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1), { Rotation = 360 })
+	if cfg.anim ~= 0 then ui.borderTween:Play() end
+	-- soft sheen over the top of the window
+	do
+		local sh = fr(panel, 0, 293, 685, 150, nil)
+		S.deco(sh)
+		sh.BackgroundTransparency, sh.BackgroundColor3 = 0.94, Color3.new(1, 1, 1)
+		new("UICorner", { CornerRadius = UDim.new(0, 12) }, sh)
+		new("UIGradient", { Rotation = 90, Transparency = NumberSequence.new(1, 0) }, sh)
+	end
 	ui.panel = panel
 	ui.panelScale = new("UIScale", {}, panel)
 	-- accent line along the top edge: a dim base plus a highlight that glides across (paused with Animation Speed: none)
@@ -5749,6 +5991,12 @@ do
 	ui.centerPanel()
 
 	ui.title = txt(panel, "", 14, "text", 21, 16, 130, 23, { Font = FONT_CODE, RichText = true, TextSize = 19 })
+	S.deco(new("UIGradient", { Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(165, 165, 178)) }, ui.title)) -- metallic title
+	do -- hairline under the header that fades out at both ends
+		local hd = fr(panel, 14, 51, 657, 1, "accent", 0.8)
+		new("UIGradient", { Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0), NumberSequenceKeypoint.new(1, 1) }) }, hd)
+		S.deco(hd)
+	end
 	txt(panel, "open-source admin/dev panel", 8, "hint", 158, 21, 200, 13, { Font = FONT_CODE, TextSize = 11 })
 
 	btn(panel, "×", 641, 13, 32, 26, "ctrlOff", BTN_OFF, function() ui.setPanel(false) end, 13)
@@ -5806,31 +6054,48 @@ do
 		end
 	end)
 
-	local inner = fr(panel, 141, 52, 532, 379, "inner", 0.5, 8)
+	local inner = fr(panel, 141, 52, 532, 379, "inner", 0.5, 10, "edge", 1, 0.7)
 	inner.ClipsDescendants = true
 	ui.inner = inner
+	wash(inner, 0, 0, 532, 170, false, 0.8, 10) -- created before the pages, so the content draws above it
+	wash(inner, 0, 209, 532, 170, true, 0.95, 10)
 
 	-- tab y positions copied from the deck (8 tabs now); text right-aligned with the deck's 9.6px inset
-	local TABS = { { "Home", 66 }, { "Players", 102 }, { "Servers", 137 }, { "Look and feel", 173 }, { "Load scripts", 208 }, { "Autostart", 244 },
-		{ "Keybinds", 279 }, { "Module Cfg", 315 }, { "Commands", 350 }, { "Preferences", 385 } }
+	local TABS = { { "Home", 66 }, { "Players", 101 }, { "Servers", 136 }, { "Look and feel", 171 }, { "Load scripts", 206 }, { "Autostart", 241 },
+		{ "Keybinds", 276 }, { "Module Cfg", 311 }, { "Commands", 346 }, { "Preferences", 381 } }
+	ui.side = fr(panel, 0, 52, 139, 379, "inner", 0.5, 10, "edge", 1, 0.7)
+	wash(panel, 0, 52, 139, 150, false, 0.8, 10)
+	wash(panel, 0, 281, 139, 150, true, 0.95, 10)
+	 -- one dark column behind every tab
 	for _, t in ipairs(TABS) do
 		local name = t[1]
-		local b = new("TextButton", { Position = UDim2.fromOffset(0, t[2]), Size = UDim2.fromOffset(141, 35), AutoButtonColor = false, BorderSizePixel = 0,
+		-- every tab owns a glow (strongest on the text side, fading to the left) and an accent bar that fade in when it is selected
+		local fx = { glow = fr(panel, 6, t[2], 127, 35, nil) }
+		paint(fx.glow, "BackgroundColor3", "accent")
+		fx.glow.BackgroundTransparency = 1
+		S.deco(fx.glow)
+		new("UICorner", { CornerRadius = UDim.new(0, 8) }, fx.glow)
+		new("UIGradient", { Transparency = NumberSequence.new(1, 0.75) }, fx.glow)
+		ui.tabFx = ui.tabFx or {}
+		ui.tabFx[name] = fx
+		local b = new("TextButton", { Position = UDim2.fromOffset(6, t[2]), Size = UDim2.fromOffset(127, 35), AutoButtonColor = false, BorderSizePixel = 0,
 			Text = name, Font = FONT, TextSize = fs(10), TextXAlignment = Enum.TextXAlignment.Right }, panel)
+		new("UICorner", { CornerRadius = UDim.new(0, 8) }, b)
 		new("UIPadding", { PaddingRight = UDim.new(0, 10) }, b)
 		paint(b, "TextColor3", "text")
-		b.BackgroundTransparency = 0.9
+		b.BackgroundTransparency = 1
 		tabs[name] = b
+		fx.bar = fr(panel, 12, t[2] + 10, 3, 15, "accent", 1, 2)
 		ui.tabY = ui.tabY or {}
 		ui.tabY[name] = t[2]
-		b.MouseEnter:Connect(function() if ui.tab ~= name then tw(b, { BackgroundTransparency = 0.8 }, 0.1) end end)
-		b.MouseLeave:Connect(function() if ui.tab ~= name then tw(b, { BackgroundTransparency = 0.9 }, 0.12) end end)
+		b.MouseEnter:Connect(function() if ui.tab ~= name then tw(b, { BackgroundTransparency = 0.88 }, 0.1) end end)
+		b.MouseLeave:Connect(function() if ui.tab ~= name then tw(b, { BackgroundTransparency = 1 }, 0.12) end end)
 		b.MouseButton1Click:Connect(function() ui.selectTab(name) end)
 		pages[name] = new("Frame", { Name = name, Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Visible = false }, inner)
 	end
 
 	-- the selected tab gets an accent tint, accent text and a bar that slides to it
-	ui.tabBar = fr(panel, 4, 73, 3, 21, "accent", 0, 2)
+	
 	function ui.selectTab(name)
 		local first = ui.tab == nil
 		ui.tab = name
@@ -5839,18 +6104,11 @@ do
 			local on = n == name
 			paint(b, "BackgroundColor3", on and "accent" or "tabOff")
 			paint(b, "TextColor3", on and "accentText" or "text")
-			tw(b, { BackgroundTransparency = on and 0.82 or 0.9 }, 0.12)
+			tw(b, { BackgroundTransparency = on and 0.82 or 1 }, 0.12)
+			tw(ui.tabFx[n].glow, { BackgroundTransparency = on and 0 or 1 }, 0.22)
+			tw(ui.tabFx[n].bar, { BackgroundTransparency = on and 0 or 1 }, 0.22)
 		end
-		local goal = UDim2.fromOffset(4, ui.tabY[name] + 7)
-		if first then
-			ui.tabBar.Position = goal
-		else
-			tw(ui.tabBar, { Position = goal }, 0.18)
-			if cfg.anim ~= 0 then -- page slides up into place
-				pages[name].Position = UDim2.fromOffset(0, 14)
-				tw(pages[name], { Position = UDim2.new() }, 0.15)
-			end
-		end
+		
 		if onShow[name] then onShow[name]() end
 	end
 
@@ -5862,17 +6120,16 @@ do
 		S.panelOpen = open
 		if open then
 			local s = ui.curScale()
-			ui.panelScale.Scale = s * 0.94
-			tw(ui.panelScale, { Scale = s }, 0.18)
-			ui.placePanel(24, false)
+			ui.panelScale.Scale = s -- no scale pop: text re-rasterises at every scale step and snaps into size; the slide below + fade is smooth
+			ui.placePanel(0, false)
 			panelFade.Visible = true
-			tw(panelFade, { GroupTransparency = 0 }, 0.07)
-			ui.placePanel(0, true)
+			tw(panelFade, { GroupTransparency = 0 }, 0.16)
+
 			ui.shade.Visible = S.barOpen and true or false
 			if onShow[ui.tab] then onShow[ui.tab]() end
 		else -- shrinks away first, then hides (unless it was opened again meanwhile)
-			tw(ui.panelScale, { Scale = ui.curScale() * 0.96 }, 0.12)
-			tw(panelFade, { GroupTransparency = 1 }, 0.06)
+
+			tw(panelFade, { GroupTransparency = 1 }, 0.12)
 			task.delay(dur(0.12), function() if not S.panelOpen then panelFade.Visible = false end end)
 		end
 		ui.syncMouse()
@@ -6041,13 +6298,13 @@ do
 		end
 	end
 	local sortMenu
-	local sortBtn = btn(pg, "Sort: " .. tostring(cfg.plSort) .. "  v", 246, 10, 104, 32, nil, nil, function() sortMenu.Visible = not sortMenu.Visible end)
+	local sortBtn = btn(pg, "Sort: " .. tostring(cfg.plSort), 246, 10, 104, 32, nil, nil, function() sortMenu.Visible = not sortMenu.Visible end)
 	sortMenu = fr(pg, 246, 44, 104, #SORTS * 28 + 4, "ctrlOff", 0, 5, "edge", 1, 0.3)
 	sortMenu.ZIndex, sortMenu.Visible = 20, false
 	for i, v in ipairs(SORTS) do
 		btn(sortMenu, v, 2, 2 + (i - 1) * 28, 100, 26, nil, nil, function()
 			cfg.plSort, sortMenu.Visible = v, false
-			sortBtn.Text = "Sort: " .. v .. "  v"
+			sortBtn.Text = "Sort: " .. v
 			save(); render()
 		end)
 	end
@@ -6141,6 +6398,7 @@ do
 		local fill = fr(track, 0, 0, 0, 4, "accent", 0.1, 2)
 		local knob = fr(hit, 0, 3, 12, 12, "accent", 0, 6, "edge", 1, 0)
 		local pct = txt(parent, "", 9, "sub", x + w + 6, y, 38, 18, { TextXAlignment = Enum.TextXAlignment.Center, TextYAlignment = Enum.TextYAlignment.Center })
+		local lastC = 0 -- double click = back to 100 %
 		local function show(v)
 			local f = v / 2
 			fill.Size = UDim2.new(f, 0, 1, 0)
@@ -6156,6 +6414,9 @@ do
 		end
 		hit.InputBegan:Connect(function(i)
 			if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+				local now = os.clock()
+				if now - lastC < 0.35 then lastC = 0; drag = nil; show(1); ctx.setVoiceVol(uid, 1); return end
+				lastC = now
 				drag = set
 				set(i.Position.X)
 			end
@@ -7043,6 +7304,9 @@ do
 	numRow("Jump power: default", "jpDef"); numRow("Jump power: multiplier", "jpMult")
 	numRow("Spin: default (rotations/s)", "spinDef"); numRow("Spin: multiplier", "spinMult")
 	numRow("Float: stair height (studs)", "floatStep")
+	fhdr(pg, "Spider (;spider)")
+	
+	numRow("Wall height (studs, hook only taller walls, 0 = any)", "spWall")
 	fhdr(pg, "Tpwalk")
 	optRow("Mode", "tpMode", { { "Multiplier", "Multiplier" }, { "Additive", "Additive" } }, 84)
 	numRow("Default amount", "tpDef"); numRow("Maximum (cap)", "tpCap")
@@ -7174,7 +7438,7 @@ do
 	local br = new("Frame", { Size = UDim2.new(1, 0, 0, 23), BackgroundTransparency = 1, LayoutOrder = nx() }, pg)
 	local function refresh()
 		local names = {}
-		for k in pairs(state.active) do names[#names + 1] = k end
+		for k in pairs(state.active) do names[#names + 1] = (state.who and state.who[k]) and (k:sub(1, 1):upper() .. k:sub(2) .. ": " .. state.who[k]) or k end
 		table.sort(names)
 		active.Text = #names > 0 and table.concat(names, ", ") or "none"
 	end
@@ -7218,7 +7482,13 @@ function ui.apply()
 	applyTheme()
 	ui.rescale()
 	ui.panel.BackgroundTransparency = 1 - cfg.opacity
-	if ui.glowTween then pcall(function() if cfg.anim == 0 then ui.glowTween:Pause() else ui.glowTween:Play() end end) end
+	-- the page area and the sidebar follow the opacity too: 80 % keeps the old look (50 %), 100 % is solid
+	local o = cfg.opacity
+	local a = o <= 0.8 and o * 0.625 or math.min(1, 0.5 + (o - 0.8) * 2.5)
+	ui.inner.BackgroundTransparency, ui.side.BackgroundTransparency = 1 - a, 1 - a
+	for _, tn in ipairs({ "glowTween", "borderTween" }) do
+		if ui[tn] then pcall(function() if cfg.anim == 0 then ui[tn]:Pause() else ui[tn]:Play() end end) end
+	end
 	ui.title.Text = '<font color="' .. hex(S.accent) .. '">&gt;</font>KL rOSAD'
 	ui.box.PlaceholderText = "[ " .. keyStr(cfg.barKey) .. " ] enter or search a command…"
 	ui.layoutBar()
@@ -7275,6 +7545,7 @@ function ui.unload()
 	pcall(ctx.noStereo, false)
 	pcall(ctx.crosshair, false)
 	pcall(ctx.syncStop)
+	pcall(function() ui.borderTween:Cancel() end)
 	pcall(function() ui.glowTween:Cancel() end) -- endless tween: kept running after the gui was destroyed
 	for _, c in ipairs(S.cons) do pcall(function() c:Disconnect() end) end
 	for k in pairs(state.conns) do ctx.disconnect(k) end
