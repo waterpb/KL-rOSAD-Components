@@ -1,200 +1,43 @@
--- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py). Markers use "--" (Lua), not "//".
--- [BOOT] version, DIR, env, wait for game/LocalPlayer/camera (autoexec), single-run guard (env.KLOSAD_BOOT), unload every previous run (env.KLOSAD_ALL registry) | VERSION, DIR, env | deps: none | L183-203
--- [DATA] BUILTIN slots, GITHUB links, WELCOME/HOME_MSGS/TIPS text | BUILTIN, GITHUB, WELCOME, HOME_MSGS, TIPS | deps: BOOT | L205-326
--- [STATE] service cache S, settings load/save, cfg, MODDEF | S, cfg, DEFAULTS, save(), MODDEF, request, HAS_FS | deps: BOOT | L328-413
--- [THEME] colors, repaint registry, small helpers, tween | THEMES, col(), paint(), applyTheme(), esc(), hl(), new(), dur(), tw() (every duration x2), split(), score() | deps: STATE | L415-572
--- [CMD_CORE] ctx object, player find, hop, chat hook, mute, listen, bind tabs (bindList/addBind/editBind/fireBind, Ctrl+key combos, cycling), Run(), TOGGLES, META/TAGS, register, loadFolder | ctx, ctx.Run, ctx.add, ctx.register, ctx.setMuted, ctx.setListen, ctx.kbTab/bindTable/activeBinds, TOGGLES | deps: STATE, THEME | L574-1219
--- [CMD_BUILTIN] small built-in command files (copyid, view, mute, noclip, esp, bind, loop...) | CMD[] | deps: CMD_CORE | L1221-2004
--- [CMD_EXTRA] movement/defense/blink/names/mouse/tools/save/autoexec/autostart commands | def(), heada/backa (attach kinds, Module Cfg headXxx/backXxx keys), config/cfg (opens Module Cfg), removebaseplate/nobaseplate, crosshair (ctx.crosshair, Module Cfg chXxx keys), tetris/wwapf/tooleditor/klpfxp tool commands, listen/unlisten, nostereo/stereo (ctx.noStereo), refreshaudio/refreshdevices, hide/unhide (ctx.hidePlayer, ctx.isHidden), placeholder1/unplaceholder1 (Module Cfg ph1Mult), hidecursor/unhidecursor (ctx.hideCursor, ctx.cursorOff), float, fly, ragdoll, antifling, antisit/nosit (ctx.eject), clear/cls, blink/unghost, shiftlock, native streamer-others (ctx.streamOthers), ctx.lockFps, setAvc (event + CoreGui text fallback), TOOLS, openTool, setAutoExec, runAutostart, ctx.SRV.hop / scanregions / serverbrowser commands, notifyuser/nuser + unnotifyuser/unuser (ctx.nuAdd/nuRemove/nuScan/nuPoll/nuStatus/nuInfo, cfg.notifyUsers, cfg.nuPoll), cleanup/clean (ctx.cleanup), loaderLine single-run guard, SRV.here / SRV.relay (this server's region for Home), ptp/pulsetp, look/lookat + unlook (live/seen/pick helpers), keepemotes/kemote + unkeepemotes/unkemote (emoteLike/take/attach/playHere) | deps: CMD_CORE | L2006-5117
--- [UI_SHARED] gui root, widget builders, toast, welcome popup, HUD, entries/matches search, mouse sync | fr(), txt(), ripple(), btn() (accent hover/selected, press scale), input(), scroller(), seg(), ui.toast (progress line, click copies the text), ui.alertUser (user notifier card: avatar, names, status), ui.welcome, ui.showHud, ui.matches, ui.syncMouse | deps: THEME, CMD_CORE | L5119-5600
--- [UI_BAR] command bar, suggestions (scroll list grouped in sections, optional 3 columns), history | ui.openBar, ui.closeBar, ui.search, ui.sugRender, ui.complete, ui.moveH, ui.hold, tip popup, barFade (opacity fade) | deps: UI_SHARED | L5602-6042
--- [UI_PANEL] panel frame, drag, tabs, selectTab, setPanel | pages, tabs, onShow, ui.selectTab, ui.setPanel, panelFade (opacity fade), ui.rel (relay dot + PID, polls GET /sys every 3 s), soft drifting background glows (ui.orbitTween) | deps: UI_SHARED | L6044-6269
--- [PG_HOME] Home page (stats+icon centered, Region row via ctx.SRV.here, experience name carry) | stats loop, bio per UserId (cfg.bios), ctx.curExp | deps: UI_PANEL | L6271-6382
--- [PG_PLAYERS] Players page: cards grouped Listening > Friends > Players > Blocked/Hidden, Sort drop down (cfg.plSort: A-Z / Z-A / Nearest / Farthest; sortList, resort re-orders in place every cfg.plPoll s), voice indicator, volume slider, 3x2 buttons; Servers page (region per server + scan age, sort Ping/Players/Region/Age asc/desc, Scan regions, Join match; engine = ctx.SRV in CMD_EXTRA, regions cached in KLOSAD/servers.json) | render(), card(), slider(), copyable(), fetchFriends() | deps: UI_PANEL | L6384-6901
--- [PG_LOOK] Look and feel page | seg controls | deps: UI_PANEL | L6903-6933
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L6935-7012
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L7014-7043
--- [PG_FLOW] flow/fhdr/frow layout helpers for pages w/o slides | flow(), fhdr(), frow() | deps: UI_PANEL | L7045-7064
--- [PG_AUTOSTART] Autostart page (scripts + commands) | add(), QUICK, render() | deps: PG_FLOW | L7066-7188
--- [PG_KEYS] Keybinds page with tabs (none/default/custom, experience specific, renamable) | keyTile(), tabBtn(), card(), line(), rbtn(), New bind card on top, bind cards (key chip, 1 command per line, up/down/remove, ADD), expName() id->game name lookup, ui.refreshKeys | deps: PG_FLOW | L7190-7416
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L7418-7518
--- [PG_PREFS] Preferences page (incl. Players tab sort refresh, User notifier list, System block: relay/PID/CPU/GPU/RAM) | refresh(), refreshSys(), ui.refreshNu() | deps: PG_FLOW | L7520-7609
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, ui.syncShift, env.KLOSAD | deps: all | L7611-7751
-
---[[
-	KL rOSAD v1.1  |  open-source admin/dev panel  |  client-side only
-
-	CHANGELOG (newest first; every change adds a line here and updates the NAV INDEX, then navfix)
-	v1.1  Light mode tiles no longer darken: the "glass" veil is white in light mode (a grey one turned the glows muddy); dark mode keeps the black veil
-	v1.1  Tiles darken again (the white veil lightened them): theme key "glass" is pure black in dark mode and a soft grey in light mode, raw transparency 0.75, still scaled by UI Opacity
-	v1.1  Glows no longer poke out of the rounded window corners: their holder is a CanvasGroup with the window's corner radius
-	v1.1  Tiles (page area + sidebar) are a faint white veil (theme key "glass", raw transparency 0.9, still scaled by UI Opacity) instead of a dark fill, so the glows behind them stay clean instead of going muddy
-	v1.1  Glass look: all tile / panel / card gradients removed (fr depth gradient, wash() on the tiles, window sheen); only buttons keep a subtle sheen, now in both themes (white in dark, black in light, theme key "sheen"). The accent glows show in light mode too (the white one stays dark only)
-	v1.1  UI Opacity is relative for everything in the panel: tiles, cards, buttons, fields, washes and the sheen are scaled by opacity / 0.8 (S.opx, attribute "raw"; ui.apply rescales live), so 20 % and 50 % are see-through all over instead of solid buttons on a faint panel. 80 % looks as before, 100 % is a bit denser
-	v1.1  Glows were too faint to see (peak 0.04 to 0.09 behind a half transparent tile): peaks raised to 0.12 to 0.3
-	v1.1  Glows: the four older glow experiments are gone, one set remains: bigger, fainter, smoother (18 layers), random drift over 14 to 28 s, strength wanders a few percent. Page area and sidebar tiles are fixed at the 80 % look whatever UI Opacity is, so the glows still show at 100 %
-	v1.1  Dark mode: a soft light circles behind the panel content (accent glow + a fainter white one on the opposite side, one rotation per 18 s, ui.orbitTween; paused with Animation Speed: none, hidden in light mode)
-	v1.1  Dark mode: soft wavy lights drift behind the panel content (accent, white and two red glows plus a dim accent one; each turns at its own speed and direction and slowly breathes; ui.orbitTween; paused with Animation Speed: none, hidden in light mode)
-	v1.1  New ;all [@alt] <command>: runs the command on this account and on your other accounts (;sudo = the other accounts only, the account you type it in does not run it); if the relay is down ;all still runs it here
-	v1.1  New ;sudo [@alt] <command>: runs a command on your other accounts too (instances of this script on the same PC), through region-relay.py (new endpoints /alt/ping and /alt/send; every instance pings it every 1.5 s, gets its queued commands and the list of the other accounts). Players tab: new Accounts group (your alts that are in this server get the normal card tagged "alt", alts in other servers a row with a Join button), needs the relay
-	v1.1  Command bar: for commands that take a <player> the server's players are suggested while you type the first argument (Up / Down to pick, Tab to fill)
-	v1.1  ;noplayercollision also answers to ;noplayercollide / ;nopcol, ;playercollision to ;playercollide / ;pcol
-	v1.1  Light mode is flat again: every gradient, wash, sheen, glow and the comet border is decoration registered through S.deco and only shown in dark mode (S.applyDeco on theme change)
-	v1.1  UI Opacity now fades the page area and the sidebar back too (they were fixed at 50 %): 80 % opacity = the old look, 100 % = solid
-	v1.1  Dark mode polish: bigger corners (window 12, areas 10), pill tabs (inset 6 px, rounded selection, bar inside), metallic title gradient, fading hairline under the header
-	v1.1  Sidebar: the accent bar and glow no longer slide between tabs; every tab owns a bar + glow that fade in (selected) and out (deselected) in place (ui.tabFx)
-	v1.1  Gradients inverted on everything that is not a button (dark at the top, light at the bottom): fr() frames, page area / sidebar washes, the window sheen is now at the bottom. Glow: soft accent glow behind the selected tab (slides with the bar), buttons brighten their sheen on hover, text fields get a thicker accent edge while focused
-	v1.1  Gradients: button sheen back to mild (0.93); every filled frame (cards, rows, fields, areas) gets a very faint top-to-bottom gradient (fr); the page area and sidebar get a soft light wash at the top and a dark wash at the bottom (wash()) so the UI is less flat
-	v1.1  Look: dark mode is darker and higher contrast (near black panel, darker buttons / fields, cooler grey edges, brighter text); the panel border is an accent comet that circles the window (paused with Animation Speed: none), a soft top sheen, thin outlines round the sidebar and page area, buttons: stronger sheen and a thicker accent edge on hover
-	v1.1  ;tp / ;goto and ;view work on players outside the streaming range: the last seen position of every player is kept (once a second), the area around it is requested from the server (RequestStreamAroundAsync); if that is not enough your character is parked (anchored) at the farthest spot that keeps the target inside the stream radius with a 100 stud margin (radius - 100, then half, then on top of it) until their body loads. ;tp then goes on to them; ;view keeps you parked and ;unview sends you back. ctx.reach(player) is the helper (other commands can use it)
-	v1.1  Panel open / close and tab switching are fades only: no slide up / down, pages no longer slide in
-	v1.1  Sidebar: tabs sit on one continuous dark column (they were separate bars with 0 / 1 px gaps alternating because the 35.5 px pitch was rounded); even 35 px pitch, inactive tabs transparent, a 2 px gutter to the page area
-	v1.1  Panel / command bar open + close: no scale pop any more (text re-rasterised at every scale step and snapped into size); the panel slides 24 px + fades (0.16 s) and slides 10 px + fades on close, the bar only fades (0.12 s)
-	v1.1  ;noclip rebuilt: instead of pulling you back to the last ground it keeps an invisible solid floor under your feet (follows the ground below you, never lets you sink, and follows ;float's level while floating); ;clip removes it
-	v1.1  ;float: the ground ray now ignores other players and non-solid parts (someone under or next to you used to move the platform / snap your level)
-	v1.1  ;noplayercollision: walk-through is set at two points before every physics step (Stepped and PreSimulation) and without reading the old value first, so a game / humanoid switching collision back on in between cannot win
-	v1.1  ;spider: the old smooth wall / surface transfer is back (no snapping or teleporting); walking into a 90 degree wall still turns you onto it. Edges: overhanging a ledge by up to 1.2 studs still counts as standing, past that you are pulled round the side face under the lip instead of falling (also when standing still). Other players are no longer seen as blocks (rays ignore every player's character)
-	v1.1  ;placeholder1 [speed]: spawns the tool with that animation speed, or changes the speed of the one you already have
-	v1.1  ;listen: the game's own voice wires are re-silenced every 0.5 s (a game re-enabling one used to double the voice) and right when you start listening
-	v1.1  New ;noplayercollision (nopc, nopcollide, noplayercollusion): walk through other players; ;playercollision (pc, pcollide, playercollusion) turns collision back on
-	v1.1  Targeted commands (;follow fre) show the player's username in the activation notice ("follow  Fread") and in Preferences > Active effects ("Follow: Fread")
-	v1.1  New ;autostart: launches / relaunches everything in Autostart now
-	v1.1  ;hide: also mutes the player (voice + chat, ;unhide undoes it); parts / sounds added to a hidden character are covered 40 per frame instead of all at once (no stalls or error spam when a game spawns many)
-	v1.1  Players tab: Sort button has no arrow; double click a volume slider = back to 100 %; ;float: E lifts you off the ground too (platform under your feet from the first press)
-	v1.1  ;spider edge catch: the feet are the reference. Going round an edge puts the body on the side face just under the lip (feet on the face, not floating at the old standing height), and every hook turns you to the new surface at once so the feet land where you are placed
-	v1.1  ;spider simplified: step detection (and Module Cfg step size) removed, hook speed removed (the hook always snaps at once). Wall height now also keeps stairs and curbs from hooking (lower than the wall height = not hooked)
-	v1.1  ;spider no longer drops off edges (fences, thin roofs, ledges): once you are past the edge the side face is found from a lower, longer ray and you are snapped onto it (while just off the ground). Module Cfg > Spider: Wall height (default 3 studs, 0 = any): a surface is only hooked when it is taller than this (above your feet); lower than the step size = stepped onto, in between = ignored
-	v1.1  ;spider detects steps: a surface in front whose top is within Module Cfg "Spider: step size" (default 2 studs) above your feet is stepped onto (stairs, curbs, low ledges) instead of hooked as a wall. Module Cfg > Spider: step size (0 = off) and hook speed (0 = instant snap, else the turn rate per second)
-	v1.1  ;spider hooks onto a wall at once: walking toward one (any direction, forward / sideways / back) from up to 4.5 studs away snaps your up to the wall and puts you on it, instead of turning slowly and bumping it. ;spider also starts ;nosit silently (no notice) so a seat cannot grab you while you climb
-	v1.1  Bio is stored per UserId (cfg.bios), so each account keeps its own; the old single bio moves to the account that opens the panel first
-	v1.1  Relay indicator at the top of the panel next to the close button (green working, orange rate limited, red errors / lost, hidden until the relay answers once) with the client PID beside it; region-relay.py answers GET /sys (status, CPU, GPU, RAM, Roblox PIDs). Preferences: new System block (relay, PID, CPU, GPU, RAM, Roblox memory, frame time, ping)
-	v1.1  ;spider: walls are seen earlier (a ray reaches about 3.4 studs ahead, at chest AND knee height, so low walls count) and the turn onto a wall is faster (rate 14, was 8), so you start going up before you hit it. While the surface turns, the walk speed is kept (it used to shrink with the angle and stall at corners)
-	v1.1  New ;keepemotes / ;kemote (+ ;unkeepemotes / ;unkemote): the newest emote / non-default animation gets priority Action4 (beats walk, jump, fall, sit) and is played again the moment it stops early, so moving, jumping or falling no longer cancels it. A looped one stays until you start another or run ;unkemote; a one-shot ends normally. Humanoid:PlayEmote / "/e" only works while standing: when the game's Animate script refuses, the default emotes (wave, point, dance, laugh, cheer) are played by rOSAD instead, so they work mid air too (needs getcallbackmember)
-	v1.1  Players tab: the Sort button is now a drop down (A-Z / Z-A / Nearest / Farthest) like the Servers tab, and sits clear of the search box
-	v1.1  New ;look / ;lookat <player | near | far | inwall> (+ ;unlook): your character faces the target (turn only, never tilts) and the camera is not touched, same method as ;spin. near / far are re-picked 10 times a second, inwall = the nearest one with no wall in between (nobody in view = you walk and turn normally)
-	v1.1  New ;ptp / ;pulsetp <player> [seconds, default 1]: teleports you onto the player for that long, then back to where you were
-	v1.1  Players tab: Sort button (A-Z / Z-A / Nearest / Farthest, saved). Nearest / Farthest re-order the cards in place (no rebuild, so buttons and sliders keep working) every Preferences > Players tab > Sort refresh seconds (0 = every frame, 1, 2, 3, 5)
-	v1.1  ;friend <username or user id> now also works for people who are not in the server: Roblox only prompts for players who are here, so it copies their profile link and tells you to press Add Friend there
-	v1.1  Baby: new Module Cfg "Baby: lean back (degrees)" (babyLean, default 0) tilts you backwards, away from the player, on top of the existing rotation
-	v1.1  Fix Placeholder1: after a death ;placeholder1 said "already in your inventory" because the old tool still had a parent; it now checks the tool is in your CURRENT backpack / character
-	v1.1  Home: the Locale row is now "Region: <city>, <country>" for the server you are in (from the region cache, else one lookup of this server through the same relay / join routes as the Servers tab; long names shrink to fit). "Region: Relay inactive" when region-relay.py is not running, "Region: unavailable" for any other failure; a failed lookup retries every 30 s while Home is open
-	v1.1  New user notifier: ;notifyuser / ;nuser <username> adds a username to a list (saved), ;unnotifyuser / ;unuser <username|all> removes it; Preferences > User notifier has the same list with avatar, display name, username and status (Offline / Online / In game: <game> / In Studio, polled in one batched request every 30 / 45 / 60 / 90 s, default 60). When a listed username is in the server (on script start, or when they join) a card themed like the UI (avatar, display name, username, "In this server", accent ring pulse, 2 pings) shows at the top for 20 s (click closes), even with Notifications off
-	v1.1  New ;cleanup / ;clean [game|scripts] (nothing = both): removes stray rOSAD runs and leftover guis, runs a Lua garbage collection (if the executor allows it), clears the executor's Drawing cache, shows Lua and client memory before / after. Every finished run now registers its unload in env.KLOSAD_ALL, so the next start (auto execute, hop, re-exec) unloads every older run even if env.KLOSAD was lost
-	v1.1  Fix lag after an auto execute rejoin / hop that stayed after exiting rOSAD: the executor's autoexec folder and queue_on_teleport could both start a run, and the second one left the first alive (exit only stopped one). Now only one run boots (the loader and the script both check), and unload also stops the endless panel glow tween
-	v1.1  Server list: all pages are fetched (up to 10 x 100, was the first page only, which Roblox often fills with far fewer than 100 servers); the Servers tab status shows the players in the listed servers. Full servers are still left out (they cannot be joined)
-	v1.1  Servers tab: Rescan now only refreshes the server list and reports how many servers are new (they show "Not scanned yet"); regions are found by Scan regions / ;scanregions, a separate scan that can run alongside it. The status line shows "refreshing list..." and/or "scanning regions N..." with moving dots while either works, and Rescan dims while it runs
-	v1.1  Servers tab: new Rescan button (fresh server list, then scans the new servers). Fix: a scan that errored or hung left "busy" set forever so no later scan started; a failing lookup is now caught per server and a scan with no progress for 90 s counts as dead
-	v1.1  New ;leave / ;leavegame (closes the Roblox client). Autostart refuses ;rejoin, ;serverhop, ;smallserver, ;region and ;leave (also through aliases): they can't be added and a saved one is skipped with a notice on exec and respawn
-	v1.1  Correction: Preferences > Max servers to scan (25 / 50 / 75 / 100, default 50) limits how many NEW servers a scan sends to Roblox (join requests); cached servers cost none and the list is no longer cut
-	v1.1  Server browser: Sort drop down arrow is plain text; list and scan are capped at Preferences > Servers to scan (25 / 50 / 75 / 100, default 50); a rate limit now backs off and retries instead of ending the scan; shown ping = list ping x Module Cfg multiplier (default 2, the list underreports); regions carry a continent
-	v1.1  New ;serverbrowser / ;server / ;servers (opens the Servers tab), ;scanregions / ;scanservers (scans and caches the region of this game's servers, fine for autostart), ;serverhop <US / EU / AS / city> (best ping scanned server in that region with room; says to scan first when there is none). 2 letter regions are country or continent codes (no more "us" inside "australia"). Old cached regions rescan their city lookup once to get the continent
-	v1.1  Fix ;spider / ;wallwalk: the camera is no longer rotated or rolled (it stays yours); W follows where the camera looks and, facing a wall, climbs it; slower turn onto a new surface, 0.2 s hold before the next wall switch, walk direction re-projected after a turn
-	v1.1  Region cache is written after every scanned chunk and before a join (a teleport or re-exec mid scan used to lose it); a failed write shows a notification; the Servers tab tells you how many cached servers were loaded
-	v1.1  Servers tab: the Sort button is now a drop down menu (Ping / Players / Region / Age)
-	v1.1  Servers tab: the cookie field is gone (the cookie is handled by region-relay.py); sort buttons moved up into its row
-	v1.1  Servers tab: scanned regions are cached on disk (KLOSAD/servers.json, 6 h) and shown with "scanned x min ago", so a rejoin does not rescan. New Sort button (Ping / Players / Region / Age) and Ascending / Descending, saved
-	v1.1  Fix: start-up now destroys a leftover KLOSAD gui / blur and unbinds leftover render steps from a previous run, so re-executing does not stack them
-	v1.1  Click a notification (toast) to copy its full text to the clipboard
-	v1.1  A gamejoin reply without a server address now shows its status and raw body (unless it holds a joinScript) so the reason is visible
-	v1.1  Region lookup tries a local relay first (region-relay.py, localhost 47653): Python sends the gamejoin request with your cookie and csrf, the executor never sees the cookie
-	v1.1  Cookie check shows Roblox's error code.subcode per way of attaching the cookie (missing vs invalid cookie)
-	v1.1  Servers tab cookie field decodes %7C/%3A and adds the fixed _|WARNING prefix when the paste lacks it (Roblox answered 401 "Authentication token is missing" without it)
-	v1.1  Region lookup via the executor request now tries the cookie as Cookie header, Cookies field or both and keeps the one Roblox accepts; the cookie check reports each, the cookie length, a missing _|WARNING prefix and whether the executor drops the Cookie header
-	v1.1  Servers tab cookie field takes the value from any paste format: .ROBLOSECURITY:"value", .ROBLOSECURITY=value, "value" or the bare value
-	v1.1  Region lookup errors now include the reply from Roblox and a cookie check (users.roblox.com authenticated), the cookie is also sent in the Cookies field some executors use
-	v1.1  Servers tab: cookie field (session only, cleared from the box once taken, never saved or put in command history) for the region lookup; errors name each route and are shown as a notification
-	v1.1  Region lookup now reaches gamejoin with your login through the engine's own request (RequestInternal), then HttpRbxApiService, then the executor request with a cookie; the first one that works is remembered
-	v1.1  New Servers tab and ;region <city / country / code>: shows the region of public servers (server IP -> city) and joins one in the region you want. Scan is 4 at a time, cached for the session
-	v1.1  Listen pad options are now 0 dB, -6 dB and -12 dB (a saved -3 dB is treated as -6 dB)
-	v1.1  Preferences > Voice: listen pad (0 dB, -3 dB, -6 dB). Everyone you listen to goes through a fader at that attenuation, changing it applies live
-	v1.1  Players page rebuilt as cards: voice activity indicator (ring around the avatar + level bars), per player volume slider (0 to 200%, right click resets), grouped Listening > Friends > Players > Blocked / Hidden. Clicking Listen pins the player to the top and scrolls there. Scroll position is kept on every other refresh
-	v1.1  UI: every animation now uses a quarter sine (ease out), no more Back / Quart overshoot. Module Cfg regrouped (offense, server position, ESP, crosshair, notices, ragdoll)
-	v1.1  New activation notices: a small stack in a screen corner (default bottom left) shows each command that ran and its value. Module Cfg: on / off and corner
-	v1.1  New ;serverpos / ;showpos and ;unserverpos / ;unshowpos (Module Cfg: Show server position, auto hide distance 0 to 5 studs, default 0.5): a ghost where the server has you (your path delayed by half your ping)
-	v1.1  Offense prediction (Module Cfg, backpack / baby / headsit / heada / backa): the server gets your position shifted by the target's velocity times your ping, your own screen never shows the shift
-	v1.1  New ;spider / ;wallwalk and ;unspider: every surface is a floor (walls, ceilings, slopes, edges), camera and character rotate with it, jump leaps off along the surface
-	v1.1  ;ragdoll rebuilt: the whole body goes stiff (PlatformStand + Physics, joints intact) so the server and everyone else see it too. The per limb Module Cfg switches are gone
-	v1.1  ESP: shows the username (not the display name), colour is the player's team colour unless Module Cfg has a custom colour on
-	v1.1  Players page: a button whose effect is on (Unview, Unmute, Unlisten, Unhide) is drawn in the accent selected style like the other toggle buttons
-	v1.1  Fix: ;hide / the Hide button no longer mutes the player's voice and chat (that is ;mute / the Mute button). Hide still removes the avatar and silences every sound inside their character
-	v1.1  Placeholder1: base animation speed is now 1 (the Module Cfg value still multiplies it, default 1)
-	v1.1  New ;hidecursor / ;hidemouse and ;unhidecursor / ;unhidemouse: keeps the Roblox cursor hidden (it still shows whenever the panel or command bar is open)
-	v1.1  Crosshair (fixed at center mode): the Roblox cursor is now hidden ONLY while the mouse is locked to the center (shift lock / first person); any time it is not locked you can see it. The fullscreen check is gone
-	v1.1  Placeholder1: the animation now ping-pongs (plays forward, then backwards, and repeats). Module Cfg "Animation speed" is a multiplier (default 1 = real speed 0.5)
-	v1.1  New ;placeholder1 / ;unplaceholder1 (ported from the Infinite Yield command): gives you a tool that plays an animation on your character while it is equipped; the unplaceholder command removes it. Animation speed is in Module Cfg (Placeholder1)
-	v1.1  New ;hide <player> / ;unhide <player|all> and a Hide / Unhide button on the Players page: hides the avatar (parts, face, accessories, tools, name tag, effects) and silences every sound inside that player's character plus their voice and chat, client side only
-	v1.1  Persistence: the autoexec loader now tries SELF_URL first (so the GitHub version wins over an old local copy), then the saved copies, and shows an error notification when it fails. SELF_URL also accepts a normal github.com/.../blob/... page link. Aliases made with ;alias are saved and come back on the next start; new ;unalias <alias>
-	v1.1  Keybinds: tabs can be renamed (Tab name box; Default too). Keycaps are neutral until you hover, click or they wait for a key; text boxes get their accent edge on hover and focus only
-	v1.1  Auto execute fix: the script can't read its own source, so ;keeposad now finds the file you saved in the workspace (.lua, .txt or .luau, any name, 3 folders deep), remembers it (selfPath) and keeps a copy in KLOSAD. The loader runs your file first, so a patched script is picked up on the next start instead of a stale copy. Toasts now say what was really written (the autoexec path, or what to copy once)
-	v1.1  New ;refreshaudio / ;refreshdevices: re-scans the mic and speaker drivers and re-selects the default one, for when the audio settings only show "NoSound Driver"
-	v1.1  Autoexec fix: the script now waits for the game, LocalPlayer and the camera before starting, so dropping KL_rOSAD.lua itself into the executor's autoexec folder works (it used to run too early and error out). Buttons: subtler sheen gradient, a bit darker fill
-	v1.1  ;removebaseplate only removes the tiles ;baseplate added; the game's own baseplate can no longer be removed
-	v1.1  ;removebaseplate: if ;baseplate added tiles it removes only those (the game's own baseplate stays); with no tiles it removes the game's baseplate
-	v1.1  ;baseplate now always uses the standard Roblox baseplate look (grey plastic, studs on top) instead of copying the floor under you; ;removebaseplate also removes the tiles ;baseplate added
-	v1.1  Crosshair (fixed at center mode): while fullscreen and the mouse is not locked to the center, the Roblox cursor is hidden; it comes back when the panel or command bar or the Roblox menu is open, in windowed mode, or when the crosshair is removed
-	v1.1  New ;removebaseplate / ;nobaseplate: removes every part named Baseplate (client side only, rejoin to get it back)
-	v1.1  Command bar: Space completes the suggested command name (same as Tab) and then types its space, so you can go straight to the arguments. Tab no longer leaves a stray tab/space in the text
-	v1.1  ;backa now uses the standalone back attach script's values by default: distance 1.2, sweep on, amplitude 0.5, speed 20 (saved Back attach values are migrated once)
-	v1.1  Keybinds: existing binds are editable. Click a command to retype it (Enter or click away saves, empty or unchanged reverts); click the keycap and press a new key to move the bind (joins the commands of that key if it already has some)
-	v1.1  Keybinds page redesign: Hotkeys tiles (keycaps), "+ New tab", Add a bind form, bind cards with code pills. Open/close fade is now 2x faster (dur() doubles every duration, so the values are halved)
-	v1.1  Panel tab indicator slides with Quart easing (no overshoot bounce)
-	v1.1  Fix ;backa / ;heada: move in PreSimulation (no one frame lag) and turn off CanCollide on the whole character each frame (no more getting shoved by the target)
-	v1.1  Command bar and panel fade in/out (CanvasGroup wrappers barFade/panelFade tween GroupTransparency together with the existing scale pop)
-	v1.1  Suggestion bar: list 2px lower, hover highlights a row, Left/Right jump between columns, held arrows repeat, a cut-off row shows its full line in a small popup. Buttons (btnFill) a bit darker
-	v1.1  New ;heada / ;headattach <player> and ;backa / ;backattach <player>: PlatformStand attach in front of the head / behind the back (jump or ;unattach detaches). Offsets and the front/back sweep live in Module Cfg (Head attach, Back attach)
-	v1.1  New ;config / ;cfg: opens Module Cfg. ;arvc is an alias of ;arjvc and takes on / off
-	v1.1  Autostart: commands can be added too (quick buttons like Anti ear rape and Auto rejoin on VC ban, or any command line); they run on exec and, with "After reset", after every respawn
-	v1.1  UI: accent hints (panel edge, glow line, selected tab and buttons, input focus, scrollbars, bar, toast), click ripple, press scale, slide in pages, closing animation. Every animation is 2x longer (1.0x now lasts what 0.5x used to). Rows with a long label no longer run into their control
-	v1.1  Keybinds: experience specific tabs show the game's name under the typed ID (cached in cfg.exp, looked up through the games API)
-	v1.1  Fix: ;friend / ;unfriend now report errors and fall back to the SetCore prompts when SocialService refuses
-	v1.1  Fix: ;streamermode now renames other players too (native: Player / Humanoid display names + every name in CoreGui and PlayerGui text); ;unstreamer restores them
-	v1.1  Fix: ;fps keeps re-applying the cap (Heartbeat check every second + on window focus), ;fps off removes it, ;gamedefault stops the lock
-	v1.1  Fix: UI keeps the same pixel size at any resolution (1080p stays the reference, no more height / 1080 zoom); only the UI Scaling setting changes it
-	v1.1  Fix: auto rejoin on VC ban falls back to watching CoreGui for the suspension message when VoiceChatInternal can't be hooked (Potassium)
-	v1.1  New ;listen <player> / ;unlisten [player] (same routing as the Players page Listen button; unlisten with no name stops all)
-	v1.1  New ;nostereo / ;stereo: downmixes the voice chat listener to mono (everyone centered, proximity volume kept) and restores it
-	v1.1  New ;crosshair / ;removecrosshair (nocrosshair): static CS style crosshair, Module Cfg has mode (Cross / T / Dot), length, gap, thickness, outline, outline opacity, colour and "Replace Roblox cursor" (off = fixed at screen center)
-	v1.1  New tools in Load scripts + commands: Tetris (;tetris / ;untetris), WWA Phantom Forces (;workwellpf / ;wwapf), Tool Properties Editor (;properties / ;tooleditor), KL PF XP (;klpfxp / ;pfxp); all closable with ;kill <name>
-	v1.1  Command bar: scrolling the full command list now groups commands in sections (Movement, Defense, Offense, Players, Voice, Camera, Visuals, Character, Privacy, Server, Tools, rOSAD, Other). Sections live in the CATS table in CMD_CORE
-	v1.1  Preferences: "Command list: up to 3 columns" - the full list spreads over 1 to 3 columns depending on the screen width
-	v1.1  Fix: antisit / ;unsit left you floating on clickable (welded) chairs. New ctx.eject removes the chair weld and jumps once; antisit now keeps its guard running even when the No Sit component loads
-	v1.1  New ;clear / ;cls [effect]: clears movement effects (fly, noclip, float, speed, jump, gravity...) or only the named ones. ;nosit is now an alias of ;antisit
-	v1.1  Keybinds layout: New bind card on top, key chip + command count in each card header, single-command binds drop numbers and arrows
-	v1.1  ;noclip: ground safety (pulls you back to the last ground if you fall into the void / under the map), ;clip restores collision
-	v1.1  Keybinds UI cleanup: one card per key, one command per line (numbered cycle order, up/down/remove), Enter adds, new bind box at the bottom
-	v1.1  Keybinds: tabs (No Keybinds / Default / custom, + to add), custom tabs can be experience specific (typed id or Use current)
-	v1.1  Home: experience name and icon carry over a teleport when the new place only says "Ugc"; stats + icon centered left of the divider
-	v1.1  Sidebar tabs no longer overlap (35px tall); Players buttons 15% narrower (81px) in a 3-column grid; new Listen button
-	v1.1  Panel / bar key set to a Shift key no longer toggles Roblox shift lock; new ;toggleshiftlock / shiftlock / shl; new ;unghost
-	v1.1  Auto execute: no longer silent when it has no copy to load, loader logs its error, more autoexec folders tried
-
-	WHERE TO PUT THINGS (search this file for ">>>"):
-	  >>> BUILTIN   locked pre-installed scripts (Lighting Utility, Cobalt, Dex): paste the script between the markers
-	  >>> GITHUB    your loadstring links: pin them to a commit hash, not "main"
-
-	FOLDERS (in your executor's workspace, created for you):
-	  KLOSAD/scripts    any .lua / .txt dropped here shows up under Load scripts > Local
-	  KLOSAD/commands   extra command files (same format as the built-in ones), then type: reload
-	  KLOSAD/settings.json   saved settings, binds and bio
-
-	Command file format:  return function(ctx) return { names = {"x","alias"}, args = "[n]", desc = "...", run = function(n) end } end
-]]
-
+-- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py)
+-- [BOOT] version, env, wait for game, single-run guard, unload old runs | VERSION, DIR, env | deps: none | L24-46
+-- [DATA] builtin slots, GitHub links, welcome/home/tip text | BUILTIN, GITHUB, WELCOME, TIPS | deps: BOOT | L48-169
+-- [STATE] service cache, settings load/save, Module Cfg defaults | S, cfg, save(), MODDEF | deps: BOOT | L171-257
+-- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L259-428
+-- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L430-1080
+-- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1082-1914
+-- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, baseplate, tools, autoexec, autostart, notifier, cleanup | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1916-5181
+-- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches | deps: THEME, CMD_CORE | L5183-5888
+-- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L5890-6408
+-- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L6410-6779
+-- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop | deps: UI_PANEL | L6781-7065
+-- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L7067-7615
+-- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L7616-7934
+-- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L7936-8052
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L8054-8135
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L8137-8168
+-- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L8170-8191
+-- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L8193-8316
+-- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L8318-8551
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L8553-8653
+-- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L8655-8744
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L8746-8927
 -- [BOOT]
-local VERSION = "1.1"
+local VERSION = "1.2"
 local DIR = "KLOSAD"
 local env = (getgenv and getgenv()) or _G
 -- the executor's autoexec folder and queue_on_teleport can both start a run after a rejoin / hop. The second run found no env.KLOSAD yet, so both stayed alive and exiting rOSAD only stopped one (lag). Only one run may boot.
-if env.KLOSAD_BOOT and os.time() - env.KLOSAD_BOOT < 30 then return end
+if env.KLOSAD_BOOT and os.time() - env.KLOSAD_BOOT < 30 then warn("[KLOSAD] a run is still starting (or one crashed while starting): try again in 30 s"); return end
 env.KLOSAD_BOOT = os.time()
 -- an autoexec folder runs this before the game is ready: lp, the camera and CoreGui are still nil, so half the script errored out. Wait first.
 if not game:IsLoaded() then game.Loaded:Wait(); task.wait(1) end
 repeat task.wait() until game:GetService("Players").LocalPlayer and workspace.CurrentCamera
 if env.KLOSAD and env.KLOSAD.Unload then pcall(env.KLOSAD.Unload) end
 -- every finished run registers its unload here, so a run that lost env.KLOSAD (autoexec + teleport loader, re-exec) is still cleaned up
-for _, fn in ipairs(env.KLOSAD_ALL or {}) do pcall(fn) end
-env.KLOSAD_ALL = {}
+local olds = env.KLOSAD_ALL or {}
+env.KLOSAD_ALL = {} -- emptied first: each unload removes itself from the list, which made ipairs skip every second run
+for _, fn in ipairs(olds) do pcall(fn) end
 pcall(function() game:GetService("ContextActionService"):UnbindAction("KLOSAD_Shift") end)
+pcall(function() game:GetService("ContextActionService"):UnbindAction("KLOSAD_Block") end)
 -- a run that errored before the end, or lost env.KLOSAD, leaves its gui, blur and render steps behind; they stack with this run and eat fps
 for _, n in ipairs({ "KLSync", "KLSpiderCam", "KLOSAD_Mouse" }) do pcall(function() game:GetService("RunService"):UnbindFromRenderStep(n) end) end
 for _, get in ipairs({ function() return game:GetService("CoreGui") end, function() return game:GetService("Players").LocalPlayer.PlayerGui end, function() return game:GetService("Lighting") end }) do
@@ -346,7 +189,7 @@ local HAS_LOAD = pcall(function() return loadstring("return 1")() end)
 
 -- ===== settings ============================================================
 local DEFAULTS = {
-	theme = "Dark", opacity = 0.8, accent = "#FFFF00", anim = 1, scale = 1,
+	theme = "Dark", opacity = 0.8, glow = 75, banner = {}, accent = "#FFFF00", anim = 1, scale = 1,
 	lines = 12, blur = 1, pos = "Center", barKey = "Semicolon", panelKey = "RightShift",
 	toasts = true, bio = "", bios = {}, binds = {}, autoExec = false, avc = false, mod = {}, exp = {}, hist = {}, startBar = true, autostart = {},
 	kbTabs = {}, kbActive = "default", expIcon = {}, carry = {}, sugCols = false, selfPath = "", aliases = {}, kbDefName = "Default", listenPad = 0, srvRegion = "", srvSort = "Ping", srvDesc = false, srvMax = 50, notifyUsers = {}, nuPoll = 60, plSort = "A-Z", plPoll = 1,
@@ -359,6 +202,7 @@ cfg.exp = {}
 cfg.hist = {}
 cfg.kbTabs = {}
 cfg.expIcon = {}
+cfg.banner = {}
 cfg.carry = {}
 cfg.aliases = {}
 cfg.notifyUsers = {}
@@ -418,13 +262,13 @@ local rgb = Color3.fromRGB
 -- Colors resolved from the reference deck (tx1=black, bg1=white, bg2=E7E6E6, with the lumMod values applied).
 local THEMES = {
 	Dark = { panel = rgb(8, 8, 10), panelEdge = rgb(52, 50, 58), inner = rgb(15, 15, 18), edge = rgb(72, 70, 80), bar = rgb(15, 15, 18),
-		tabOn = rgb(110, 106, 120), tabOff = rgb(0, 0, 0), row = rgb(32, 31, 37), ctrlOn = rgb(110, 106, 120), ctrlOff = rgb(22, 22, 26),
-		btnFill = rgb(14, 14, 17), glass = rgb(0, 0, 0), sheen = rgb(255, 255, 255), text = rgb(255, 255, 255), text2 = rgb(238, 237, 242), sub = rgb(158, 156, 168),
-		dim = rgb(112, 110, 124), hint = rgb(122, 122, 134), line = rgb(72, 70, 80) },
+		tabOn = rgb(110, 106, 120), tabOff = rgb(0, 0, 0), row = rgb(32, 31, 37), ctrlOn = rgb(110, 106, 120), ctrlOff = rgb(30, 30, 35),
+		btnFill = rgb(40, 40, 46), glass = rgb(0, 0, 0), sheen = rgb(255, 255, 255), text = rgb(255, 255, 255), text2 = rgb(238, 237, 242), sub = rgb(158, 156, 168),
+		dim = rgb(112, 110, 124), hint = rgb(122, 122, 134), line = rgb(72, 70, 80), danger = rgb(255, 99, 88), info = rgb(77, 163, 255) },
 	Light = { panel = rgb(242, 242, 242), panelEdge = rgb(242, 242, 242), inner = rgb(231, 230, 230), edge = rgb(158, 155, 155), bar = rgb(231, 230, 230),
 		tabOn = rgb(138, 134, 134), tabOff = rgb(255, 255, 255), row = rgb(191, 191, 191), ctrlOn = rgb(138, 134, 134), ctrlOff = rgb(250, 250, 250),
 		btnFill = rgb(214, 213, 213), glass = rgb(255, 255, 255), sheen = rgb(0, 0, 0), text = rgb(13, 13, 13), text2 = rgb(31, 31, 31), sub = rgb(84, 81, 81),
-		dim = rgb(107, 103, 103), hint = rgb(107, 103, 103), line = rgb(138, 134, 134) },
+		dim = rgb(107, 103, 103), hint = rgb(107, 103, 103), line = rgb(138, 134, 134), danger = rgb(206, 38, 30), info = rgb(0, 106, 220) },
 }
 if not THEMES[cfg.theme] then cfg.theme = "Dark" end
 if cfg.pos ~= "Top" and cfg.pos ~= "Bottom" then cfg.pos = "Center" end
@@ -461,10 +305,11 @@ S.accentText = legible(S.accent, THEMES[cfg.theme].panel)
 local function col(key)
 	if key == "accent" then return S.accent end
 	if key == "accentText" then return S.accentText end
+	if key == "onAccent" then return lum(S.accent) > 0.4 and rgb(16, 16, 18) or rgb(255, 255, 255) end -- label on a solid accent fill (primary buttons)
 	return THEMES[cfg.theme][key]
 end
 
--- every themed property is registered here so theme/accent changes repaint live (weak keys: destroyed rows vanish)
+-- every themed property is registered here so theme/accent changes repaint live. A plain table on purpose (weak Instance keys can drop rows that still exist): clear() and applyTheme() let go of destroyed rows
 local themed = {}
 local function paint(inst, prop, key)
 	local t = themed[inst]
@@ -518,13 +363,24 @@ local function new(class, props, parent)
 end
 -- animation speed setting: 0.5x / 1x / 2x / none (0)
 -- every duration is doubled so effects are easier to notice; the 1.0x setting is what 0.5x used to be
-local function dur(t) return cfg.anim == 0 and 0 or (t or 0.15) * 2 / cfg.anim end
+-- motion tokens: every tween (and every wait that matches a tween) lands on one of four durations: press / hover / open / slow. Nothing animates at a one-off speed
+local MOTION = { 0.06, 0.1, 0.16, 0.3 }
+local function dur(t)
+	if cfg.anim == 0 then return 0 end
+	local want, best, bd = t or 0.15, MOTION[1], math.huge
+	for _, v in ipairs(MOTION) do
+		local d = math.abs(v - want)
+		if d < bd then best, bd = v, d end
+	end
+	return best * 2 / cfg.anim
+end
 local function tw(inst, props, t, style)
 	if cfg.anim == 0 then
 		for k, v in pairs(props) do inst[k] = v end
 		return
 	end
-	-- one curve for the whole UI: a quarter sine (ease out), starts fast and settles softly, never overshoots. Only Linear is honoured (progress lines)
+	-- ONE curve for the whole UI: a quarter sine (Sine Out). Fast start, soft landing, never overshoots, and every fade / slide / hover / press uses it.
+	-- Only Linear is honoured, for progress lines that show time running out (they have to be linear to be readable)
 	S.TweenService:Create(inst, TweenInfo.new(dur(t), style == Enum.EasingStyle.Linear and style or Enum.EasingStyle.Sine, Enum.EasingDirection.Out), props):Play()
 end
 
@@ -654,6 +510,7 @@ function ctx.disconnect(key)
 end
 do -- last seen position of every player, once a second (for ctx.reach)
 	local lastT = 0
+	ctx.connect("seenDrop", game:GetService("Players").PlayerRemoving, function(pl) state.seen[pl.UserId] = nil end)
 	ctx.connect("seenTrack", game:GetService("RunService").Heartbeat, function()
 		local now = os.clock()
 		if now - lastT < 1 then return end
@@ -677,9 +534,8 @@ function ctx.findPlayers(q)
 		return out
 	end
 	if q == "random" then return { all[math.random(#all)] } end
-	for _, p in ipairs(all) do
-		if p.Name:lower() == q or p.DisplayName:lower() == q then return { p } end
-	end
+	for _, p in ipairs(all) do if p.Name:lower() == q then return { p } end end -- a username is unique, a display name is not
+	for _, p in ipairs(all) do if p.DisplayName:lower() == q then return { p } end end
 	for _, p in ipairs(all) do
 		if p.Name:lower():sub(1, #q) == q or p.DisplayName:lower():sub(1, #q) == q then out[#out + 1] = p end
 	end
@@ -717,10 +573,14 @@ function ctx.hookChat()
 	state.chat = { spam = false, spamN = 3, hist = {} }
 	pcall(function()
 		local TCS = S.TextChatService
-		local okp, prev = pcall(function() return TCS.OnIncomingMessage end)
-		S.chatPrev = { ok = okp, fn = prev }
+		-- a script cannot read a callback property: only the executor's getcallbackvalue / getcallbackmember can hand us the game's own handler to chain
+		local get = getcallbackvalue or getcallbackmember
+		local okp, prev = false, nil
+		if get then okp, prev = pcall(get, TCS, "OnIncomingMessage") end
+		if type(prev) ~= "function" then okp, prev = false, nil end
+		S.chatPrev = { ok = okp, fn = prev } -- unload puts prev back (nil = no handler, so ours never outlives the run)
 		TCS.OnIncomingMessage = function(msg)
-			local props = (okp and type(prev) == "function" and prev(msg)) or Instance.new("TextChatMessageProperties")
+			local props = (okp and prev(msg)) or Instance.new("TextChatMessageProperties")
 			local src = msg.TextSource
 			if src then
 				local uid = src.UserId
@@ -1033,7 +893,7 @@ end
 function ctx.add(names, fn)
 	if type(names) == "string" then names = { names } end
 	ctx.Commands[names[1]] = fn
-	for _, n in ipairs(names) do ctx.Aliases[n] = names[1] end
+	for _, n in ipairs(names) do ctx.Aliases[n:lower()] = names[1] end -- Run looks names up lowercased
 end
 
 local NOACT = { panel = true, cmds = true, config = true, cfg = true, ui = true, exit = true, selftest = true, prefix = true, reload = true }
@@ -1169,7 +1029,8 @@ end
 
 function ctx.register(factory)
 	local ok, mod = pcall(factory, ctx)
-	if not ok or type(mod) ~= "table" or not mod.names then
+	if ok and type(mod) == "table" and type(mod.names) == "string" then mod.names = { mod.names } end
+	if not ok or type(mod) ~= "table" or type(mod.names) ~= "table" or type(mod.names[1]) ~= "string" then -- names = {} used to stop the whole boot ("table index is nil")
 		warn("[KLOSAD] bad command module: " .. tostring(mod))
 		return
 	end
@@ -1214,7 +1075,7 @@ mini({ "stopall", "resetall" }, function() ctx.resetAll() end)
 mini({ "reload" }, function() ctx.notify(("Reloaded %d command file(s)"):format(ctx.loadFolder(DIR .. "/commands"))) end)
 mini({ "panel" }, function() ui.setPanel(not S.panelOpen) end)
 mini({ "unbind" }, function(k) if k then ctx.setBind(k, nil) end end)
-mini({ "unloop" }, function() state.loopGen = state.loopGen + 1 end)
+mini({ "unloop" }, function() ctx.Run("breakloop") end) -- loop^ loops watch state.loopOf, so bumping loopGen alone never stopped them
 mini({ "selftest" }, function() ctx.selftest() end)
 -- [/CMD_CORE]
 
@@ -1304,18 +1165,54 @@ end)()
 CMD[#CMD + 1] = (function()
 -- view.lua  |  aliases: view, spectate  |  args: q
 return function(ctx)
-	local findPlayer, state = ctx.findPlayer, ctx.state
+	local findPlayer, state, lp = ctx.findPlayer, ctx.state, ctx.lp
 
 	return {
 		names = { "view", "spectate" },
 		run = function(q)
 			local p = findPlayer(q)
-			if p then ctx.reach(p) end -- out of range: load the area first (you stay parked until ;unview)
-			local h = p and p.Character and p.Character:FindFirstChildOfClass("Humanoid")
-			if h then
-				workspace.CurrentCamera.CameraSubject = h
-				state.viewing = p
+			if not p or p == lp then return end
+			-- your character never moves. While you watch: the area around the target's live position is requested from the server once a second
+			-- (RequestStreamAroundAsync, the only streaming control a client has; ReplicationFocus is server side), the camera re-attaches when
+			-- either of you respawns, and every name tag shows at any distance (restored when the last view ends). Ends on ;unview or when they leave
+			state.viewing = p
+			state.viewGen = (state.viewGen or 0) + 1
+			state.viewRec = state.viewRec or {} -- shared by back-to-back views, so a switch never records our own far values as the originals
+			local my, rec = state.viewGen, state.viewRec
+			local function far(o, prop, v)
+				rec[o] = rec[o] or {}
+				if rec[o][prop] ~= nil then return end
+				local ok, old = pcall(function() return o[prop] end)
+				if ok and old ~= nil then rec[o][prop] = old; pcall(function() o[prop] = v end) end
 			end
+			local function body() local c = p.Character; return c and c:FindFirstChildOfClass("Humanoid"), c and c:FindFirstChild("HumanoidRootPart") end
+			if not body() then ctx.notify(p.Name .. " is not loaded yet: the camera moves to them once they stream in") end
+			task.spawn(function()
+				local asked = 0
+				while state.viewGen == my and state.viewing == p do
+					if not p.Parent then ctx.notify(p.Name .. " left the server: view ended"); ctx.Run("unview"); break end
+					local h, r = body()
+					local seen = state.seen[p.UserId]
+					local pos = r and r.Position or (seen and seen.pos)
+					if workspace.StreamingEnabled and pos and os.clock() - asked >= 1 then
+						asked = os.clock()
+						task.spawn(pcall, lp.RequestStreamAroundAsync, lp, pos, 2)
+					end
+					local cam = workspace.CurrentCamera
+					if h and cam.CameraSubject ~= h then cam.CameraSubject = h end
+					for _, pl in ipairs(ctx.Players:GetPlayers()) do
+						local c = pl.Character
+						local hm, head = c and c:FindFirstChildOfClass("Humanoid"), c and c:FindFirstChild("Head")
+						if hm then far(hm, "NameDisplayDistance", 1e5) end
+						if head then for _, g in ipairs(head:GetChildren()) do if g:IsA("BillboardGui") then far(g, "MaxDistance", math.huge) end end end
+					end
+					task.wait(0.25)
+				end
+				if not state.viewing and state.viewRec == rec then
+					for o, props in pairs(rec) do for k, v in pairs(props) do pcall(function() o[k] = v end) end end
+					state.viewRec = nil
+				end
+			end)
 		end,
 	}
 end
@@ -1534,7 +1431,7 @@ return function(ctx)
 	return {
 		names = { "fov" },
 		run = function(n)
-			cam.FieldOfView = tonumber(n) or 70
+			workspace.CurrentCamera.FieldOfView = tonumber(n) or 70 -- the live camera: a game can replace the one ctx.cam saw at load
 		end,
 	}
 end
@@ -1661,7 +1558,12 @@ return function(ctx)
 			if not char() then return end
 			for _, v in ipairs(char():GetDescendants()) do
 				if v:IsA("BasePart") or v:IsA("Decal") then
-					if v.Name ~= "HumanoidRootPart" then v.Transparency = 1 end
+					if v.Name ~= "HumanoidRootPart" then
+						local iv = ctx.state.invis or {}
+						ctx.state.invis = iv
+						if iv[v] == nil then iv[v] = v.Transparency end -- remembered, so ;visible puts back parts that were see-through on purpose
+						v.Transparency = 1
+					end
 				end
 			end
 		end,
@@ -1707,7 +1609,8 @@ return function(ctx)
 		names = { "tools" },
 		run = function()
 			local names = {}
-			for _, t in ipairs(lp.Backpack:GetChildren()) do names[#names + 1] = t.Name end
+			local bp = lp:FindFirstChildOfClass("Backpack") -- missing for a moment while you respawn
+			for _, t in ipairs(bp and bp:GetChildren() or {}) do names[#names + 1] = t.Name end
 			notify(#names > 0 and table.concat(names, ", ") or "No tools in your backpack")
 		end,
 	}
@@ -1721,9 +1624,11 @@ return function(ctx)
 	return {
 		names = { "visible" },
 		run = function()
+			local iv = ctx.state.invis
+			ctx.state.invis = nil
 			if not char() then return end
 			for _, v in ipairs(char():GetDescendants()) do
-				if (v:IsA("BasePart") or v:IsA("Decal")) and v.Name ~= "HumanoidRootPart" then v.Transparency = 0 end
+				if (v:IsA("BasePart") or v:IsA("Decal")) and v.Name ~= "HumanoidRootPart" then v.Transparency = iv and iv[v] or 0 end
 			end
 		end,
 	}
@@ -1784,7 +1689,7 @@ return function(ctx)
 		connect("espTeam_" .. p.UserId, p:GetPropertyChangedSignal("TeamColor"), function() paintEsp(p) end)
 		connect("espChar_" .. p.UserId, p.CharacterAdded, function()
 			task.wait(0.5)
-			tag(p)
+			if ctx.state.conns["espChar_" .. p.UserId] and p.Parent then tag(p) end -- ;unesp during the wait: no new tag
 		end)
 	end
 
@@ -1793,6 +1698,11 @@ return function(ctx)
 		run = function()
 			for _, p in ipairs(Players:GetPlayers()) do tag(p); watch(p) end
 			connect("espAdd", Players.PlayerAdded, watch)
+			connect("espRem", Players.PlayerRemoving, function(p) -- a player who leaves takes their connections and tags along
+				ctx.disconnect("espChar_" .. p.UserId); ctx.disconnect("espTeam_" .. p.UserId)
+				for _, o in ipairs(ctx.state.esp[p] or {}) do pcall(function() o:Destroy() end) end
+				ctx.state.esp[p] = nil
+			end)
 		end,
 	}
 end
@@ -1880,7 +1790,7 @@ return function(ctx)
 	return {
 		names = { "unesp" },
 		run = function()
-			disconnect("espAdd")
+			disconnect("espAdd"); disconnect("espRem")
 			for k in pairs(state.conns) do
 				if k:find("^espChar_") or k:find("^espTeam_") then disconnect(k) end
 			end
@@ -1928,7 +1838,7 @@ return function(ctx)
 		names = { "xray" },
 		run = function()
 			for _, v in ipairs(workspace:GetDescendants()) do
-				if v:IsA("BasePart") and not v:IsDescendantOf(char() or workspace) and not v.Parent:FindFirstChildOfClass("Humanoid") then
+				if v:IsA("BasePart") and not (char() and v:IsDescendantOf(char())) and not v.Parent:FindFirstChildOfClass("Humanoid") then -- no character (respawning) = every part counts, not none
 					v.LocalTransparencyModifier = 0.7
 				end
 			end
@@ -2173,6 +2083,7 @@ def({ "fly" }, "[speed]", "Fly with WASD, E up and Q down", "flight air", functi
 	bv.Parent, bg.Parent = r, r
 	h.PlatformStand = true
 	ctx.connect("fly", RS.RenderStepped, function()
+		if not bv.Parent then return ctx.Run("unfly") end -- respawned: the movers died with the old body
 		local cam = workspace.CurrentCamera
 		local d = Vector3.zero
 		if down(Enum.KeyCode.W) then d = d + cam.CFrame.LookVector end
@@ -2198,6 +2109,7 @@ def({ "unfly" }, "", "Stop flying", "flight air", function()
 end)
 
 def({ "jesus" }, "", "Walk on water", "water swim float", function()
+	if state.jesusPart then pcall(function() state.jesusPart:Destroy() end) end -- one platform, whatever how often it runs (loop^jesus)
 	local plat = Instance.new("Part")
 	plat.Name, plat.Anchored, plat.CanCollide, plat.Transparency, plat.Size = "_jesus", true, false, 1, Vector3.new(12, 1, 12)
 	plat.Parent = workspace
@@ -2406,6 +2318,7 @@ local function attach(kind, q, off)
 	end
 	local lastP, lastT, tvel = nil, 0, Vector3.zero
 	ctx.connect("attach", ps and RS.PreSimulation or RS.Heartbeat, function()
+		if not p.Parent then return ctx.Run("unattach") end -- the target left: let go (it kept anti sit / anti knockback off and you in PlatformStand)
 		local r, tc = ctx.root(), p.Character
 		local tt = tc and (tc:FindFirstChild("UpperTorso") or tc:FindFirstChild("Torso") or tc:FindFirstChild("HumanoidRootPart"))
 		if not (r and tt) then return end
@@ -2559,6 +2472,12 @@ do
 			r.AssemblyLinearVelocity = Vector3.zero; r.AssemblyAngularVelocity = Vector3.zero
 		end
 		active("spider", nil)
+		if s.ownSit then -- the silent anti sit startSpider turned on goes with it
+			local na = state.noAct
+			state.noAct = true
+			pcall(ctx.Run, "unantisit")
+			state.noAct = na
+		end
 	end
 	local function startSpider()
 		local h, c, r = ctx.hum(), ctx.char(), ctx.root()
@@ -2629,6 +2548,7 @@ do
 			local na = state.noAct
 			state.noAct = true
 			pcall(ctx.Run, "nosit")
+			s.ownSit = true
 			state.noAct = na
 		end
 		ctx.connect("spiderBeat", RS.PreSimulation, function(dt)
@@ -2848,13 +2768,14 @@ end
 -- Also: Humanoid:PlayEmote only works while standing on the ground, so when the game's Animate script refuses, the emote is played here instead.
 do
 	local LOCO = { idle = 1, walk = 1, run = 1, jump = 1, fall = 1, climb = 1, sit = 1, swim = 1, swimidle = 1, toolnone = 1, toolslash = 1, toollunge = 1, mood = 1 }
-	local cur, last, hooked = nil, 0, nil -- kept track, its last seen TimePosition, { bf, orig } of the PlayEmote hook
+	local cur, last, hooked, animator, gen, chk = nil, 0, nil, nil, 0, 0 -- kept track, its last seen TimePosition, { bf, orig } of the PlayEmote hook, the Animator we listen to, attach generation (a newer attach cancels an older one), last watcher check
+	local mine = setmetatable({}, { __mode = "k" }) -- our hook functions -> the function each one wraps (a hook is never wrapped twice)
 	local function emoteLike(t) -- the Animate script's own idle / walk / jump... are not emotes
 		local a, an = t.Animation, lp.Character and lp.Character:FindFirstChild("Animate")
 		return not (a and an and a:IsDescendantOf(an) and a.Parent and LOCO[a.Parent.Name:lower()])
 	end
 	local function take(t)
-		cur, last = t, 0
+		if cur ~= t then cur, last = t, 0 end -- the same track coming back (our own replay fires AnimationPlayed too) keeps its position
 		pcall(function() t.Priority = Enum.AnimationPriority.Action4 end)
 	end
 	local function unhook()
@@ -2874,40 +2795,65 @@ do
 		take(t); t:Play(0.1)
 		return true, t
 	end
-	local function attach() -- runs for the current character, again after every respawn
+	local function attach() -- runs for the current character, again after every respawn / when the game swaps the Animator
+		gen = gen + 1
+		local my = gen
 		unhook()
 		cur = nil
 		local c = lp.Character
 		local h = c and c:WaitForChild("Humanoid", 5)
 		local an = h and h:WaitForChild("Animator", 5)
-		if not an or lp.Character ~= c then return end
+		if not an or lp.Character ~= c or my ~= gen then return end
+		animator = an
 		ctx.connect("kemotePlay", an.AnimationPlayed, function(t) if emoteLike(t) then take(t) end end)
 		for _, t in ipairs(an:GetPlayingAnimationTracks()) do if emoteLike(t) then take(t) end end
-		local animate = c:WaitForChild("Animate", 3)
-		local bf = animate and animate:FindFirstChild("PlayEmote")
-		local got, orig = pcall(function() return getcallbackmember(bf, "OnInvoke") end)
-		if not (got and orig) then return end -- no getcallbackmember: emotes still survive moving, they just need you to stand still to start
-		hooked = { bf = bf, orig = orig }
-		bf.OnInvoke = function(e)
+		-- after a respawn the Animate script has only just been cloned in: its PlayEmote function and the callback on it appear a moment later, so wait for them instead of giving up
+		local animate = c:WaitForChild("Animate", 10)
+		local bf = animate and animate:WaitForChild("PlayEmote", 10)
+		if not bf or my ~= gen then return end
+		local orig
+		for _ = 1, 40 do
+			local got, f = pcall(getcallbackmember, bf, "OnInvoke")
+			if not got then return end -- no getcallbackmember: emotes still survive moving, they just need you to stand still to start
+			if f then orig = f; break end
+			task.wait(0.15)
+			if my ~= gen or not bf.Parent then return end
+		end
+		if not orig or my ~= gen then return end
+		while mine[orig] do orig = mine[orig] end
+		local function hk(e)
 			local ok, a, b = pcall(orig, e)
 			if ok and a then return a, b end
 			return playHere(animate, e)
 		end
+		mine[hk] = orig
+		hooked = { bf = bf, orig = orig }
+		bf.OnInvoke = hk
 	end
-	def({ "keepemotes", "kemote" }, "", "Keep emotes / animations playing while you move, jump, fall or sit; default emotes also start mid air (;unkemote to stop)", "emote animation dance keep uninterrupted air anywhere", function()
+	def({ "keepemotes", "kemote" }, "", "Keep emotes / animations playing while you move, jump, fall or sit; default emotes also start mid air (;unkemote to stop)", "emote animation dance keep uninterrupted air anywher", function()
 		ctx.connect("kemoteChar", lp.CharacterAdded, function() task.spawn(attach) end)
 		ctx.connect("kemote", RS.Heartbeat, function()
-			local t, h = cur, ctx.hum()
+			local h = ctx.hum()
+			local now = os.clock()
+			if now - chk >= 1 then -- the game swapped the Humanoid / Animator (morph, avatar change): our listener died with it
+				chk = now
+				local a2 = h and h:FindFirstChildOfClass("Animator")
+				if a2 and a2 ~= animator then animator = a2; task.spawn(attach) end
+			end
+			local t = cur
 			if not t then return end
 			if not h or h.Health <= 0 then cur = nil; return end
 			if t.IsPlaying then last = t.TimePosition; return end
-			if not t.Looped and last >= t.Length - 0.15 then cur = nil; return end -- a one-shot that ran to its end
-			pcall(function() t:Play(0.1); t.TimePosition = last end)
+			local len = t.Length -- 0 until the animation has loaded: that is not "ended"
+			if len > 0 and not t.Looped and last >= len - 0.25 then cur = nil; return end -- a one-shot that ran to its end
+			local pos = last -- read before Play: Play can fire AnimationPlayed
+			pcall(function() t:Play(0.1); if pos > 0 then t.TimePosition = pos end end)
 		end)
 		task.spawn(attach)
 	end)
 	def({ "unkeepemotes", "unkemote" }, "", "Stop keeping animations (the one playing now is stopped)", "emote animation dance keep uninterrupted", function()
 		for _, k in ipairs({ "kemote", "kemoteChar", "kemotePlay" }) do ctx.disconnect(k) end
+		gen, animator = gen + 1, nil -- cancels an attach that is still waiting
 		unhook()
 		local t = cur
 		cur = nil
@@ -2967,12 +2913,16 @@ end)
 -- the executor's cap can get reset (focus change, teleport, graphics change), so it is checked once a second and re-applied
 do
 	local target, last = nil, 0
+	-- every call takes a new generation number kept in env: a run that is still alive from before (an autostart run that errored, an old copy) sees it is outdated and drops its own lock instead of flipping the cap back to its old value (e.g. 1000)
 	function ctx.lockFps(n)
 		target = n
+		local gen = (tonumber(env.KLOSAD_FPSGEN) or 0) + 1
+		env.KLOSAD_FPSGEN = gen
 		ctx.disconnect("fpsLock"); ctx.disconnect("fpsFocus")
 		if not n then return end
 		pcall(setfpscap, n)
 		ctx.connect("fpsLock", RS.Heartbeat, function()
+			if env.KLOSAD_FPSGEN ~= gen then ctx.disconnect("fpsLock"); ctx.disconnect("fpsFocus"); return end
 			local t = os.clock()
 			if t - last < 1 then return end
 			last = t
@@ -2982,7 +2932,9 @@ do
 			end
 			pcall(setfpscap, target)
 		end)
-		ctx.connect("fpsFocus", UIS.WindowFocused, function() pcall(setfpscap, target) end)
+		ctx.connect("fpsFocus", UIS.WindowFocused, function()
+			if env.KLOSAD_FPSGEN == gen then pcall(setfpscap, target) end
+		end)
 	end
 end
 def({ "fpscap", "fps", "fpsmax" }, "[number|off]", "Cap the frame rate (default 60, stays locked; off removes it)", "frame rate performance", function(n)
@@ -3012,6 +2964,7 @@ end
 
 def({ "antifling", "af" }, "[radius] [threshold] [restore time]", "Turn off collision with fast-moving players until they calm down", "fling protect safe collision", function(rad, thr, rest)
 	local radius, thresh, restore = tonumber(rad) or mod.afRadius, tonumber(thr) or mod.afThreshold, tonumber(rest) or mod.afRestore
+	for p in pairs(state.afFlagged or {}) do if p.Character then setNoCollide(p.Character, false) end end -- a re-run (new radius) first gives back the old run's players
 	local flagged = {}
 	state.afFlagged = flagged
 	ctx.connect("antifling", RS.Stepped, function()
@@ -3055,7 +3008,7 @@ def({ "antisit", "nosit" }, "", "Stop forced sitting: seats can't seat you (No S
 	end
 	local body = url and ctx.fetch(url)
 	if body then
-		local fn = loadstring(body)
+		local fn = HAS_LOAD and loadstring(body) -- no loadstring: straight to the built-in fallback below
 		if fn and pcall(fn) then state.noSitComponent = true end -- the guard below still runs, so welded chairs are handled too
 	end
 	-- fallback if the component can't be downloaded: stand back up whenever something sits you down
@@ -3128,6 +3081,7 @@ end)
 def({ "unantiknockback", "unantipush" }, "", "Turn anti knockback off", "push launch safe", function() ctx.disconnect("antiknockback") end)
 
 def({ "antiattach" }, "", "Stop players welded or attached to you from moving you", "carry headsit weld safe collision", function()
+	for p in pairs(state.aaFlagged or {}) do if p.Character then setNoCollide(p.Character, false) end end
 	local flagged, acc = {}, 0
 	state.aaFlagged = flagged
 	local function joined(a, b)
@@ -3282,7 +3236,7 @@ end)
 def({ "antifreeze" }, "", "Un-anchor yourself if something locks you in place", "anchor stuck lock", function()
 	ctx.connect("antifreeze", RS.Heartbeat, function()
 		local r = ctx.root()
-		if r and r.Anchored and not state.selfFrozen and not state.blink then
+		if r and r.Anchored and not state.selfFrozen and not state.blink and not state.parked then -- ;goto parks you anchored while the target streams in
 			r.Anchored = false
 			dnotify("freeze", "Anti freeze: un-anchored you")
 		end
@@ -3402,6 +3356,7 @@ local function loadSpoofer()
 	body = body:gsub("local OTHER_NAMES = %b{}", function() return "local OTHER_NAMES = {" .. table.concat(list, ", ") .. "}" end, 1)
 	body = body:gsub("local ENABLED = %a+", function() return "local ENABLED = false" end, 1)
 	body = body:gsub("local SPOOF_OTHERS = %a+", function() return "local SPOOF_OTHERS = false" end, 1)
+	if not HAS_LOAD then ctx.notify("Name Spoofer needs loadstring (this executor has none)"); return nil end
 	local fn, e = loadstring(body)
 	if not fn then ctx.notify("Name Spoofer: " .. tostring(e)); return nil end
 	local ok, e2 = pcall(fn)
@@ -3436,18 +3391,21 @@ do
 	local function scrub(o)
 		if o:FindFirstAncestor("KLOSAD") then return end
 		local t = o.Text
-		if t == "" then return end
+		SO.set = SO.set or {}
+		if t == "" or t == SO.set[o] then return end -- our own rewrite firing Text changed: a real name inside an alias used to rewrite forever
 		local new = t
 		for p, r in pairs(SO.real) do
 			for _, nm in ipairs(r) do
-				if #nm >= 3 and new:find(nm, 1, true) then
+				if #nm >= 3 and SO.map[p] and new:find(nm, 1, true) then
 					new = new:gsub((nm:gsub("%p", "%%%0")), (SO.map[p]:gsub("%%", "%%%%")))
 				end
 			end
 		end
 		if new ~= t then
-			if SO.txt[o] == nil then SO.txt[o] = t end
+			SO.txt[o], SO.set[o] = t, new -- the latest original, so ;unstreamer restores current text
 			o.Text = new
+		else
+			SO.txt[o], SO.set[o] = nil, nil
 		end
 	end
 	local function hook(o)
@@ -3512,7 +3470,7 @@ do
 			last = t
 			for p, a in pairs(SO.map) do
 				if not p.Parent then
-					SO.map[p] = nil
+					SO.map[p], SO.real[p] = nil, nil -- both: scrub indexed map[p] for a real name still listed and errored
 				else
 					if p.DisplayName ~= a then pcall(function() p.DisplayName = a end) end
 					local h = p.Character and p.Character:FindFirstChildOfClass("Humanoid")
@@ -3721,7 +3679,7 @@ do
 	function SRV.match(id, q)
 		local r = SRV.region(id)
 		if not r then return false end
-		if #q <= 2 then return r.cc == q:upper() or r.cont == q:upper() end -- "us", "eu", "as" are codes, not a piece of a name ("us" is inside "australia")
+		if #q <= 2 then local c = q:upper() == "UK" and "GB" or q:upper(); return r.cc == c or r.cont == c end -- the UK's ISO code is GB -- "us", "eu", "as" are codes, not a piece of a name ("us" is inside "australia")
 		return r.key:find(q, 1, true) ~= nil
 	end
 	function SRV.list(placeId) -- follows the page cursor (up to 10 pages); Roblox often sends fewer than 100 servers per page while more pages exist
@@ -3832,8 +3790,9 @@ do
 		end
 	end
 end
-def({ "region", "joinregion" }, "<region>", "Join a server in a region: city, country or code (singapore, de, frankfurt, us). Checks servers 4 at a time and joins the first match with room", "server region location ping hop join", function(q)
-	if not q or q == "" then return ctx.notify("Usage: region <city / country / code>") end
+def({ "region", "joinregion" }, "<region>", "Join a server in a region: city, country or code (singapore, de, frankfurt, us). Checks servers 4 at a time and joins the first match with room", "server region location ping hop join", function(...)
+	local q = table.concat({ ... }, " ") -- "new york" arrives as two arguments
+	if q == "" then return ctx.notify("Usage: region <city / country / code>") end
 	q = q:lower()
 	local pid = game.PlaceId
 	ctx.notify("Looking for a server in " .. q .. "...", 4)
@@ -4065,7 +4024,7 @@ do
 		end
 		local p = S.Players:GetPlayerByUserId(uid)
 		if h or not p or p == lp then return false end
-		h = { rec = setmetatable({}, { __mode = "k" }) }
+		h = { rec = {} } -- a plain table: weak Instance keys can drop a part that still exists, and ;unhide would leave it invisible
 		H[uid] = h
 		if not state.muted[uid] then h.muted = true; ctx.setMuted(uid, true) end -- gone for good: voice and chat muted too
 		watch(p, h)
@@ -4511,43 +4470,145 @@ end
 -- ===== GAME SPECIFIC =====
 -- place ids from the two game pages: MIC UP 18+ and MIC UP
 local MICUP = { [15546218972] = true, [6884319169] = true }
-def({ "baseplate" }, "", "Extend the baseplate in MIC UP / MIC UP 18+ (stand on it first)", "map floor ground mic up", function()
+-- endless SmoothPlastic floor: tiles of up to 2048 studs (the part size limit) on a fixed grid, kept as a 3 x 3 block around you AND around the camera focus
+-- (spectating far away), re-placed only when one of them crosses into another grid cell, so at most 18 parts ever exist. The game's own baseplate
+-- (648 x 16 x 648 at 8, -8, -482) is found by size + position, never by name, and is left alone: only its top height, color and textures are copied.
+-- The tiles sit 0.05 studs under its top, so inside its footprint they are hidden by it (no z-fighting) and outside it they look the same
+do
+	local B = { cells = {} }
+	local function gameBase()
+		for _, o in ipairs(workspace:GetDescendants()) do
+			if o:IsA("BasePart") and (o.Size - Vector3.new(648, 16, 648)).Magnitude < 0.5 and (o.Position - Vector3.new(8, -8, -482)).Magnitude < 0.5 then return o end
+		end
+	end
+	function ctx.baseplate(on)
+		ctx.disconnect("baseplate")
+		for _, p in pairs(B.cells) do pcall(p.Destroy, p) end
+		B.cells, state.baseParts = {}, {}
+		if not on then return true end
+		local g, r = gameBase(), ctx.root()
+		local top, x0, z0, tex = nil, nil, nil, {}
+		if g then
+			top, x0, z0 = g.Position.Y + g.Size.Y / 2 - 0.01, g.Position.X - g.Size.X / 2, g.Position.Z - g.Size.Z / 2
+			for _, t in ipairs(g:GetChildren()) do if t:IsA("Texture") then tex[#tex + 1] = t end end
+		else -- the game changed its baseplate: the height of whatever you stand on, 0.05 under it (no z-fighting with a floor we cannot hide)
+			if not r then return false, "No character" end
+			local params = RaycastParams.new()
+			params.FilterType = Enum.RaycastFilterType.Exclude
+			params.FilterDescendantsInstances = { ctx.char() }
+			local hit = workspace:Raycast(r.Position, Vector3.new(0, -300, 0), params)
+			if not hit then return false, "Stand on the baseplate first, then run baseplate" end
+			top, x0, z0 = hit.Position.Y - 0.05, r.Position.X, r.Position.Z
+		end
+		-- a tile is a whole number of texture tiles wide, so the pattern runs on across tile edges
+		-- shortcut: assumes StudsPerTileU == StudsPerTileV (true for the stock baseplate texture); use the lcm of both if a game ever differs
+		local s = tex[1] and tex[1].StudsPerTileU or 0
+		local T = s >= 1 and math.floor(2048 / s) * s or 2048
+		local color = g and g.Color or rgb(99, 95, 98)
+		local function make()
+			local p = Instance.new("Part")
+			p.Name, p.Anchored, p.CanTouch, p.CastShadow, p.Locked = "_baseplateExt", true, false, false, true
+			p.Material, p.Transparency, p.Color = Enum.Material.SmoothPlastic, 0, color
+			p.TopSurface, p.BottomSurface = Enum.SurfaceType.Smooth, Enum.SurfaceType.Smooth
+			p.Size = Vector3.new(T, 16, T)
+			for _, t in ipairs(tex) do
+				local c = t:Clone()
+				c.Parent = p
+			end
+			p.Parent = workspace
+			return p
+		end
+		local function sync()
+			local want = {}
+			local function around(pos)
+				if not pos then return end
+				local cx, cz = math.floor((pos.X - x0) / T), math.floor((pos.Z - z0) / T)
+				for dx = -1, 1 do for dz = -1, 1 do want[(cx + dx) .. "," .. (cz + dz)] = Vector2.new(cx + dx, cz + dz) end end
+			end
+			local me = ctx.root()
+			around(me and me.Position)
+			around(workspace.CurrentCamera and workspace.CurrentCamera.Focus.Position)
+			local free = {}
+			for k, p in pairs(B.cells) do
+				if not want[k] or not p.Parent then B.cells[k] = nil; if p.Parent then free[#free + 1] = p end end
+			end
+			for k, c in pairs(want) do
+				if not B.cells[k] then
+					local p = table.remove(free) or make() -- move a tile that is no longer needed before making a new one
+					p.CFrame = CFrame.new(x0 + (c.X + 0.5) * T, top - 8, z0 + (c.Y + 0.5) * T)
+					B.cells[k] = p
+				end
+			end
+			for _, p in ipairs(free) do p:Destroy() end
+			local list = {}
+			for _, p in pairs(B.cells) do list[#list + 1] = p end
+			state.baseParts = list -- ;cleanup and unload read it
+		end
+		sync()
+		local acc = 0
+		ctx.connect("baseplate", S.RunService.Heartbeat, function(dt)
+			acc = acc + dt
+			if acc < 0.25 then return end
+			acc = 0
+			sync()
+		end)
+		return true
+	end
+end
+def({ "baseplate" }, "", "Endless smooth plastic baseplate in MIC UP / MIC UP 18+: same color and texture as the game's own (which stays as it is), follows you and the camera", "map floor ground mic up glass infinite endless", function()
 	if not (MICUP[game.PlaceId] or tostring(game.Name):lower():find("mic up", 1, true)) then
 		return ctx.notify("baseplate only works in MIC UP and MIC UP 18+ (this is place " .. game.PlaceId .. ")", 5)
 	end
-	local r = ctx.root()
-	if not r then return end
-	for _, p in ipairs(state.baseParts or {}) do p:Destroy() end
-	state.baseParts = {}
-	-- no guessing the name of the game's baseplate: only the height of whatever you are standing on is used
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = { ctx.char() }
-	local hit = workspace:Raycast(r.Position, Vector3.new(0, -300, 0), params)
-	if not hit then return ctx.notify("Stand on the baseplate first, then run baseplate", 5) end
-	-- standard Roblox baseplate look, whatever the floor is made of.
-	-- a part can't be wider than 2048 studs, so it is a 3x3 tile around you; the top sits 0.05 under the real floor (no z-fighting)
-	local top = hit.Position.Y - 0.05
-	for dx = -1, 1 do
-		for dz = -1, 1 do
-			local p = Instance.new("Part")
-			p.Name, p.Anchored, p.Material, p.Color = "_baseplateExt", true, Enum.Material.Plastic, rgb(99, 95, 98)
-			p.Size = Vector3.new(2048, 4, 2048)
-			p.Position = Vector3.new(r.Position.X + dx * 2048, top - 2, r.Position.Z + dz * 2048)
-			p.TopSurface, p.BottomSurface = Enum.SurfaceType.Studs, Enum.SurfaceType.Smooth
-			p.Parent = workspace
-			state.baseParts[#state.baseParts + 1] = p
-		end
-	end
-	ctx.notify("Baseplate extended (only you can see and stand on it)")
+	local ok, why = ctx.baseplate(true)
+	ctx.notify(ok and "Baseplate extended: endless smooth plastic floor (only you can see and stand on it)" or why, 5)
 end)
 
-def({ "removebaseplate", "nobaseplate" }, "", "Remove the baseplate that ;baseplate added (never the game's own)", "map floor ground delete void", function()
-	local ext = state.baseParts or {}
-	if #ext == 0 then return ctx.notify("No extended baseplate to remove") end
-	for _, p in ipairs(ext) do pcall(p.Destroy, p) end -- only our own tiles, never anything the game made
-	state.baseParts = {}
+def({ "removebaseplate", "nobaseplate" }, "", "Remove the baseplate that ;baseplate added (the game's own was never touched)", "map floor ground delete void", function()
+	if #(state.baseParts or {}) == 0 then return ctx.notify("No extended baseplate to remove") end
+	ctx.baseplate(false)
 	ctx.notify("Removed the extended baseplate")
+end)
+
+-- ===== PLAYER PROFILE =====
+-- target resolution for ;player: user id or exact username, then exact display name(s), then the start of either, then anywhere in either. Returns the best tier; more than one = ambiguous
+function ctx.matchPlayers(q, all)
+	all = all or S.Players:GetPlayers()
+	local ql, id, tiers = tostring(q):lower(), tonumber(q), { {}, {}, {}, {} }
+	for _, p in ipairs(all) do
+		local n, d = p.Name:lower(), p.DisplayName:lower()
+		local t = ((id and p.UserId == id) or n == ql) and 1 or d == ql and 2 or (n:sub(1, #ql) == ql or d:sub(1, #ql) == ql) and 3 or (n:find(ql, 1, true) or d:find(ql, 1, true)) and 4 or nil
+		if t then table.insert(tiers[t], p) end
+	end
+	for _, t in ipairs(tiers) do if #t > 0 then return t end end
+	return {}
+end
+do -- ;selftest also checks the matching
+	local st0 = ctx.selftest
+	function ctx.selftest()
+		local A, B, C = { Name = "Fread", DisplayName = "Bob", UserId = 11 }, { Name = "bobby", DisplayName = "Rob", UserId = 22 }, { Name = "xbobx", DisplayName = "Bob", UserId = 33 }
+		local all = { A, B, C }
+		assert(ctx.matchPlayers("fread", all)[1] == A and #ctx.matchPlayers("fread", all) == 1, "player: exact username")
+		assert(#ctx.matchPlayers("bob", all) == 2, "player: a shared display name is ambiguous")
+		assert(ctx.matchPlayers("bobb", all)[1] == B, "player: start of a name")
+		assert(ctx.matchPlayers("22", all)[1] == B, "player: user id")
+		assert(#ctx.matchPlayers("zzz", all) == 0, "player: no match")
+		st0()
+	end
+end
+def({ "player" }, "<player>", "Open the Players tab, or straight into a player's profile (username, display name or user id; the start is enough)", "profile card avatar outfit friends info players", function(q)
+	if not q or q == "" or q:lower() == "all" or q:lower() == "others" then
+		if ui.closeProfile then ui.closeProfile(true) end
+		return ctx.openTab("Players")
+	end
+	local list = q:lower() == "me" and { lp } or ctx.matchPlayers(q)
+	if #list == 1 then return ui.openProfile(list[1]) end
+	if ui.closeProfile then ui.closeProfile(true) end
+	ctx.openTab("Players")
+	if #list == 0 then return ctx.notify("No player in this server matches '" .. q .. "'", 4) end
+	if ui.plSearch then ui.plSearch(q) end
+	local names = {}
+	for i = 1, math.min(#list, 4) do names[i] = list[i].Name end
+	ctx.notify(("%d players match '%s': %s%s. Pick one in the list"):format(#list, q, table.concat(names, ", "), #list > 4 and ", ..." or ""), 5)
 end)
 
 -- ===== TOOLS =====
@@ -4639,7 +4700,7 @@ local function killByName(key)
 			local nm = g.Name:lower()
 			if nm ~= "klosad" then
 				for _, w in ipairs(words) do
-					if nm:find(w, 1, true) then pcall(function() g:Destroy() end); n = n + 1; break end
+					if nm:sub(1, #w) == w then pcall(function() g:Destroy() end); n = n + 1; break end -- start of the name only: "dex" was inside the game's "Index"
 				end
 			end
 		end
@@ -4855,7 +4916,7 @@ function ctx.setAvc(on, quiet)
 		local my = avcTimer
 		ctx.notify("Voice chat ban detected. Rejoining in 5 minutes", 6)
 		task.delay(300, function()
-			if avcTimer == my and cfg.avc then avcTimer = nil; ctx.Run("rejoin") end
+			if avcTimer == my and cfg.avc and S.alive then avcTimer = nil; ctx.Run("rejoin") end
 		end)
 	end
 	local how
@@ -4867,8 +4928,8 @@ function ctx.setAvc(on, quiet)
 		end)
 		how = "event"
 	end)
-	-- 2) fallback: watch CoreGui for Roblox's own "voice chat suspended" message (chat messages are ignored)
-	if not how then
+	-- 2) also watch CoreGui for Roblox's own "voice chat suspended" message (chat messages are ignored); runs next to the event because the event can connect and still never fire. banned() is guarded by avcTimer, so a double hit is harmless
+	do
 		pcall(function()
 			local cg = game:GetService("CoreGui")
 			local function look(o)
@@ -4878,7 +4939,7 @@ function ctx.setAvc(on, quiet)
 				if t:find("voice chat", 1, true) and (t:find("suspend", 1, true) or t:find("banned", 1, true)) then banned() end
 			end
 			ctx.connect("avc", cg.DescendantAdded, function(o) task.delay(0.3, look, o) end)
-			how = "UI watch"
+			how = how and (how .. " + UI watch") or "UI watch"
 		end)
 	end
 	if not quiet then ctx.notify(how and ("Auto rejoin on VC ban on (" .. how .. ")") or "Couldn't hook VC ban detection in this executor", 5) end
@@ -4909,7 +4970,9 @@ end
 -- commands that take you out of the game never run from autostart (exec or respawn), whatever they are called (aliases resolve to the real name)
 local LEAVES = { rejoin = true, serverhop = true, smallserver = true, region = true, leave = true }
 function ctx.leaves(line)
-	local w = tostring(line):lower():match("^%s*;?(%S+)")
+	local l = tostring(line):lower():gsub("^%s*;?", ""):gsub("^loop%^", "") -- loop^rejoin, "all rejoin" and "sudo @alt rejoin" leave too
+	local w, rest = l:match("^(%S+)%s*(.*)$")
+	if w == "all" or w == "sudo" then return ctx.leaves((rest:gsub("^@%S+%s*", ""))) end
 	return w ~= nil and LEAVES[ctx.Aliases[w] or w] == true
 end
 function ctx.autoRun(it)
@@ -4923,6 +4986,7 @@ function ctx.autoRun(it)
 	end)
 end
 function ctx.runAutostart(reason)
+	if not S.alive then return end -- the delayed start (2 s after exec, 1 s after respawn) of a run that was unloaded meanwhile
 	for _, it in ipairs(cfg.autostart.items) do
 		if reason == "exec" or it.respawn then ctx.autoRun(it) end
 	end
@@ -5092,7 +5156,7 @@ do
 			repeat task.wait(2) until not S.alive or os.clock() - last >= math.max(15, cfg.nuPoll)
 		end
 	end)
-	def({ "notifyuser", "nuser" }, "<username> [more]", "Alert card whenever this username is in the server (list + status in Preferences)", "notify alert watch user player join friend", ctx.nuAdd)
+	def({ "notifyuser", "nuser" }, "<username> [more]", "Alert card whenever this username is in the server (list + status in Preferences)", "notify alert watch user player join friend", function(...) ctx.nuAdd(table.concat({ ... }, " ")) end)
 	def({ "unnotifyuser", "unuser" }, "<username|all>", "Remove a username from the notify list", "notify alert watch remove", ctx.nuRemove)
 end
 end
@@ -5137,16 +5201,32 @@ function S.opx(tr) return math.clamp(1 - (1 - tr) * S.opK, 0, 1) end
 local ord = 0
 local function nx() ord = ord + 1; return ord end
 
+-- ===== STYLE SHEET: the one place that says how the UI looks. Widgets read from here, nothing invents its own number =====
+-- rCtrl: buttons, option chips, text fields, cards, toasts, tooltips. rPane: windows, big tiles, popups. Smaller shapes (bars, dots, knobs) are clamped to a pill by the corner radius itself
+local ST = {
+	rCtrl = 8, rPane = 12,
+	ctrlEdge = 0.7, cardEdge = 0.55, -- hairline transparency: a control is defined by its fill, its hairline is only a hint (cards keep a clearer edge)
+	btnPt = 9, -- every button label (glyph buttons like the close x pass their own size)
+	hoverTint = 0.4, -- how far a hairline drifts toward the accent on hover
+	press = 0.97, -- press scale
+	fill = { hover = 0.15, press = 0.3 }, -- how much denser a fill gets on hover / press
+	-- inner glow = BackgroundTransparency (lower = stronger): plain control / selected control / card
+	glow = { idle = 1, hover = 0.82, press = 0.65, onIdle = 0.55, onHover = 0.4, onPress = 0.3, cardHover = 0.88 },
+	slider = { halo = 0.8, haloHeld = 0.6, aura = 0.82, auraHeld = 0.6, swell = 1.06, lift = 1.12 },
+}
 -- frame at design-pixel position; fillKey nil = no fill
 local function fr(parent, x, y, w, h, fillKey, tr, r, strokeKey, st, str)
 	local f = new("Frame", { Position = UDim2.fromOffset(x, y), Size = UDim2.fromOffset(w, h), BorderSizePixel = 0,
 		BackgroundTransparency = fillKey and tr or 1 }, parent)
 	if fillKey then paint(f, "BackgroundColor3", fillKey) end
 	if S.opScope and fillKey and fillKey ~= "accent" and w >= 14 and h >= 14 then f:SetAttribute("raw", tr); f.BackgroundTransparency = S.opx(tr) end
-	if r then new("UICorner", { CornerRadius = UDim.new(0, r) }, f) end
+	if r then
+		if S.opScope then r = r <= ST.rCtrl and ST.rCtrl or ST.rPane end -- inside the panel only two corner sizes exist (the command bar above is its own pill)
+		new("UICorner", { CornerRadius = UDim.new(0, r) }, f)
+	end
 
 	if strokeKey then
-		paint(new("UIStroke", { Thickness = st or 1, Transparency = str or 0, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, f), "Color", strokeKey)
+		paint(new("UIStroke", { Thickness = st or 1, Transparency = (S.opScope and strokeKey == "edge") and ST.cardEdge or (str or 0), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, f), "Color", strokeKey)
 	end
 	return f
 end
@@ -5168,19 +5248,42 @@ local function txt(parent, str, pt, key, x, y, w, h, props)
 	paint(o, "TextColor3", key)
 	return o
 end
+-- button variants. key: nil / "btnFill" = secondary (quiet fill), "ctrlOff" / "ctrlOn" = toggle chip (ctrlOn = selected: accent tint + accent label),
+-- "primary" = the one main action of a row or page (solid accent, bold contrasting label), "danger" = removes something or throws you out (red label, red tint on hover),
+-- "ghost" = glyph / icon button (no fill until hover). Any other theme key = a secondary button with that fill. Disabled = b.Active false (st() dims it).
+-- A button that already exists (S.btnSt) tweens to the new look through its st(); a new one is set directly
+local VARIANT = {
+	primary = { fill = "accent", text = "onAccent", tr = 0, bold = true },
+	danger = { fill = "btnFill", text = "danger", tint = "danger", edge = true },
+	ghost = { fill = "text", text = "text", tr = 1 },
+	ctrlOn = { fill = "accent", text = "accentText", tr = 0.78, edge = true, on = true },
+}
+S.btnV = setmetatable({}, { __mode = "k" }) -- button -> its variant
 local function setFill(b, key, tr)
-	local on = key == "ctrlOn" -- selected = accent tinted fill + accent edge
-	if on then tr = 0.78 end
-	paint(b, "BackgroundColor3", on and "accent" or key)
-	b:SetAttribute("raw", tr)
-	tr = S.opx(tr)
-	b:SetAttribute("base", tr)
-	b:SetAttribute("on", on)
-	b.BackgroundTransparency = tr
-	local st = b:FindFirstChildOfClass("UIStroke")
-	if st then paint(st, "Color", on and "accent" or "edge") end
+	local v = VARIANT[key or "btnFill"] or { fill = key or "btnFill", text = "text", edge = true }
+	local raw = v.tr or tr or BTN_OFF
+	local f, stroke = S.btnSt[b], b:FindFirstChildOfClass("UIStroke")
+	local old = b.BackgroundColor3
+	S.btnV[b] = v
+	paint(b, "BackgroundColor3", v.fill)
+	paint(b, "TextColor3", v.text)
+	b.Font = v.bold and FONT_B or FONT
+	b:SetAttribute("raw", raw) -- UI Opacity rescales it live (ui.apply)
+	b:SetAttribute("base", S.opx(raw))
+	b:SetAttribute("on", v.on == true)
+	if stroke then
+		paint(stroke, "Color", v.on and "accent" or "edge")
+		stroke.Enabled = v.edge == true
+	end
+	if f then
+		b.BackgroundColor3 = old -- the change tweens in st() instead of popping
+		f()
+	else
+		b.BackgroundTransparency = S.opx(raw)
+		if stroke then stroke.Transparency = v.on and 0.35 or ST.ctrlEdge end
+	end
 end
--- reference button: 1px edge, ~3px corners, text 9pt, label centred. Hover and press are animated.
+-- reference button: 1px edge, 8px corners, text 9pt, label centred. Hover and press are animated.
 -- click ripple in the accent color, grows from where the mouse is
 local function ripple(b)
 	local sx = b.Size.X.Offset
@@ -5195,69 +5298,88 @@ local function ripple(b)
 		task.delay(dur(0.3) + 0.05, function() c:Destroy() end)
 	end)
 end
--- button: 1px edge (accent on hover / when selected), 5px corners, top sheen, press shrinks it, click ripples
+-- ONE hover rule for the whole UI. Enter turns it on, and it stays on until the mouse is really outside the object's rectangle (checked every frame while hovered).
+-- Roblox fires MouseLeave when a glow / sheen / child appears over the object, which made hover flicker off and never stay lit. fn(true) / fn(false)
+function S.hover(o, fn)
+	local on = false
+	local function inside()
+		local m, p, s = S.UserInputService:GetMouseLocation(), o.AbsolutePosition, o.AbsoluteSize
+		return m.X >= p.X and m.X <= p.X + s.X and m.Y >= p.Y and m.Y <= p.Y + s.Y
+	end
+	o.MouseEnter:Connect(function()
+		if on then return end
+		on = true
+		fn(true)
+		task.spawn(function()
+			repeat S.RunService.Heartbeat:Wait() until not (S.alive and o.Parent and inside())
+			on = false
+			if S.alive and o.Parent then fn(false) end
+		end)
+	end)
+end
+-- THE control look: every button, option chip and strip tab. Six states (idle / hover / focus / press / selected / disabled) all go through st(),
+-- so they share one curve, one set of durations and the same parts: fill, hairline (variants with an edge), press scale. Every number comes from ST
+S.btnSt = setmetatable({}, { __mode = "kv" }) -- button -> its st(), so setFill can retarget a live button. Weak values too: st() holds its button, and Luau has no ephemerons, so weak keys alone kept every destroyed button
 local function btn(parent, str, x, y, w, h, key, tr, cb, pt)
-	local b = new("TextButton", { Text = str, TextSize = fs(pt or 9), Font = FONT, AutoButtonColor = false, BorderSizePixel = 0, ClipsDescendants = true,
-		TextXAlignment = Enum.TextXAlignment.Center, TextYAlignment = Enum.TextYAlignment.Center,
+	local b = new("TextButton", { Text = str, TextSize = fs((pt and pt >= 12) and pt or ST.btnPt), Font = FONT, AutoButtonColor = false, BorderSizePixel = 0,
+		TextXAlignment = Enum.TextXAlignment.Center, TextYAlignment = Enum.TextYAlignment.Center, TextTruncate = Enum.TextTruncate.AtEnd,
 		Position = UDim2.fromOffset(x, y), Size = UDim2.fromOffset(w, h) }, parent)
-	paint(b, "TextColor3", "text")
-	setFill(b, key or "btnFill", key and tr or BTN_OFF)
-	new("UICorner", { CornerRadius = UDim.new(0, 5) }, b)
-	local stroke = new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, b)
-	paint(stroke, "Color", b:GetAttribute("on") and "accent" or "edge")
-	local sheen = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0 }, b)
-	paint(sheen, "BackgroundColor3", "sheen") -- white in dark mode, black in light mode: a subtle gradient in both
-	new("UICorner", { CornerRadius = UDim.new(0, 5) }, sheen)
-	local sg = new("UIGradient", { Rotation = 90, Transparency = NumberSequence.new(0.93, 1) }, sheen)
+	new("UICorner", { CornerRadius = UDim.new(0, ST.rCtrl) }, b)
+	local stroke = new("UIStroke", { Thickness = 1, Transparency = ST.ctrlEdge, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, b)
+	paint(stroke, "Color", "edge")
+	setFill(b, key, tr)
 	local sc = new("UIScale", {}, b)
-	local function edge(hot) tw(stroke, { Color = col((hot or b:GetAttribute("on")) and "accent" or "edge"), Thickness = hot and 1.5 or 1 }, 0.1); sg.Transparency = NumberSequence.new(hot and 0.86 or 0.93, 1) end
-	b.MouseEnter:Connect(function()
-		if b.Active then
-			tw(b, { BackgroundTransparency = math.max(b:GetAttribute("base") - 0.15, 0) }, 0.1)
-			edge(true)
-		end
-	end)
-	b.MouseLeave:Connect(function()
-		tw(b, { BackgroundTransparency = b:GetAttribute("base") }, 0.12)
-		tw(sc, { Scale = 1 }, 0.1)
-		edge(false)
-	end)
-	b.MouseButton1Down:Connect(function()
-		if b.Active then
-			tw(b, { BackgroundTransparency = math.max(b:GetAttribute("base") - 0.3, 0) }, 0.05)
-			tw(sc, { Scale = 0.95 }, 0.06)
-		end
-	end)
-	b.MouseButton1Up:Connect(function() tw(sc, { Scale = 1 }, 0.1) end)
-	b.MouseButton1Click:Connect(function()
-		if b.Active then
-			ripple(b)
-			tw(b, { BackgroundTransparency = math.max(b:GetAttribute("base") - 0.15, 0) }, 0.1)
-			cb(b)
-		end
-	end)
+	local hot, down, wasLive = false, false, true
+	local function st() -- the single place that decides how the button looks
+		local v, live = S.btnV[b] or { fill = "btnFill", text = "text", edge = true }, b.Active -- never nil, even if the variant entry was lost
+		local h2, d2 = hot and live, down and live
+		local base = col(v.fill)
+		local c = d2 and base:Lerp(Color3.new(0, 0, 0), 0.18) or h2 and base:Lerp(col(v.tint or "text"), v.tint and 0.25 or 0.08) or base
+		tw(b, { BackgroundColor3 = c, BackgroundTransparency = math.max((b:GetAttribute("base") or 0) - (d2 and ST.fill.press or h2 and ST.fill.hover or 0), 0) }, 0.1)
+		if live ~= wasLive then wasLive = live; b.TextTransparency = live and 0 or 0.55 end
+		stroke.Enabled = v.edge == true
+		if v.edge then tw(stroke, { Color = v.on and S.accent or h2 and col("edge"):Lerp(S.accent, ST.hoverTint) or col("edge"), Transparency = (v.on or h2) and 0.35 or ST.ctrlEdge }, 0.1) end
+		tw(sc, { Scale = d2 and ST.press or 1 }, 0.1)
+	end
+	S.btnSt[b] = st
+	S.hover(b, function(v) hot = v; if not v then down = false end; st() end)
+	b.SelectionGained:Connect(function() hot = true; st() end) -- keyboard / gamepad focus looks like hover
+	b.SelectionLost:Connect(function() hot = false; down = false; st() end)
+	b:GetPropertyChangedSignal("Active"):Connect(st) -- disabling dims the label at once
+	b.MouseButton1Down:Connect(function() down = true; st() end)
+	b.MouseButton1Up:Connect(function() down = false; st() end)
+	b.MouseButton1Click:Connect(function() if b.Active then cb(b) end end)
 	return b
 end
--- reference text field: 1px edge, 5px corners, 10px left inset. The styled Frame holds a plain TextBox, because
+-- reference text field: 1px edge, 8px corners, 10px left inset. The styled Frame holds a plain TextBox, because
 -- UIPadding / UIStroke on the TextBox itself shifts the caret. Returns the TextBox; its Frame is o.Parent.
 local function input(parent, ph, x, y, w, h, pt, fillKey, tr, props)
 	local f = new("Frame", { Position = UDim2.fromOffset(x, y), Size = UDim2.fromOffset(w, h), BorderSizePixel = 0, BackgroundTransparency = S.opx(tr or BTN_OFF) }, parent)
 	f:SetAttribute("raw", tr or BTN_OFF)
 	paint(f, "BackgroundColor3", fillKey or "ctrlOff")
-	new("UICorner", { CornerRadius = UDim.new(0, 5) }, f)
-	local stroke = new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, f)
+	new("UICorner", { CornerRadius = UDim.new(0, ST.rCtrl) }, f)
+	local stroke = new("UIStroke", { Thickness = 1, Transparency = ST.ctrlEdge, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, f)
 	paint(stroke, "Color", "edge")
+	-- focus glow: accent rising from the bottom edge, same recipe as buttons (created before the TextBox so the text stays on top)
+	local glow = new("Frame", { Name = "Glow", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0, Interactable = false }, f)
+	paint(glow, "BackgroundColor3", "accent")
+	new("UICorner", { CornerRadius = UDim.new(0, ST.rCtrl) }, glow)
+	new("UIGradient", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.55, 1), NumberSequenceKeypoint.new(1, 0) }) }, glow)
 	local o = new("TextBox", mix({ BackgroundTransparency = 1, BorderSizePixel = 0, Text = "", PlaceholderText = ph, ClearTextOnFocus = false, Font = FONT,
 		TextSize = fs(pt or 11), TextXAlignment = Enum.TextXAlignment.Left, Position = UDim2.fromOffset(10, 0), Size = UDim2.new(1, -20, 1, 0) }, props), f)
 	paint(o, "TextColor3", "text"); paint(o, "PlaceholderColor3", "hint")
 	-- the edge turns accent only while the mouse is over the box or it has focus
 	local focused, hv = false, { f = false, o = false }
-	local function edge() tw(stroke, { Color = col((focused or hv.f or hv.o) and "accent" or "edge"), Thickness = focused and 2 or 1 }, 0.1) end
+	local function edge()
+		local hot = hv.f or hv.o
+		tw(stroke, { Color = focused and S.accent or hot and col("edge"):Lerp(S.accent, ST.hoverTint) or col("edge"), Thickness = focused and 2 or 1, Transparency = (focused or hot) and 0 or ST.ctrlEdge }, 0.1)
+		tw(glow, { BackgroundTransparency = focused and ST.glow.onIdle or hot and ST.glow.hover or ST.glow.idle }, 0.1)
+	end
 	o.Focused:Connect(function() focused = true; edge() end)
 	o.FocusLost:Connect(function() focused = false; edge() end)
 	for k, g in pairs({ f = f, o = o }) do
-		g.MouseEnter:Connect(function() hv[k] = true; edge() end)
-		g.MouseLeave:Connect(function() hv[k] = false; edge() end)
+		S.hover(g, function(v) hv[k] = v; edge() end) -- the shared hover rule: stays on until the mouse is really outside
+		-- (leaving is handled by S.hover)
 	end
 	return o
 end
@@ -5269,7 +5391,11 @@ local function scroller(parent, x, y, w, h)
 end
 local function clear(container)
 	for _, c in ipairs(container:GetChildren()) do
-		if c:IsA("GuiObject") then c:Destroy() end
+		if c:IsA("GuiObject") then
+			themed[c] = nil -- rebuilt lists let go of their rows in the theme registry (it is not weak, see paint)
+			for _, d in ipairs(c:GetDescendants()) do themed[d] = nil end
+			c:Destroy()
+		end
 	end
 end
 local function empty(parent, str)
@@ -5279,9 +5405,171 @@ end
 local function thumb(kind, id, size) return ("rbxthumb://type=%s&id=%d&w=%d&h=%d"):format(kind, id, size, size) end
 local function conn(signal, fn) S.cons[#S.cons + 1] = signal:Connect(fn) end
 
--- segmented control: one reference button per option, selected = lighter fill. tbl defaults to cfg; after() runs on change.
+-- ONE slider look for every slider (notched settings sliders and the per player volume slider): 4 px track, accent fill with a soft glow, white knob with a shadow and an accent halo.
+-- hover: halo fades in and the knob swells a little. held: knob lifts, halo and glow get stronger. P.place(f) moves everything, f = 0..1 along the track. Looks from ST.slider
+function S.sliderParts(parent, x, y, w, pad)
+	local TW, K = w - pad * 2, ST.slider
+	local hit = new("TextButton", { Text = "", AutoButtonColor = false, BackgroundTransparency = 1, Position = UDim2.fromOffset(x, y), Size = UDim2.fromOffset(w, 23) }, parent)
+	local function deco(class, props, par) props.Interactable, props.BorderSizePixel = false, 0; return new(class, props, par) end -- decoration never takes the mouse from the slider
+	local track = deco("Frame", { AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, pad, 0.5, 0), Size = UDim2.fromOffset(TW, 4), BackgroundTransparency = 0.55 }, hit)
+	paint(track, "BackgroundColor3", "edge")
+	new("UICorner", { CornerRadius = UDim.new(1, 0) }, track)
+	local fill = deco("Frame", { Size = UDim2.fromOffset(0, 4) }, track)
+	paint(fill, "BackgroundColor3", "accent")
+	new("UICorner", { CornerRadius = UDim.new(1, 0) }, fill)
+	local aura = deco("Frame", { AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromScale(0, 0.5), Size = UDim2.new(1, 0, 0, 12), BackgroundTransparency = K.aura }, fill)
+	paint(aura, "BackgroundColor3", "accent")
+	new("UICorner", { CornerRadius = UDim.new(1, 0) }, aura)
+	local halo = deco("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(34, 34), BackgroundTransparency = 1, ZIndex = 2 }, hit)
+	paint(halo, "BackgroundColor3", "accent")
+	new("UICorner", { CornerRadius = UDim.new(1, 0) }, halo)
+	local shadow = deco("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(26, 26), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.82, ZIndex = 3 }, hit)
+	new("UICorner", { CornerRadius = UDim.new(1, 0) }, shadow)
+	local knob = deco("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(20, 20), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 4 }, hit)
+	new("UICorner", { CornerRadius = UDim.new(1, 0) }, knob)
+	new("UIStroke", { Thickness = 0.5, Color = Color3.new(0, 0, 0), Transparency = 0.8, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, knob)
+	local ks = new("UIScale", {}, knob)
+	local P = { hit = hit, track = track, TW = TW }
+	local hot, held = false, false
+	local function look()
+		tw(halo, { BackgroundTransparency = held and K.haloHeld or hot and K.halo or 1 }, 0.1)
+		tw(aura, { BackgroundTransparency = held and K.auraHeld or K.aura }, 0.1)
+		tw(ks, { Scale = held and K.lift or hot and K.swell or 1 }, 0.1)
+	end
+	function P.held(on) held = on; look() end
+	S.hover(hit, function(v) hot = v; look() end)
+	function P.place(f, t) -- f 0..1 along the track; t = tween time (nil = follow the finger directly)
+		local p, sz = UDim2.new(0, pad + f * TW, 0.5, 0), UDim2.fromOffset(f * TW, 4)
+		if t then
+			tw(knob, { Position = p }, t); tw(shadow, { Position = p }, t); tw(halo, { Position = p }, t); tw(fill, { Size = sz }, t)
+		else
+			knob.Position, shadow.Position, halo.Position, fill.Size = p, p, p, sz
+		end
+	end
+	return P
+end
+-- hover glow for list cards (same recipe as buttons / fields): the hairline drifts toward the accent and a faint accent glow rises from the bottom edge
+function S.lit(f)
+	local st, cr = f:FindFirstChildOfClass("UIStroke"), f:FindFirstChildOfClass("UICorner")
+	local glow = new("Frame", { Name = "Glow", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0, ZIndex = 0, Interactable = false }, f) -- under the card's own content
+	paint(glow, "BackgroundColor3", "accent")
+	if cr then new("UICorner", { CornerRadius = cr.CornerRadius }, glow) end
+	new("UIGradient", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 1), NumberSequenceKeypoint.new(1, 0) }) }, glow)
+	local rest
+	S.hover(f, function(v)
+		if v then local k = st and themed[st] and themed[st].Color; rest = st and (k and col(k) or st.Color) end -- the painted colour, not one caught mid tween
+		tw(glow, { BackgroundTransparency = v and ST.glow.cardHover or ST.glow.idle }, 0.16)
+		if st and rest then tw(st, { Color = v and rest:Lerp(S.accent, ST.hoverTint) or rest }, 0.16) end
+	end)
+end
+-- notched slider (iOS style): the knob follows the finger / mouse freely, the value snaps to the nearest notch and the knob settles into it on release. opts = { { label, value }, ... } in track order. Look = S.sliderParts
+function S.notch(parent, y, x, w, opts, key, after, tbl)
+	local n, LW = #opts, 40
+	local tw0 = w - LW - 8 -- hit area; the label sits to the right of it
+	local UIS = S.UserInputService
+	local P = S.sliderParts(parent, x, y, tw0, 10)
+	local hit, track = P.hit, P.track
+	for i = 1, n do -- notch dots
+		local d = new("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new((i - 1) / (n - 1), 0, 0.5, 0), Size = UDim2.fromOffset(4, 4), BorderSizePixel = 0, BackgroundTransparency = 0.6, ZIndex = 2 }, track)
+		paint(d, "BackgroundColor3", "text")
+		new("UICorner", { CornerRadius = UDim.new(1, 0) }, d)
+	end
+	local lbl = txt(parent, "", 10, "accentText", x + tw0 + 8, y, LW, 23, { Font = FONT_B, TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Center })
+	local cur
+	local function find()
+		local v, best, bd = tbl[key], 1, math.huge
+		if type(v) ~= "number" then return 1 end
+		for i, o in ipairs(opts) do
+			local d = math.abs(o[2] - v)
+			if d < bd then best, bd = i, d end
+		end
+		return best
+	end
+	local function near(f) return math.clamp(math.floor(f * (n - 1) + 0.5) + 1, 1, n) end
+	cur = find()
+	lbl.Text = opts[cur][1]
+	P.place((cur - 1) / (n - 1))
+	local moveC, endC
+	local gx, gw = 0, 1 -- track position / width frozen when the drag starts (a live UI Scaling change would move the track under the cursor)
+	local function commit()
+		local v = opts[cur][2]
+		if tbl[key] ~= v then
+			tbl[key] = v; save()
+			if after then after(v) else ui.apply() end
+		end
+	end
+	local function drag(px)
+		local f = math.clamp((px - gx) / gw, 0, 1)
+		local c = near(f)
+		if c ~= cur then
+			cur = c; lbl.Text = opts[c][1]
+			if key ~= "scale" then commit() end -- live while held; UI Scaling waits for release (it would resize the slider under your cursor)
+		end
+		P.place(f)
+	end
+	local function finish()
+		if moveC then moveC:Disconnect(); moveC = nil end
+		if endC then endC:Disconnect(); endC = nil end
+		P.held(false)
+		P.place((cur - 1) / (n - 1), 0.16) -- settles into the notch
+		commit()
+	end
+	hit.InputBegan:Connect(function(i)
+		if i.UserInputType ~= Enum.UserInputType.MouseButton1 and i.UserInputType ~= Enum.UserInputType.Touch then return end
+		if moveC then return end
+		gx, gw = track.AbsolutePosition.X, math.max(track.AbsoluteSize.X, 1)
+		P.held(true) -- the knob lifts while held
+		drag(i.Position.X)
+		moveC = UIS.InputChanged:Connect(function(m)
+			if m.UserInputType == Enum.UserInputType.MouseMovement or m.UserInputType == Enum.UserInputType.Touch then drag(m.Position.X) end
+		end)
+		endC = UIS.InputEnded:Connect(function(e)
+			if e.UserInputType == Enum.UserInputType.MouseButton1 or e.UserInputType == Enum.UserInputType.Touch then finish() end
+		end)
+	end)
+	return hit
+end
+-- On / Off switch (track + knob, accent track when on): a setting you flip never looks like a button you press. tbl[key] is true / false; after(v) runs on change (else ui.apply)
+S.swLook = setmetatable({}, { __mode = "kv" }) -- switch -> its look(); the click handler holds look, so a live switch stays listed
+function S.syncSwitches() for _, f in pairs(S.swLook) do pcall(f) end end -- a command can change a setting behind the panel (;arvc, ;keeposad)
+function S.switch(parent, x, y, tbl, key, after)
+	local hit = new("TextButton", { Text = "", AutoButtonColor = false, BorderSizePixel = 0, Position = UDim2.fromOffset(x, y), Size = UDim2.fromOffset(42, 23) }, parent)
+	new("UICorner", { CornerRadius = UDim.new(1, 0) }, hit)
+	local knob = new("Frame", { AnchorPoint = Vector2.new(0, 0.5), Size = UDim2.fromOffset(19, 19), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Interactable = false }, hit)
+	new("UICorner", { CornerRadius = UDim.new(1, 0) }, knob)
+	new("UIStroke", { Thickness = 0.5, Color = Color3.new(0, 0, 0), Transparency = 0.8 }, knob)
+	local ks = new("UIScale", {}, knob)
+	local function look(t)
+		local on = tbl[key] == true
+		local k, pos, tr = on and "accent" or "edge", UDim2.new(0, on and 21 or 2, 0.5, 0), on and 0 or 0.35
+		if t then
+			local c = hit.BackgroundColor3
+			paint(hit, "BackgroundColor3", k)
+			hit.BackgroundColor3 = c
+			tw(hit, { BackgroundColor3 = col(k), BackgroundTransparency = tr }, 0.16)
+			tw(knob, { Position = pos }, 0.16)
+		else
+			paint(hit, "BackgroundColor3", k)
+			hit.BackgroundTransparency, knob.Position = tr, pos
+		end
+	end
+	look()
+	S.swLook[hit] = look
+	S.hover(hit, function(v) tw(ks, { Scale = v and 1.08 or 1 }, 0.1) end)
+	hit.MouseButton1Click:Connect(function()
+		tbl[key] = not (tbl[key] == true); save()
+		look(true)
+		if after then after(tbl[key]) else ui.apply() end
+	end)
+	return hit
+end
+-- segmented control: one reference button per option, selected = lighter fill. Three or more numeric options become a notched slider instead, On / Off a switch. tbl defaults to cfg; after() runs on change.
 local function seg(parent, y, xs, w, opts, key, after, tbl)
 	tbl = tbl or cfg
+	if #opts == 2 and opts[1][2] == true and opts[2][2] == false then return S.switch(parent, xs[2] + w - 42, y, tbl, key, after) end -- right aligned where the two buttons were
+	local allNum = #opts >= 3
+	for _, o in ipairs(opts) do if type(o[2]) ~= "number" then allNum = false end end
+	if allNum then return S.notch(parent, y, xs[1], xs[#xs] + w - xs[1], opts, key, after, tbl) end
 	local bs = {}
 	local function refresh()
 		for _, o in ipairs(bs) do
@@ -5331,7 +5619,7 @@ do
 		tw(t, { Position = UDim2.new(0.5, 0, 1, -70), BackgroundTransparency = 0.1, TextTransparency = 0 }, 0.2)
 		prog.BackgroundTransparency, prog.Size = 0.2, UDim2.new(1, 28, 0, 2)
 		if cfg.anim ~= 0 then
-			S.TweenService:Create(prog, TweenInfo.new(secs or 3, Enum.EasingStyle.Linear), { Size = UDim2.new(0, 0, 0, 2) }):Play()
+			S.TweenService:Create(prog, TweenInfo.new(secs or 3, Enum.EasingStyle.Linear), { Size = UDim2.new(0, 0, 0, 2), BackgroundTransparency = 0.2 }):Play() -- also cancels the previous toast's fade-out of the line
 		end
 		task.delay(secs or 3, function()
 			if id == my then
@@ -5404,7 +5692,7 @@ do
 		sc.Scale = cfg.scale
 		local b = new("CanvasGroup", { LayoutOrder = n, Size = UDim2.fromOffset(380, 92), BackgroundTransparency = 0.05, BorderSizePixel = 0, GroupTransparency = 1, ZIndex = 60 }, holder)
 		paint(b, "BackgroundColor3", "bar")
-		new("UICorner", { CornerRadius = UDim.new(0, 10) }, b)
+		new("UICorner", { CornerRadius = UDim.new(0, ST.rPane) }, b)
 		local st = new("UIStroke", { Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, b)
 		paint(st, "Color", "accent")
 		local av = new("ImageLabel", { Position = UDim2.fromOffset(14, 16), Size = UDim2.fromOffset(60, 60), BorderSizePixel = 0, BackgroundTransparency = 0.9, Image = thumb("AvatarHeadShot", uid, 150), ZIndex = 61 }, b)
@@ -5450,7 +5738,7 @@ do
 		Size = UDim2.fromOffset(0, 0), BackgroundTransparency = 1, BorderSizePixel = 0, AutoButtonColor = false, Font = FONT, TextSize = fs(12),
 		RichText = true, TextWrapped = true, Text = "", Visible = false, ZIndex = 60 }, gui)
 	paint(p, "BackgroundColor3", "bar"); paint(p, "TextColor3", "text")
-	new("UICorner", { CornerRadius = UDim.new(0, 10) }, p)
+	new("UICorner", { CornerRadius = UDim.new(0, ST.rPane) }, p)
 	local stroke = new("UIStroke", { Thickness = 1, Transparency = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, p)
 	paint(stroke, "Color", "accent")
 	new("UIPadding", { PaddingLeft = UDim.new(0, 18), PaddingRight = UDim.new(0, 18), PaddingTop = UDim.new(0, 12), PaddingBottom = UDim.new(0, 12) }, p)
@@ -5497,7 +5785,7 @@ do
 	local hud = new("TextLabel", { Name = "Hud", BackgroundTransparency = 0.35, BorderSizePixel = 0, Font = FONT, TextSize = fs(10), Text = "",
 		AutomaticSize = Enum.AutomaticSize.XY, Size = UDim2.fromOffset(0, 0), Visible = false }, gui)
 	paint(hud, "BackgroundColor3", "bar"); paint(hud, "TextColor3", "text")
-	new("UICorner", { CornerRadius = UDim.new(0, 6) }, hud)
+	new("UICorner", { CornerRadius = UDim.new(0, ST.rCtrl) }, hud)
 	new("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), PaddingTop = UDim.new(0, 5), PaddingBottom = UDim.new(0, 5) }, hud)
 	ui.hudScale = new("UIScale", {}, hud)
 	function ui.layoutHud()
@@ -5606,7 +5894,71 @@ do
 local barFade = new("CanvasGroup", { Name = "BarFade", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0, GroupTransparency = 1, Visible = false, ZIndex = 10 }, gui)
 local bar = new("Frame", { Name = "Bar", AnchorPoint = Vector2.new(0.5, 0), Size = UDim2.fromOffset(647, 51), BackgroundTransparency = 1 }, barFade)
 	ui.barScale = new("UIScale", {}, bar)
-	fr(bar, 0, 0, 647, 51, "bar", 0, 25, "accent", 2, 0.35)
+	local pill = fr(bar, 0, 0, 647, 51, "bar", 0, 25, "accent", 2, 0.35)
+	-- the same soft drifting circle glows as behind the panel (UI_PANEL): stacked circles at tiny alpha in a CanvasGroup that clips to the corners, each drifting to a random spot over 14 to 28 s.
+	-- shortcut: the panel keeps its own copy of this recipe (bigger circles, 4 glows); merge both into one builder if the look ever changes. k = strength against the panel's (the list is fainter)
+	S.glowFields = {}
+	local function glowField(parent, w, h, radius, k)
+		local clip = new("CanvasGroup", { Name = "Glows", Size = UDim2.fromOffset(w, h), BackgroundTransparency = 1, BorderSizePixel = 0, Interactable = false }, parent)
+		new("UICorner", { CornerRadius = UDim.new(0, radius) }, clip)
+		local holds, tws, live, gen, N = {}, {}, false, 0, 12
+		for _, g in ipairs({ { true, 0.62, 0.3 }, { true, 0.5, 0.22 }, { false, 0.4, 0.12 } }) do -- accent?, diameter / width, alpha in the middle
+			local d = w * g[2]
+			local hold = new("CanvasGroup", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(math.random(0, w), math.random(0, h)), Size = UDim2.fromOffset(d, d),
+				BackgroundTransparency = 1, BorderSizePixel = 0, GroupTransparency = math.random(0, 12) / 100 }, clip)
+			hold:SetAttribute("peak", g[3])
+			holds[#holds + 1] = hold
+			if not g[1] then S.deco(hold) end -- the white glow is dark mode only
+			for i = 1, N do
+				local c = new("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(d * i / N, d * i / N), BorderSizePixel = 0, BackgroundTransparency = 1 }, hold)
+				if g[1] then paint(c, "BackgroundColor3", "accent") else c.BackgroundColor3 = Color3.new(1, 1, 1) end
+				new("UICorner", { CornerRadius = UDim.new(1, 0) }, c)
+			end
+		end
+		local F = {}
+		function F.set(K) -- K = Look and feel > Glow Opacity / 80, called by ui.setGlow
+			K = K * k
+			clip.Visible = K > 0
+			for _, hd in ipairs(holds) do
+				local a = 1 - (1 - hd:GetAttribute("peak") * K) ^ (1 / N)
+				for _, c in ipairs(hd:GetChildren()) do c.BackgroundTransparency = 1 - a end
+			end
+		end
+		local function go(hd, my)
+			if not live or my ~= gen or not S.alive then return end
+			local secs = math.random(140, 280) / 10
+			local t = S.TweenService:Create(hd, TweenInfo.new(secs, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), { Position = UDim2.fromOffset(math.random(0, math.floor(clip.Size.X.Offset)), math.random(0, math.floor(clip.Size.Y.Offset))) })
+			local ta = S.TweenService:Create(hd, TweenInfo.new(secs * 0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), { GroupTransparency = math.random(0, 12) / 100 })
+			tws[hd] = { t, ta }
+			t.Completed:Connect(function() go(hd, my) end)
+			t:Play(); ta:Play()
+		end
+		function F.play() if live or cfg.anim == 0 then return end live, gen = true, gen + 1 for _, hd in ipairs(holds) do go(hd, gen) end end -- only while the bar is open
+		function F.stop() live, gen = false, gen + 1 for _, p in pairs(tws) do for _, t in ipairs(p) do t:Cancel() end end tws = {} end
+		F.clip = clip
+		F.set(math.clamp((tonumber(cfg.glow) or 80) / 80, 0, 1.25))
+		S.glowFields[#S.glowFields + 1] = F
+		return F
+	end
+	glowField(pill, 647, 51, 25, 1) -- under the text: the labels below are created after this
+	pill.Active = true -- a click on the bar never reaches the game
+	-- cursor light: a small, faint white circle that follows the mouse over a surface (like Windows 10's reveal highlight). Dark mode only. ENTRY moves it every frame (S.spots)
+	S.spots = {}
+	function S.spot(parent, w, h, radius, z, area, live)
+		local clip = new("CanvasGroup", { Name = "Spot", Size = UDim2.fromOffset(w, h), BackgroundTransparency = 1, BorderSizePixel = 0, Interactable = false, ZIndex = z }, parent)
+		new("UICorner", { CornerRadius = UDim.new(0, radius) }, clip)
+		S.deco(clip)
+		local D, N = 120, 10
+		local hold = new("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(D, D), BackgroundTransparency = 1, BorderSizePixel = 0, Visible = false, Interactable = false }, clip)
+		local a = 1 - (1 - 0.1) ^ (1 / N) -- 10 % white in the middle, fading to nothing
+		for i = 1, N do
+			local c = new("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(D * i / N, D * i / N), BorderSizePixel = 0, BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 1 - a, Interactable = false }, hold)
+			new("UICorner", { CornerRadius = UDim.new(1, 0) }, c)
+		end
+		S.spots[#S.spots + 1] = { area = area, live = live, hold = hold }
+		return clip
+	end
+	S.spot(pill, 647, 51, 25, 2, pill, function() return S.barOpen end)
 
 	-- typed text and the completion are separate labels so no glyph is drawn twice
 	local base = { BackgroundTransparency = 1, Position = UDim2.fromOffset(19, 0), Size = UDim2.fromOffset(610, 51),
@@ -5618,12 +5970,22 @@ local bar = new("Frame", { Name = "Bar", AnchorPoint = Vector2.new(0.5, 0), Size
 	ui.box = box
 
 	local listF = new("Frame", { Name = "List", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 51), Size = UDim2.fromOffset(593, 0),
-		AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 0.1, BorderSizePixel = 0, Visible = false }, bar)
+		AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 0.1, BorderSizePixel = 0, Visible = false, Active = true }, bar)
 	paint(listF, "BackgroundColor3", "bar")
-	new("UICorner", { CornerRadius = UDim.new(0, 4) }, listF)
+	new("UICorner", { CornerRadius = UDim.new(0, ST.rCtrl) }, listF)
 	paint(new("UIStroke", { Thickness = 2, Transparency = 0.55, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, listF), "Color", "accent")
 	new("UIPadding", { PaddingLeft = UDim.new(0, 15), PaddingRight = UDim.new(0, 15), PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 10) }, listF)
 	new("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder }, listF)
+	-- the list's glows: a zero size first item of the layout (so it takes no room and is drawn under every row) holds the field, which is sized to the whole list; 60 % of the bar's strength
+	do
+		local holder = new("Frame", { Name = "GlowHolder", LayoutOrder = 0, Size = UDim2.fromOffset(0, 0), BackgroundTransparency = 1, BorderSizePixel = 0, Interactable = false }, listF)
+		local clip = glowField(holder, 593, 8, ST.rCtrl, 0.6).clip
+		local sclip = S.spot(holder, 593, 8, ST.rCtrl, 2, listF, function() return S.barOpen and listF.Visible end)
+		clip.Position, sclip.Position = UDim2.fromOffset(-15, -8), UDim2.fromOffset(-15, -8)
+		local function size() clip.Size = UDim2.fromOffset(listF.AbsoluteSize.X / ui.barScale.Scale, listF.AbsoluteSize.Y / ui.barScale.Scale); sclip.Size = clip.Size end
+		listF:GetPropertyChangedSignal("AbsoluteSize"):Connect(size)
+		size()
+	end
 	local rows = {}
 	for i = 1, 20 do
 		local r = new("TextLabel", { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BorderSizePixel = 0, BackgroundTransparency = 1,
@@ -5658,7 +6020,7 @@ local tip = new("TextLabel", { Name = "Tip", Visible = false, ZIndex = 20, Size 
 	BackgroundTransparency = 0.05, BorderSizePixel = 0, Font = FONT, TextSize = fs(13), RichText = true, TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top }, bar)
 paint(tip, "BackgroundColor3", "bar"); paint(tip, "TextColor3", "text")
-new("UICorner", { CornerRadius = UDim.new(0, 4) }, tip)
+new("UICorner", { CornerRadius = UDim.new(0, ST.rCtrl) }, tip)
 paint(new("UIStroke", { Thickness = 1, Transparency = 0.4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, tip), "Color", "accent")
 new("UIPadding", { PaddingLeft = UDim.new(0, 9), PaddingRight = UDim.new(0, 9), PaddingTop = UDim.new(0, 6), PaddingBottom = UDim.new(0, 6) }, tip)
 local tipId = 0
@@ -5974,7 +6336,7 @@ end
 		for _, nm in ipairs(e.names) do
 			if nm:sub(1, #q) == q then name = nm; break end
 		end
-		box.Text = name
+		box.Text = name .. (box.Text:match("^%s*;?%S*(.*)$") or "") -- keeps the arguments already typed ("speed 50" + Tab stays "speed 50")
 		box.CursorPosition = #box.Text + 1
 	end
 
@@ -5985,12 +6347,15 @@ end
 		ui.layoutBar()
 		box.Text = prefill or ""
 		barFade.Visible = true
-		tw(barFade, { GroupTransparency = 0 }, 0.12)
+		barFade.Position = UDim2.fromOffset(0, cfg.pos == "Top" and -16 or 16)
+		tw(barFade, { GroupTransparency = 0 }, 0.16)
+		tw(barFade, { Position = UDim2.new() }, 0.3) -- slides in from the edge it hangs from
 		local s = ui.curScale()
 		ui.barScale.Scale = s
 		tw(ui.blur, { Size = 18 * cfg.blur }, 0.2)
 		if S.panelOpen and ui.shade then ui.shade.Visible = true end
 		ui.syncMouse()
+		for _, f in ipairs(S.glowFields) do f.play() end
 		S.RunService.RenderStepped:Wait() -- lets the key press that opened the bar finish, so ";" isn't typed into the box
 		box:CaptureFocus()
 		box.Text = prefill or ""
@@ -6001,6 +6366,7 @@ end
 	function ui.closeBar()
 		if not S.barOpen then return end
 		S.barOpen, S.sugOn = false, false
+		for _, f in ipairs(S.glowFields) do f.stop() end
 		box:ReleaseFocus()
 		tw(barFade, { GroupTransparency = 1 }, 0.1)
 		task.delay(dur(0.1), function() -- hide (and clear the text) once faded, unless reopened meanwhile
@@ -6044,10 +6410,18 @@ end
 -- [UI_PANEL]
 -- ===== UI: panel frame (slide 4: 685x443, sidebar 141x36 tabs, inner 532x379 at 141,52) ===========
 local pages, tabs, onShow = {}, {}, {}
+local onHide, lazy, pending = {}, {}, {} -- onHide[tab]: frees the rows of a tab you left; lazy[tab]: builds a page the first time it opens; pending[tab]: it is building right now
+-- layout table (design pixels). The panel is ~10% bigger than the old 685x443 and every page takes its size from here
+local L = { PW = 760, PH = 488, SIDE = 152, TOP = 58, MARG = 12 }
+L.IX = L.SIDE + 2 -- inner area x
+L.IW = L.PW - L.IX - L.MARG -- inner width (594)
+L.IH = L.PH - L.TOP - L.MARG -- inner height (418)
+L.DX = L.IW - 532 -- extra width the pages got
+L.DY = L.IH - 379 -- extra height the pages got
 S.opScope = true -- from here on fr() registers its fills for opacity scaling (the command bar above is not scaled)
 do
 	local panelFade = new("CanvasGroup", { Name = "PanelFade", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0, GroupTransparency = 1, Visible = false }, gui)
-	local panel = new("Frame", { Name = "Panel", AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(685, 443), BorderSizePixel = 0 }, panelFade)
+	local panel = new("Frame", { Name = "Panel", AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(L.PW, L.PH), BorderSizePixel = 0, Active = true }, panelFade) -- Active: a click on the panel never reaches the game
 	paint(panel, "BackgroundColor3", "panel") -- transparency comes from the UI Opacity setting (reference: 80%)
 	new("UICorner", { CornerRadius = UDim.new(0, 12) }, panel)
 	-- border: an accent comet circles the window (the gradient on the stroke rotates; seamless because both ends match)
@@ -6060,29 +6434,42 @@ do
 	-- soft glows drifting behind the content: big, faint, each picks a random spot and drifts there over 14 to 28 s (Sine in / out), and its strength wanders by a few percent. A glow is stacked circles at tiny alpha inside a CanvasGroup (UIGradient is linear only; the group lets GroupTransparency vary the whole glow). Dark mode only (S.deco)
 	do
 		-- a CanvasGroup clips to its UICorner (ClipsDescendants only clips to a rectangle, so the glows poked out of the rounded window corners)
-		local clip = new("CanvasGroup", { Size = UDim2.fromOffset(685, 443), BackgroundTransparency = 1, BorderSizePixel = 0 }, panel)
+		local clip = new("CanvasGroup", { Size = UDim2.fromOffset(L.PW, L.PH), BackgroundTransparency = 1, BorderSizePixel = 0 }, panel)
 		new("UICorner", { CornerRadius = UDim.new(0, 12) }, clip)
 
 		local holds, tws, live, gen = {}, {}, false, 0
 		-- accent?, diameter, alpha in the middle
 		for _, g in ipairs({ { true, 900, 0.3 }, { true, 760, 0.22 }, { true, 1000, 0.16 }, { false, 700, 0.12 } }) do
 			local d = g[2]
-			local hold = new("CanvasGroup", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(math.random(0, 685), math.random(0, 443)), Size = UDim2.fromOffset(d, d),
+			local hold = new("CanvasGroup", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(math.random(0, L.PW), math.random(0, L.PH)), Size = UDim2.fromOffset(d, d),
 				BackgroundTransparency = 1, BorderSizePixel = 0, GroupTransparency = math.random(0, 12) / 100 }, clip)
 			holds[#holds + 1] = hold
 			if not g[1] then S.deco(hold) end -- the white glow is dark mode only; the accent glows show in both themes
 			local n = 18
-			local a = 1 - (1 - g[3]) ^ (1 / n)
+			hold:SetAttribute("peak", g[3])
+			local a = 1 - (1 - g[3] * math.clamp((tonumber(cfg.glow) or 80) / 80, 0, 1.25)) ^ (1 / n)
 			for i = 1, n do
 				local c = new("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(d * i / n, d * i / n), BorderSizePixel = 0, BackgroundTransparency = 1 - a }, hold)
 				if g[1] then paint(c, "BackgroundColor3", "accent") else c.BackgroundColor3 = Color3.new(1, 1, 1) end
 				new("UICorner", { CornerRadius = UDim.new(1, 0) }, c)
 			end
 		end
+		-- glow strength follows Look and feel > Glow Opacity (cfg.glow 30 / 60 / 80 / 100; 80 = the original look)
+		function ui.setGlow()
+			local K = math.clamp((tonumber(cfg.glow) or 80) / 80, 0, 1.25)
+			for _, f in ipairs(S.glowFields) do f.set(K) end -- the command bar and its list
+			clip.Visible = K > 0 -- glow 0 = nothing to draw: 72 frames and 4 big canvases less
+			for _, h in ipairs(holds) do
+				local a = 1 - (1 - h:GetAttribute("peak") * K) ^ (1 / 18)
+				for _, c in ipairs(h:GetChildren()) do
+					if c:IsA("Frame") then tw(c, { BackgroundTransparency = 1 - a }, 0.3) end
+				end
+			end
+		end
 		local function go(h, my)
 			if not live or my ~= gen then return end
 			local secs = math.random(140, 280) / 10
-			local t = S.TweenService:Create(h, TweenInfo.new(secs, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), { Position = UDim2.fromOffset(math.random(0, 685), math.random(0, 443)) })
+			local t = S.TweenService:Create(h, TweenInfo.new(secs, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), { Position = UDim2.fromOffset(math.random(0, L.PW), math.random(0, L.PH)) })
 			local ta = S.TweenService:Create(h, TweenInfo.new(secs * 0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), { GroupTransparency = math.random(0, 12) / 100 })
 			tws[h] = { t, ta }
 			t.Completed:Connect(function() go(h, my) end)
@@ -6100,10 +6487,11 @@ do
 
 	ui.panel = panel
 	ui.panelScale = new("UIScale", {}, panel)
+	S.spot(panel, L.PW, L.PH, 12, 60, panel, function() return S.panelOpen and not S.barOpen end) -- above every page, below nothing: the cursor light
 	-- accent line along the top edge: a dim base plus a highlight that glides across (paused with Animation Speed: none)
-	fr(panel, 14, 0, 657, 2, "accent", 0.7)
+	fr(panel, 14, 0, L.PW - 28, 2, "accent", 0.7)
 	do
-		local glow = fr(panel, 14, 0, 657, 2, "accent", 0)
+		local glow = fr(panel, 14, 0, L.PW - 28, 2, "accent", 0)
 		local g = new("UIGradient", { Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0), NumberSequenceKeypoint.new(1, 1) }), Offset = Vector2.new(-1, 0) }, glow)
 		ui.glowTween = S.TweenService:Create(g, TweenInfo.new(5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1), { Offset = Vector2.new(1, 0) })
 		if cfg.anim ~= 0 then ui.glowTween:Play() end
@@ -6113,7 +6501,7 @@ do
 	function ui.placePanel(extraY, animate)
 		local vp = workspace.CurrentCamera.ViewportSize
 		local pos = UDim2.fromScale(ui.panelPos.X, ui.panelPos.Y + (extraY or 0) / vp.Y)
-		if animate then tw(panel, { Position = pos }, 0.18) else panel.Position = pos end
+		if animate then tw(panel, { Position = pos }, 0.3) else panel.Position = pos end
 	end
 	function ui.centerPanel()
 		ui.panelPos = Vector2.new(0.5, 0.5)
@@ -6121,24 +6509,24 @@ do
 	end
 	ui.centerPanel()
 
-	ui.title = txt(panel, "", 14, "text", 21, 16, 130, 23, { Font = FONT_CODE, RichText = true, TextSize = 19 })
+	ui.title = txt(panel, "", 14, "text", 22, 17, 150, 26, { Font = FONT_CODE, RichText = true, TextSize = 21 })
 	S.deco(new("UIGradient", { Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(165, 165, 178)) }, ui.title)) -- metallic title
 	do -- hairline under the header that fades out at both ends
-		local hd = fr(panel, 14, 51, 657, 1, "accent", 0.8)
+		local hd = fr(panel, 14, L.TOP - 1, L.PW - 28, 1, "accent", 0.8)
 		new("UIGradient", { Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0), NumberSequenceKeypoint.new(1, 1) }) }, hd)
 		S.deco(hd)
 	end
-	txt(panel, "open-source admin/dev panel", 8, "hint", 158, 21, 200, 13, { Font = FONT_CODE, TextSize = 11 })
+	txt(panel, "open-source admin/dev panel", 8, "hint", 172, 25, 220, 14, { Font = FONT_CODE, TextSize = 11 })
 
-	btn(panel, "×", 641, 13, 32, 26, "ctrlOff", BTN_OFF, function() ui.setPanel(false) end, 13)
+	btn(panel, "×", L.PW - 46, 14, 34, 28, "ghost", nil, function() ui.setPanel(false) end, 13)
 
 	-- relay indicator: hidden until region-relay.py answers once; green ok, orange rate limited, red errors / connection lost. PID beside it
 	do
 		local rel = { sys = {}, pid = "-", col = { ok = Color3.fromRGB(70, 200, 90), warn = Color3.fromRGB(255, 165, 40), bad = Color3.fromRGB(230, 60, 60) } }
 		ui.rel = rel
-		local rdot = new("Frame", { Position = UDim2.fromOffset(622, 21), Size = UDim2.fromOffset(10, 10), BorderSizePixel = 0, Visible = false }, panel)
+		local rdot = new("Frame", { Position = UDim2.fromOffset(L.PW - 66, 24), Size = UDim2.fromOffset(10, 10), BorderSizePixel = 0, Visible = false }, panel)
 		new("UICorner", { CornerRadius = UDim.new(1, 0) }, rdot)
-		local rpid = txt(panel, "", 8, "sub", 540, 19, 76, 14, { TextXAlignment = Enum.TextXAlignment.Right, TextTruncate = Enum.TextTruncate.AtEnd, Visible = false })
+		local rpid = txt(panel, "", 8, "sub", L.PW - 148, 22, 76, 14, { TextXAlignment = Enum.TextXAlignment.Right, TextTruncate = Enum.TextTruncate.AtEnd, Visible = false })
 		local function poll()
 			local ok, r = pcall(request, { Url = "http://127.0.0.1:47653/sys", Method = "GET" })
 			local d
@@ -6163,7 +6551,7 @@ do
 	end
 
 	-- drag by the title bar; moves in screen fractions
-	local header = new("Frame", { Size = UDim2.fromOffset(640, 50), BackgroundTransparency = 1 }, panel)
+	local header = new("Frame", { Size = UDim2.fromOffset(L.PW - 50, L.TOP - 6), BackgroundTransparency = 1 }, panel)
 	local drag, d0, p0
 	header.InputBegan:Connect(function(i)
 		if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
@@ -6185,23 +6573,135 @@ do
 		end
 	end)
 
-	local inner = fr(panel, 141, 52, 532, 379, "glass", 0.75, 10, "edge", 1, 0.7) -- a darkening veil (pure black in dark mode, grey in light), no tinted fill, so it darkens without turning the glow muddy -- a faint white veil instead of a dark fill: it brightens whatever glows behind it, a dark fill turned the yellow glow muddy olive
+	local inner = fr(panel, L.IX, L.TOP, L.IW, L.IH, "glass", 0.75, 10, "edge", 1, 0.7) -- a darkening veil (pure black in dark mode, grey in light), no tinted fill, so it darkens without turning the glow muddy -- a faint white veil instead of a dark fill: it brightens whatever glows behind it, a dark fill turned the yellow glow muddy olive
 	inner.ClipsDescendants = true
 	ui.inner = inner
 
+	-- ===== loading + page motion =====
+	-- ONE loading state for the whole panel: a pill in the corner of the page area and a sweeping accent line along its top edge. Shown only while something of the tab you are ON is working
+	do
+		local act, shown = {}, false
+		local pill = new("CanvasGroup", { Name = "Busy", AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -12, 0, 10), Size = UDim2.fromOffset(98, 24), BackgroundTransparency = 0.1,
+			BorderSizePixel = 0, GroupTransparency = 1, Visible = false, ZIndex = 30, Interactable = false }, inner)
+		paint(pill, "BackgroundColor3", "bar")
+		new("UICorner", { CornerRadius = UDim.new(0, ST.rCtrl) }, pill)
+		paint(new("UIStroke", { Thickness = 1, Transparency = 0.4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, pill), "Color", "accent")
+		local lab = txt(pill, "Loading", 9, "text", 14, 0, 80, 24, { TextYAlignment = Enum.TextYAlignment.Center })
+		local line = new("Frame", { Position = UDim2.fromOffset(-90, 0), Size = UDim2.fromOffset(90, 2), BorderSizePixel = 0, Visible = false, ZIndex = 30, Interactable = false }, inner)
+		paint(line, "BackgroundColor3", "accent")
+		new("UIGradient", { Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0), NumberSequenceKeypoint.new(1, 1) }) }, line)
+		local sweep = S.TweenService:Create(line, TweenInfo.new(1.1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1), { Position = UDim2.fromOffset(L.IW, 0) })
+		ui.busyTween = sweep
+		local function want()
+			local now = os.clock()
+			for k, e in pairs(act) do
+				if now - e.t > 20 then act[k] = nil -- a build that died never leaves the pill on
+				elseif e.tab == nil or e.tab == ui.tab then return true end
+			end
+			return false
+		end
+		function ui.busySync()
+			local w = want()
+			if w == shown then return end
+			shown, ui.busyOn = w, w
+			if w then
+				pill.Visible, line.Visible = true, true
+				tw(pill, { GroupTransparency = 0 }, 0.16)
+				if cfg.anim ~= 0 and S.panelOpen then sweep:Play() end
+				task.spawn(function()
+					local i = 0
+					while shown and S.alive do
+						i = i % 3 + 1
+						lab.Text = "Loading" .. ("."):rep(i)
+						task.wait(0.35)
+					end
+				end)
+			else
+				tw(pill, { GroupTransparency = 1 }, 0.16)
+				task.delay(dur(0.16) + 0.05, function()
+					if not shown then pill.Visible, line.Visible = false, false; sweep:Pause() end
+				end)
+			end
+		end
+		function ui.busy(key, on, tab) -- ui.busy("players", true, "Players") ... ui.busy("players", false)
+			act[key] = on and { t = os.clock(), tab = tab } or nil
+			ui.busySync()
+		end
+	end
+	-- the ambient loops (drifting glows, border comet, loading sweep) only run while the panel is open and animations are on; the glow layer also stops at Glow Opacity 0
+	function ui.ambient()
+		local on = S.panelOpen and cfg.anim ~= 0
+		for _, tn in ipairs({ "glowTween", "borderTween", "orbitTween", "busyTween" }) do
+			local t = ui[tn]
+			if t then
+				pcall(function()
+					local run = on and (tn ~= "orbitTween" or (tonumber(cfg.glow) or 0) > 0) and (tn ~= "busyTween" or ui.busyOn)
+					if run then t:Play() else t:Pause() end
+				end)
+			end
+		end
+	end
+	-- pages that are built the first time they open: ui.lazy(name, builder). The builder runs in its own thread and yields every few rows (ui.tick), so the panel never stalls
+	function ui.lazy(name, fn) lazy[name] = fn end
+	ui.building = {}
+	function ui.tick()
+		local th = coroutine.running()
+		if not ui.building[th] then return end
+		ui.nTick = (ui.nTick or 0) + 1
+		if ui.nTick % 6 == 0 then task.wait() end
+	end
+	-- page motion: the whole page fades in (0.16 token) while it slides up 18 px (0.3 token), both on the one Sine Out curve
+	function ui.pageIn(p)
+		if cfg.anim == 0 then p.GroupTransparency, p.Position = 0, UDim2.new(); return end
+		p.GroupTransparency, p.Position = 1, UDim2.fromOffset(0, 18)
+		tw(p, { GroupTransparency = 0 }, 0.16)
+		tw(p, { Position = UDim2.new() }, 0.3)
+	end
+	function ui.showPage(name, animate)
+		local p, mk = pages[name], lazy[name]
+		if pending[name] then return end
+		if not mk then
+			if animate then ui.pageIn(p) end
+			if onShow[name] then onShow[name]() end
+			return
+		end
+		lazy[name], pending[name] = nil, true
+		p.GroupTransparency = 1
+		ui.busy("page:" .. name, true, name)
+		task.spawn(function()
+			local th = coroutine.running()
+			ui.building[th] = true
+			task.wait() -- the tab highlight and the loading pill paint first
+			local ok, err = pcall(mk)
+			ui.building[th], pending[name] = nil, nil
+			ui.busy("page:" .. name, false)
+			if not ok then ctx.notify(name .. " page failed: " .. tostring(err), 6) end
+			if ui.tab == name then
+				ui.pageIn(p)
+				if onShow[name] then onShow[name]() end
+			else
+				p.GroupTransparency = 0
+			end
+		end)
+	end
 
 
-	-- tab y positions copied from the deck (8 tabs now); text right-aligned with the deck's 9.6px inset
-	local TABS = { { "Home", 66 }, { "Players", 101 }, { "Servers", 136 }, { "Look and feel", 171 }, { "Load scripts", 206 }, { "Autostart", 241 },
-		{ "Keybinds", 276 }, { "Module Cfg", 311 }, { "Commands", 346 }, { "Preferences", 381 } }
-	ui.side = fr(panel, 0, 52, 139, 379, "glass", 0.75, 10, "edge", 1, 0.7)
+
+	-- sidebar: the everyday tabs on top, then what you build with (TOOLS), then how the panel behaves (SETTINGS). 32 px tabs on a 36 px pitch, a small label over each group
+	local TABS, GL, TH, ty = {}, {}, 32, L.TOP + 8
+	for _, g in ipairs({ { nil, { "Home", "Players", "Servers" } }, { "TOOLS", { "Commands", "Keybinds", "Autostart", "Load scripts" } }, { "SETTINGS", { "Look and feel", "Preferences", "Module Cfg" } } }) do
+		if g[1] then GL[#GL + 1] = { g[1], ty + 5 }; ty = ty + 22 end
+		for _, n in ipairs(g[2]) do TABS[#TABS + 1] = { n, ty }; ty = ty + 36 end
+	end
+	ui.side = fr(panel, 0, L.TOP, L.SIDE, L.IH, "glass", 0.75, 10, "edge", 1, 0.7)
+	for _, g in ipairs(GL) do txt(panel, g[1], 7, "hint", 6, g[2], L.SIDE - 26, 14, { Font = FONT_B, TextXAlignment = Enum.TextXAlignment.Right }) end -- right aligned like the tab labels
 
 
 	 -- one dark column behind every tab
 	for _, t in ipairs(TABS) do
 		local name = t[1]
 		-- every tab owns a glow (strongest on the text side, fading to the left) and an accent bar that fade in when it is selected
-		local fx = { glow = fr(panel, 6, t[2], 127, 35, nil) }
+		local fx = { glow = fr(panel, 6, t[2], L.SIDE - 12, TH, nil) }
 		paint(fx.glow, "BackgroundColor3", "accent")
 		fx.glow.BackgroundTransparency = 1
 		S.deco(fx.glow)
@@ -6209,28 +6709,34 @@ do
 		new("UIGradient", { Transparency = NumberSequence.new(1, 0.75) }, fx.glow)
 		ui.tabFx = ui.tabFx or {}
 		ui.tabFx[name] = fx
-		local b = new("TextButton", { Position = UDim2.fromOffset(6, t[2]), Size = UDim2.fromOffset(127, 35), AutoButtonColor = false, BorderSizePixel = 0,
-			Text = name, Font = FONT, TextSize = fs(10), TextXAlignment = Enum.TextXAlignment.Right }, panel)
+		local b = new("TextButton", { Position = UDim2.fromOffset(6, t[2]), Size = UDim2.fromOffset(L.SIDE - 12, TH), AutoButtonColor = false, BorderSizePixel = 0,
+			Text = name, Font = FONT, TextSize = fs(10.5), TextXAlignment = Enum.TextXAlignment.Right }, panel)
 		new("UICorner", { CornerRadius = UDim.new(0, 8) }, b)
-		new("UIPadding", { PaddingRight = UDim.new(0, 10) }, b)
+		new("UIPadding", { PaddingRight = UDim.new(0, 14) }, b)
 		paint(b, "TextColor3", "text")
 		b.BackgroundTransparency = 1
 		tabs[name] = b
-		fx.bar = fr(panel, 12, t[2] + 10, 3, 15, "accent", 1, 2)
+		fx.bar = fr(panel, 12, t[2] + 8, 3, 16, "accent", 1, 2)
 		ui.tabY = ui.tabY or {}
 		ui.tabY[name] = t[2]
-		b.MouseEnter:Connect(function() if ui.tab ~= name then tw(b, { BackgroundTransparency = 0.88 }, 0.1) end end)
-		b.MouseLeave:Connect(function() if ui.tab ~= name then tw(b, { BackgroundTransparency = 1 }, 0.12) end end)
+		S.hover(b, function(v) -- hover previews the selected look, with the same glow strength every control uses
+			if ui.tab ~= name then
+				tw(fx.glow, { BackgroundTransparency = v and ST.glow.hover or 1 }, 0.1)
+				tw(fx.bar, { BackgroundTransparency = v and 0.7 or 1 }, 0.1)
+			end
+		end)
 		b.MouseButton1Click:Connect(function() ui.selectTab(name) end)
-		pages[name] = new("Frame", { Name = name, Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Visible = false }, inner)
+		pages[name] = new("CanvasGroup", { Name = name, Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0, Visible = false }, inner) -- a CanvasGroup so the whole page fades as one
 	end
 
 	-- the selected tab gets an accent tint, accent text and a bar that slides to it
 	
 	function ui.selectTab(name)
-		local first = ui.tab == nil
+		local first, prev = ui.tab == nil, ui.tab
 		ui.tab = name
 		for n, p in pairs(pages) do p.Visible = (n == name) end
+		if prev and prev ~= name and onHide[prev] then pcall(onHide[prev]) end -- culling: the tab you left frees its rows
+		if ui.busySync then ui.busySync() end
 		for n, b in pairs(tabs) do
 			local on = n == name
 			paint(b, "BackgroundColor3", on and "accent" or "tabOff")
@@ -6240,27 +6746,31 @@ do
 			tw(ui.tabFx[n].bar, { BackgroundTransparency = on and 0 or 1 }, 0.22)
 		end
 		
-		if onShow[name] then onShow[name]() end
+		ui.showPage(name, first or prev ~= name)
 	end
 
 	-- dark layer over the panel while the command bar is open: the panel can't be clicked until the bar closes
-	ui.shade = fr(panel, 0, 0, 685, 443, "tabOff", 0.45, 9)
+	ui.shade = fr(panel, 0, 0, L.PW, L.PH, "tabOff", 0.45, 9)
 	ui.shade.ZIndex, ui.shade.Active, ui.shade.Visible = 50, true, false
 
 	function ui.setPanel(open)
+		if open and S.panelOpen then return end -- already open: openTab / ;ui / a profile used to re-play the open slide and the old tab's onShow
 		S.panelOpen = open
+		ui.ambient()
 		if open then
 			local s = ui.curScale()
 			ui.panelScale.Scale = s -- no scale pop: text re-rasterises at every scale step and snaps into size; the slide below + fade is smooth
-			ui.placePanel(0, false)
+			ui.placePanel(22, false)
 			panelFade.Visible = true
 			tw(panelFade, { GroupTransparency = 0 }, 0.16)
+			ui.placePanel(0, true) -- slides up into place while it fades in
 
 			ui.shade.Visible = S.barOpen and true or false
 			if onShow[ui.tab] then onShow[ui.tab]() end
 		else -- shrinks away first, then hides (unless it was opened again meanwhile)
 
 			tw(panelFade, { GroupTransparency = 1 }, 0.12)
+			ui.placePanel(12, true)
 			task.delay(dur(0.12), function() if not S.panelOpen then panelFade.Visible = false end end)
 		end
 		ui.syncMouse()
@@ -6272,8 +6782,6 @@ end
 -- ===== page: Home (slide 4, positions = deck coords minus the inner origin 657,340) ===================
 do
 	local h = pages["Home"]
-	txt(h, "Good day, " .. lp.DisplayName, 14, "text", 17, 15, 229, 23, { Font = FONT_B, TextTruncate = Enum.TextTruncate.AtEnd })
-	local welcomeTxt = txt(h, HOME_MSGS[math.random(#HOME_MSGS)], 10.5, "text", 17, 49, 342, 34, { TextWrapped = true })
 	-- some places call themselves "Ugc": keep the experience's real name per universe (so a teleport inside the experience
 	-- keeps it), and only ask Roblox when nothing better is known
 	local function goodName(n) return type(n) == "string" and n ~= "" and n ~= "Ugc" and n ~= "Game" and not n:match("^Place%d*$") end
@@ -6286,10 +6794,112 @@ do
 	end
 	local expName = cfg.exp[gid] or (goodName(game.Name) and game.Name or nil)
 	if goodName(game.Name) and not cfg.exp[gid] then cfg.exp[gid] = game.Name; save() end
-	local gameName = txt(h, "Experience: " .. (expName or "..."), 11, "text", 26, 86, 315, 18, { TextTruncate = Enum.TextTruncate.AtEnd })
 	if expName then ctx.curExp = { gid = cfg.expIcon[gid] or game.GameId, name = expName } end
 	ctx.connect("expTp", lp.OnTeleport, function() -- remembered for the next place, which may only call itself "Ugc"
 		if ctx.curExp then cfg.carry = { gid = ctx.curExp.gid, name = ctx.curExp.name, t = os.time() }; save() end
+	end)
+
+	-- ===== hero: the experience's own screenshots (Roblox media API) cross-fade and drift slowly behind its icon, name and server =====
+	local rise = {} -- { object, x, y }: slides up when Home opens
+	local LW, GAP = math.floor(L.IW * 0.4), 12 -- left column (you) width and the gap
+	local RX = 18 + LW + GAP -- right column (server) x
+	local HW = L.IW - RX - 18 -- right column width
+	local hero = new("CanvasGroup", { Position = UDim2.fromOffset(RX, 16), Size = UDim2.fromOffset(HW, 132), BorderSizePixel = 0, BackgroundTransparency = 0.1 }, h)
+	paint(hero, "BackgroundColor3", "row")
+	new("UICorner", { CornerRadius = UDim.new(0, ST.rPane) }, hero)
+	paint(new("UIStroke", { Thickness = 1, Transparency = 0.55, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, hero), "Color", "accent")
+	local heroName, heroSub, layers, dotBox
+	do
+		local fb = new("Frame", { Size = UDim2.fromScale(1, 1), BorderSizePixel = 0, BackgroundTransparency = 0.55, ZIndex = 1 }, hero) -- shown until a screenshot loads (or when there is none)
+		paint(fb, "BackgroundColor3", "accent")
+		new("UIGradient", { Rotation = 35, Transparency = NumberSequence.new(0.35, 0.85) }, fb)
+		layers = {}
+		for i = 1, 2 do
+			local im = new("ImageLabel", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1,
+				BorderSizePixel = 0, ScaleType = Enum.ScaleType.Crop, ImageTransparency = 1, ZIndex = 2 }, hero)
+			layers[i] = { im = im, sc = new("UIScale", {}, im) }
+		end
+		local scrim = new("Frame", { Size = UDim2.fromScale(1, 1), BorderSizePixel = 0, BackgroundColor3 = Color3.new(0, 0, 0), ZIndex = 4 }, hero)
+		new("UIGradient", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.7), NumberSequenceKeypoint.new(0.45, 0.85), NumberSequenceKeypoint.new(1, 0.1) }) }, scrim)
+		local function white(str, pt, x, y, w, hh, font)
+			return new("TextLabel", { BackgroundTransparency = 1, Text = str, TextSize = fs(pt), Font = font or FONT, TextColor3 = Color3.new(1, 1, 1), TextStrokeTransparency = 0.88, TextXAlignment = Enum.TextXAlignment.Left,
+				TextYAlignment = Enum.TextYAlignment.Center, TextTruncate = Enum.TextTruncate.AtEnd, Position = UDim2.fromOffset(x, y), Size = UDim2.fromOffset(w, hh), ZIndex = 6 }, hero)
+		end
+		local icon = new("ImageLabel", { Position = UDim2.fromOffset(14, 50), Size = UDim2.fromOffset(64, 64), BorderSizePixel = 0, ScaleType = Enum.ScaleType.Crop, BackgroundColor3 = Color3.new(0.1, 0.1, 0.12), ZIndex = 6,
+			Image = thumb("GameIcon", cfg.expIcon[gid] or game.GameId, 150) }, hero)
+		new("UICorner", { CornerRadius = UDim.new(0, 15) }, icon)
+		new("UIStroke", { Thickness = 1.5, Color = Color3.new(1, 1, 1), Transparency = 0.7, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, icon)
+		heroName = white(expName or "...", 15, 90, 52, HW - 104, 26, FONT_B)
+		heroSub = white("", 9, 90, 80, HW - 104, 18)
+		heroSub.TextTransparency = 0.15
+		-- server chip (top left): click copies the job id
+		local jid = game.JobId ~= "" and game.JobId or "local"
+		local chip = new("TextButton", { Position = UDim2.fromOffset(12, 10), Size = UDim2.fromOffset(0, 20), AutomaticSize = Enum.AutomaticSize.X, BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.5,
+			BorderSizePixel = 0, AutoButtonColor = false, Text = "●  " .. jid:sub(1, 8), TextSize = fs(8.5), Font = FONT_B, TextColor3 = Color3.new(1, 1, 1), ZIndex = 6 }, hero)
+		new("UICorner", { CornerRadius = UDim.new(1, 0) }, chip)
+		new("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }, chip)
+		chip.MouseEnter:Connect(function() tw(chip, { BackgroundTransparency = 0.3 }, 0.1) end)
+		chip.MouseLeave:Connect(function() tw(chip, { BackgroundTransparency = 0.5 }, 0.12) end)
+		chip.MouseButton1Click:Connect(function()
+			if setclipboard and game.JobId ~= "" then pcall(setclipboard, game.JobId); ui.toast("Server ID copied", 1.5) end
+		end)
+		-- page dots (bottom right, built once the screenshots are known)
+		dotBox = new("Frame", { AnchorPoint = Vector2.new(1, 1), Position = UDim2.fromOffset(HW - 12, 120), Size = UDim2.fromOffset(0, 14), AutomaticSize = Enum.AutomaticSize.X, BackgroundColor3 = Color3.new(0, 0, 0),
+			BackgroundTransparency = 0.55, BorderSizePixel = 0, Visible = false, ZIndex = 6 }, hero)
+		new("UICorner", { CornerRadius = UDim.new(1, 0) }, dotBox)
+		new("UIPadding", { PaddingLeft = UDim.new(0, 7), PaddingRight = UDim.new(0, 7) }, dotBox)
+		new("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 4), VerticalAlignment = Enum.VerticalAlignment.Center }, dotBox)
+	end
+
+	-- screenshots: ids cached a day per experience; the second layer cross-fades in over the first, each one zooms slowly (Linear)
+	local B = { ids = {}, cur = 0, front = 1, dots = {} }
+	local function bannerShow(i)
+		local to = B.front == 1 and 2 or 1
+		local L, O = layers[to], layers[B.front]
+		B.cur = i
+		L.im.Image = ("rbxthumb://type=Asset&id=%d&w=768&h=432"):format(B.ids[i])
+		local t0 = os.clock()
+		while not L.im.IsLoaded and os.clock() - t0 < 5 and S.alive do task.wait(0.1) end
+		if not S.alive then return end
+		L.im.ZIndex, O.im.ZIndex = 3, 2
+		L.sc.Scale = 1
+		tw(L.im, { ImageTransparency = 0 }, 0.5)
+		if cfg.anim ~= 0 then S.TweenService:Create(L.sc, TweenInfo.new(7 / cfg.anim, Enum.EasingStyle.Linear), { Scale = 1.12 }):Play() end -- tw() snaps every duration to a motion token (7 s became 0.6 s)
+		task.delay(dur(0.5) + 0.05, function() if B.front == to then O.im.ImageTransparency = 1 end end) -- B.front is set right below, so ~= was always false and only the first change faded
+		B.front = to
+		for k, d in ipairs(B.dots) do tw(d, { Size = UDim2.fromOffset(k == i and 16 or 6, 6), BackgroundTransparency = k == i and 0 or 0.55 }, 0.2) end
+	end
+	task.spawn(function()
+		local c = cfg.banner[gid]
+		local ids = c and type(c.ids) == "table" and #c.ids > 0 and os.time() - (c.t or 0) < 86400 and c.ids or nil
+		if not ids then
+			local body = ctx.fetch("https://games.roblox.com/v2/games/" .. game.GameId .. "/media")
+			local ok, data = pcall(function() return S.HttpService:JSONDecode(body).data end)
+			ids = {}
+			if ok and type(data) == "table" then
+				for _, m in ipairs(data) do
+					if m.assetType == "Image" and tonumber(m.imageId) then ids[#ids + 1] = tonumber(m.imageId) end
+					if #ids >= 6 then break end
+				end
+			end
+			if #ids > 0 then cfg.banner[gid] = { ids = ids, t = os.time() }; save() end
+		end
+		if #ids == 0 then -- no screenshots (or no network): the icon, large and soft, behind the accent
+			layers[1].im.Image = thumb("GameIcon", cfg.expIcon[gid] or game.GameId, 420)
+			tw(layers[1].im, { ImageTransparency = 0.55 }, 0.5)
+			return
+		end
+		B.ids = ids
+		if #ids > 1 then
+			dotBox.Visible = true
+			for k = 1, #ids do B.dots[k] = new("Frame", { Size = UDim2.fromOffset(6, 6), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.55, BorderSizePixel = 0 }, dotBox); new("UICorner", { CornerRadius = UDim.new(1, 0) }, B.dots[k]) end
+		end
+		bannerShow(1)
+		while S.alive and #ids > 1 do
+			local t0 = os.clock()
+			repeat task.wait(0.5) until not S.alive or (os.clock() - t0 > 8 and S.panelOpen and ui.tab == "Home")
+			if S.alive then bannerShow(B.cur % #ids + 1) end
+		end
 	end)
 	if not expName then
 		task.spawn(function()
@@ -6302,46 +6912,115 @@ do
 				n = ok2 and info and goodName(info.Name) and info.Name or nil
 			end
 			if n then cfg.exp[gid] = n; ctx.curExp = { gid = game.GameId, name = n }; save() end
-			gameName.Text = "Experience: " .. (n or game.Name)
+			heroName.Text = n or game.Name
 		end)
 	end
 
-	-- stats: four rows that together span exactly the icon's height (105..215), each text centred in its row
-	local vals, region = {}, "..."
+	-- ===== stat tiles: Players (with a fill bar), Region, Latency (green / orange / red), Uptime =====
+	local vals, bar, region = {}, nil, "..."
 	local rg = ctx.SRV.region(game.JobId) -- cached by an earlier scan or lookup: shown at once
 	if rg then region = rg.label end
+	local TY, TG = 158, 8 -- first tile row y and the gap
+	local TW = math.floor((HW - TG) / 2)
 	for i, name in ipairs({ "Players", "Region", "Latency", "Uptime" }) do
-		vals[name] = txt(h, name .. ": -", 11, "text", 64, 105 + math.floor((i - 1) * 27.5), 133, 27, { TextYAlignment = Enum.TextYAlignment.Center, TextScaled = name == "Region" })
+		local x, y = RX + ((i - 1) % 2) * (TW + TG), TY + math.floor((i - 1) / 2) * (62 + TG)
+		local t = fr(h, x, y, TW, 62, "row", 0.6, 12, "edge", 1, 0.6)
+		rise[#rise + 1] = { t, x, y }
+		txt(t, name:upper(), 7.5, "sub", 14, 10, TW - 28, 12, { Font = FONT_B })
+		vals[name] = txt(t, "-", 13, "text", 14, 24, TW - 28, 22, { Font = FONT_B, TextYAlignment = Enum.TextYAlignment.Center, TextScaled = name == "Region" })
+		if name == "Region" then new("UITextSizeConstraint", { MaxTextSize = fs(13) }, vals[name]) end -- a long city shrinks to fit instead of being cut
+		if name == "Players" then
+			local track = fr(t, 14, 51, TW - 28, 3, "edge", 0.5, 2)
+			bar = fr(track, 0, 0, 0, 3, "accent", 0, 2)
+		end
 	end
-	new("UITextSizeConstraint", { MaxTextSize = fs(11) }, vals["Region"]) -- a long city shrinks to fit instead of being cut
-	-- game icon: square (the deck's is 196x110; this one is 110x110)
-	local icon = new("ImageLabel", { Position = UDim2.fromOffset(199, 105), Size = UDim2.fromOffset(110, 110), BorderSizePixel = 0,
-		ScaleType = Enum.ScaleType.Crop, Image = thumb("GameIcon", cfg.expIcon[gid] or game.GameId, 150) }, h)
-	paint(icon, "BackgroundColor3", "row")
-	icon.BackgroundTransparency = 0.9
-	new("UICorner", { CornerRadius = UDim.new(0, 10) }, icon)
-	paint(new("UIStroke", { Thickness = 1, Transparency = 0.4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, icon), "Color", "accent")
-	local tip = txt(h, "Tips: " .. TIPS[1], 9, "dim", 17, 230, 340, 58, { TextWrapped = true })
 
-	fr(h, 373, 14, 1, 349, "accent", 0.7)
-	local av = new("ImageLabel", { Position = UDim2.fromOffset(398, 22), Size = UDim2.fromOffset(110, 110), BorderSizePixel = 0, BackgroundTransparency = 0.9,
-		Image = thumb("AvatarHeadShot", lp.UserId, 150) }, h)
+	-- ===== profile card + bio / tip card =====
+	local PWD = LW
+	local function pchFor(msg) -- profile card height: the welcome message sits under the name block (y 92) and may wrap to any number of lines
+		local ok, sz = pcall(function() return S.TextService:GetTextSize(msg, fs(9.5), FONT, Vector2.new(PWD - 32, 1000)) end)
+		return ok and math.max(126, 92 + math.ceil(sz.Y) + 14) or 126
+	end
+	local msg0 = HOME_MSGS[math.random(#HOME_MSGS)]
+	local PCH = pchFor(msg0)
+	local pc = fr(h, 18, 16, PWD, PCH, "row", 0.6, 14, "edge", 1, 0.6)
+	rise[#rise + 1] = { pc, 18, 16 }
+	local av = new("ImageLabel", { Position = UDim2.fromOffset(16, 16), Size = UDim2.fromOffset(62, 62), BorderSizePixel = 0, BackgroundTransparency = 0.9, Image = thumb("AvatarHeadShot", lp.UserId, 150) }, pc)
 	paint(av, "BackgroundColor3", "row")
 	new("UICorner", { CornerRadius = UDim.new(1, 0) }, av)
 	paint(new("UIStroke", { Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, av), "Color", "accent")
-	txt(h, lp.DisplayName, 12, "text2", 398, 139, 110, 17, { Font = FONT_B, TextXAlignment = Enum.TextXAlignment.Center, TextTruncate = Enum.TextTruncate.AtEnd })
-	txt(h, "@" .. lp.Name, 8, "sub", 398, 159, 110, 12, { TextXAlignment = Enum.TextXAlignment.Center, TextTruncate = Enum.TextTruncate.AtEnd })
+	txt(pc, "Good day,", 8.5, "sub", 92, 19, PWD - 104, 13)
+	txt(pc, lp.DisplayName, 13, "text", 92, 33, PWD - 104, 20, { Font = FONT_B, TextTruncate = Enum.TextTruncate.AtEnd })
+	txt(pc, "@" .. lp.Name, 8.5, "sub", 92, 55, PWD - 104, 13, { TextTruncate = Enum.TextTruncate.AtEnd })
+	local welcomeTxt = txt(pc, msg0, 9.5, "sub", 16, 92, PWD - 32, PCH - 100, { TextWrapped = true })
 
+	local BX0, BWD, BY = 18, LW, 16 + PCH + 10
+	local CH = L.IH - BY - 18
+	local bc = fr(h, BX0, BY, BWD, CH, "row", 0.6, 14, "edge", 1, 0.6)
+	local bcRise = { bc, BX0, BY }
+	rise[#rise + 1] = bcRise
 	if cfg.bio ~= "" then cfg.bios[tostring(lp.UserId)] = cfg.bios[tostring(lp.UserId)] or cfg.bio; cfg.bio = ""; save() end -- old single bio -> this account
-	-- bio (per UserId): black at 20% with a 20% edge, 3px corners, 4.8px side insets
-	local bio = new("TextBox", { Position = UDim2.fromOffset(384, 176), Size = UDim2.fromOffset(140, 187), BorderSizePixel = 0, BackgroundTransparency = 0.8,
-		Font = FONT, TextSize = fs(9), MultiLine = true, TextWrapped = true, ClearTextOnFocus = false, Text = cfg.bios[tostring(lp.UserId)] or "", PlaceholderText = "customizable bio",
-		TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top }, h)
+	local bio = new("TextBox", { Position = UDim2.fromOffset(14, 14), Size = UDim2.fromOffset(BWD - 28, CH - 80), BorderSizePixel = 0, BackgroundTransparency = 0.8,
+		Font = FONT, TextSize = fs(9.5), MultiLine = true, TextWrapped = true, ClearTextOnFocus = false, Text = cfg.bios[tostring(lp.UserId)] or "", PlaceholderText = "customizable bio",
+		TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top }, bc)
 	paint(bio, "BackgroundColor3", "tabOff"); paint(bio, "TextColor3", "text"); paint(bio, "PlaceholderColor3", "dim")
-	new("UICorner", { CornerRadius = UDim.new(0, 3) }, bio)
-	paint(new("UIStroke", { Thickness = 1, Transparency = 0.8, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, bio), "Color", "tabOff")
-	new("UIPadding", { PaddingLeft = UDim.new(0, 5), PaddingRight = UDim.new(0, 5), PaddingTop = UDim.new(0, 4) }, bio)
-	bio.FocusLost:Connect(function() cfg.bios[tostring(lp.UserId)] = bio.Text ~= "" and bio.Text or nil; save() end)
+	new("UICorner", { CornerRadius = UDim.new(0, 8) }, bio)
+	local bst = new("UIStroke", { Thickness = 1, Transparency = 0.8, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, bio)
+	paint(bst, "Color", "tabOff")
+	new("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8), PaddingTop = UDim.new(0, 6) }, bio)
+	bio.Focused:Connect(function() tw(bst, { Color = S.accent, Transparency = 0.2 }, 0.1) end)
+	bio.FocusLost:Connect(function()
+		tw(bst, { Color = col("tabOff"), Transparency = 0.8 }, 0.12)
+		cfg.bios[tostring(lp.UserId)] = bio.Text ~= "" and bio.Text or nil; save()
+	end)
+	local tipBar = fr(bc, 14, CH - 56, 3, 36, "accent", 0, 2)
+	local tipLbl = txt(bc, "TIP", 7.5, "accentText", 24, CH - 58, 100, 12, { Font = FONT_B })
+	local tip = txt(bc, TIPS[1], 9, "dim", 24, CH - 43, BWD - 40, 30, { TextWrapped = true, TextTruncate = Enum.TextTruncate.AtEnd })
+	-- a new welcome message: the profile card resizes to it and the bio / tip card takes the rest
+	local function fit(msg)
+		PCH = pchFor(msg)
+		BY = 16 + PCH + 10; CH = L.IH - BY - 18
+		welcomeTxt.Text = msg
+		pc.Size, welcomeTxt.Size = UDim2.fromOffset(PWD, PCH), UDim2.fromOffset(PWD - 32, PCH - 100)
+		bcRise[3] = BY
+		bc.Position, bc.Size = UDim2.fromOffset(BX0, BY), UDim2.fromOffset(BWD, CH)
+		bio.Size = UDim2.fromOffset(BWD - 28, CH - 80)
+		tipBar.Position, tipLbl.Position, tip.Position = UDim2.fromOffset(14, CH - 56), UDim2.fromOffset(24, CH - 58), UDim2.fromOffset(24, CH - 43)
+	end
+
+	-- ===== server actions (right column, anchored to the bottom); Rejoin / Server hop need a second click so a stray click can't throw you out =====
+	local AW = math.floor((HW - 8) / 2)
+	local function quick(label, x, y, w, cb)
+		local b = btn(h, label, x, y, w, 28, nil, nil, cb)
+		rise[#rise + 1] = { b, x, y }
+		return b
+	end
+	local function confirmBtn(label, x, y, cmd)
+		local armed, b = false, nil
+		b = quick(label, x, y, AW, function()
+			if armed then armed = false; b.Text = label; setFill(b); return ctx.Run(cmd) end
+			armed, b.Text = true, "Click again"
+			setFill(b, "danger") -- armed: the next click throws you out of this server
+			task.delay(3, function() if armed and b.Parent then armed = false; b.Text = label; setFill(b) end end)
+		end)
+	end
+	local AY = L.IH - 18 - 28 -- bottom row
+	quick("Open server browser", RX, AY, HW, function() ctx.openTab("Servers") end)
+	confirmBtn("Rejoin", RX, AY - 34, "rejoin")
+	confirmBtn("Server hop", RX + AW + 8, AY - 34, "serverhop")
+	quick("Copy Job ID", RX, AY - 68, AW, function() ctx.Run("jobid") end)
+	quick("Copy Place ID", RX + AW + 8, AY - 68, AW, function() ctx.Run("placeid") end)
+
+	-- opening: the hero fades in, the tiles and cards rise one after another
+	onShow["Home"] = function()
+		if cfg.anim == 0 then return end
+		hero.GroupTransparency = 1
+		tw(hero, { GroupTransparency = 0 }, 0.3)
+		for i, r in ipairs(rise) do
+			r[1].Position = UDim2.fromOffset(r[2], r[3] + 10)
+			task.delay(i * 0.03, function() tw(r[1], { Position = UDim2.fromOffset(r[2], r[3]) }, 0.3) end)
+		end
+	end
 
 	-- this server's region: cached, or looked up once (ctx.SRV.here); a failure retries every 30 s while Home is open
 	local rTry, rBusy, rDone = 0, false, rg ~= nil
@@ -6362,18 +7041,22 @@ do
 			if S.panelOpen and ui.tab == "Home" then
 				regionStep()
 				pcall(function()
-					vals["Players"].Text = "Players: " .. #S.Players:GetPlayers() .. " / " .. S.Players.MaxPlayers
-					vals["Region"].Text = "Region: " .. region
+					local n, max = #S.Players:GetPlayers(), S.Players.MaxPlayers
+					vals["Players"].Text = n .. " / " .. max
+					tw(bar, { Size = UDim2.new(math.clamp(n / math.max(max, 1), 0, 1), 0, 1, 0) }, 0.3)
+					vals["Region"].Text = region
 					local ok, ping = pcall(function() return S.Stats.Network.ServerStatsItem["Data Ping"]:GetValue() end)
-					vals["Latency"].Text = "Latency: " .. (ok and (math.floor(ping) .. " ms") or "-")
+					vals["Latency"].Text = ok and (math.floor(ping) .. " ms") or "-"
+					vals["Latency"].TextColor3 = not ok and col("text") or ping < 80 and Color3.fromRGB(52, 199, 89) or ping < 160 and Color3.fromRGB(255, 159, 10) or Color3.fromRGB(255, 69, 58)
 					local t = math.floor(workspace.DistributedGameTime)
-					vals["Uptime"].Text = ("Uptime: %02d:%02d:%02d"):format(math.floor(t / 3600), math.floor(t / 60) % 60, t % 60)
+					vals["Uptime"].Text = ("%02d:%02d:%02d"):format(math.floor(t / 3600), math.floor(t / 60) % 60, t % 60)
+					heroSub.Text = region .. "   ·   " .. n .. " players"
 				end)
 			end
 			if os.clock() - last > 300 then
 				last = os.clock()
-				tip.Text = "Tips: " .. TIPS[math.random(#TIPS)]
-				welcomeTxt.Text = HOME_MSGS[math.random(#HOME_MSGS)]
+				tip.Text = TIPS[math.random(#TIPS)]
+				fit(HOME_MSGS[math.random(#HOME_MSGS)])
 			end
 			task.wait(1)
 		end
@@ -6386,8 +7069,8 @@ end
 do
 	local pg = pages["Players"]
 	local sbox = input(pg, "Search for player…", 9, 10, 230, 32, 11)
-	local stat = txt(pg, "", 9, "sub", 356, 10, 167, 32, { TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Center })
-	local plist = scroller(pg, 0, 53, 532, 326)
+	local stat = txt(pg, "", 9, "sub", L.IW - 176, 10, 167, 32, { TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Center })
+	local plist = scroller(pg, 0, 56, L.IW, L.IH - 56)
 	plist.AutomaticCanvasSize = Enum.AutomaticSize.None -- the height is known exactly, so the scroll position survives a rebuild
 	new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, plist)
 	new("UIPadding", { PaddingLeft = UDim.new(0, 9), PaddingRight = UDim.new(0, 12), PaddingTop = UDim.new(0, 2), PaddingBottom = UDim.new(0, 8) }, plist)
@@ -6442,13 +7125,13 @@ do
 
 	-- a name you can double click: copies it, or (no clipboard) selects it so you can copy it by hand
 	local clicks = {}
-	local function copyable(parent, plain, rich, x, y, w, h, pt, key, props)
+	local function copyable(parent, plain, rich, x, y, w, h, pt, key, props, single)
 		local l = txt(parent, rich, pt, key, x, y, w, h, mix({ RichText = true, TextTruncate = Enum.TextTruncate.AtEnd }, props))
 		local hit = new("TextButton", { Text = "", BackgroundTransparency = 1, AutoButtonColor = false, Position = l.Position, Size = l.Size }, parent)
 		local tb
 		hit.MouseButton1Click:Connect(function()
 			local now = os.clock()
-			if clicks[hit] and now - clicks[hit] < 0.4 then
+			if clicks[hit] and now - clicks[hit] < 0.3 then
 				clicks[hit] = nil
 				if setclipboard then
 					pcall(setclipboard, plain)
@@ -6467,6 +7150,7 @@ do
 				end
 			else
 				clicks[hit] = now
+				if single then task.delay(0.3, function() if clicks[hit] == now then clicks[hit] = nil; single() end end) end -- one click = single(), a double click = copy
 			end
 		end)
 		return l
@@ -6474,8 +7158,8 @@ do
 	local function greyOut(b, isFriend)
 		if not (b and b.Parent) then return end
 		b.Active = not isFriend
-		b.TextTransparency = isFriend and 0.55 or 0
-		setFill(b, isFriend and "tabOff" or "btnFill", isFriend and 0.5 or BTN_OFF)
+		b.Text = isFriend and "Friends" or "Add Friend"
+		setFill(b) -- b.Active = false dims it (st())
 	end
 
 	-- friend status: fetched in the background, a card only moves when someone turns out to be (or stops being) a friend
@@ -6497,7 +7181,8 @@ do
 				task.spawn(function()
 					local ok, res = pcall(function() return lp:IsFriendsWith(uid) end)
 					fetching[uid] = nil
-					local v = ok and res == true
+					if not ok then return end -- throttled / failed: keep the last known answer (a friend used to drop out of Friends)
+					local v = res == true
 					local was = friends[uid] or false
 					friends[uid] = v
 					local row = rows[uid]
@@ -6521,42 +7206,42 @@ do
 		if drag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then drag(i.Position.X) end
 	end)
 	conn(S.UserInputService.InputEnded, function(i)
-		if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then drag = nil end
+		if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+			drag = nil
+			if S.dragEnd then pcall(S.dragEnd); S.dragEnd = nil end -- the volume slider's knob settles back when you let go
+		end
 	end)
 	local function slider(parent, x, y, w, uid)
-		local hit = new("TextButton", { Text = "", AutoButtonColor = false, BackgroundTransparency = 1, Position = UDim2.fromOffset(x, y), Size = UDim2.fromOffset(w, 18) }, parent)
-		local track = fr(hit, 0, 7, w, 4, "ctrlOff", 0.2, 2)
-		local fill = fr(track, 0, 0, 0, 4, "accent", 0.1, 2)
-		local knob = fr(hit, 0, 3, 12, 12, "accent", 0, 6, "edge", 1, 0)
-		local pct = txt(parent, "", 9, "sub", x + w + 6, y, 38, 18, { TextXAlignment = Enum.TextXAlignment.Center, TextYAlignment = Enum.TextYAlignment.Center })
+		local P = S.sliderParts(parent, x - 10, y - 3, w + 20, 10) -- the shared slider look; its track starts at x
+		local pct = txt(parent, "", 9, "sub", x + w + 14, y, 38, 18, { TextXAlignment = Enum.TextXAlignment.Center, TextYAlignment = Enum.TextYAlignment.Center })
 		local lastC = 0 -- double click = back to 100 %
 		local function show(v)
-			local f = v / 2
-			fill.Size = UDim2.new(f, 0, 1, 0)
-			knob.Position = UDim2.new(f, -6, 0, 3)
+			P.place(v / 2)
 			pct.Text = math.floor(v * 100 + 0.5) .. "%"
 		end
 		local function set(px)
-			local f = math.clamp((px - hit.AbsolutePosition.X) / math.max(hit.AbsoluteSize.X, 1), 0, 1)
+			local f = math.clamp((px - P.track.AbsolutePosition.X) / math.max(P.track.AbsoluteSize.X, 1), 0, 1)
 			local v = math.floor(f * 40 + 0.5) / 20
 			if math.abs(v - 1) < 0.04 then v = 1 end
 			show(v)
 			ctx.setVoiceVol(uid, v)
 		end
-		hit.InputBegan:Connect(function(i)
+		P.hit.InputBegan:Connect(function(i)
 			if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
 				local now = os.clock()
 				if now - lastC < 0.35 then lastC = 0; drag = nil; show(1); ctx.setVoiceVol(uid, 1); return end
 				lastC = now
 				drag = set
+				S.dragEnd = function() P.held(false) end
+				P.held(true)
 				set(i.Position.X)
 			end
 		end)
-		hit.MouseButton2Click:Connect(function() show(1); ctx.setVoiceVol(uid, 1) end)
+		P.hit.MouseButton2Click:Connect(function() show(1); ctx.setVoiceVol(uid, 1) end)
 		show(state.vcVol and state.vcVol[uid] or 1)
 	end
 
-	local CW, BW, BH, BG = 511, 78, 24, 5 -- card width, button size and gap
+	local CW, BW, BH, BG = L.IW - 21, 80, 26, 6 -- card width, button size and gap
 	local BX = CW - 12 - (3 * BW + 2 * BG) -- left edge of the 3 x 2 button grid
 	local TITLE = { accounts = "Accounts", listening = "Listening", friends = "Friends", players = "Players", hidden = "Blocked / Hidden" }
 	local function header(key, count, order)
@@ -6572,17 +7257,20 @@ do
 		local r = fr(plist, 0, 0, CW, h, "row", 0.85, 8, "edge", 1, 0.55)
 		r.Size, r.LayoutOrder = UDim2.new(1, 0, 0, h), order
 		if listening then paint(r:FindFirstChildOfClass("UIStroke"), "Color", "accent"); r:FindFirstChildOfClass("UIStroke").Transparency = 0.4 end
+		S.lit(r)
 		-- avatar; the ring around it is the voice activity indicator
-		local a = new("ImageLabel", { Position = UDim2.fromOffset(12, (h - 52) / 2), Size = UDim2.fromOffset(52, 52), BorderSizePixel = 0, BackgroundTransparency = 0.9,
+		local a = new("ImageButton", { AutoButtonColor = false, Position = UDim2.fromOffset(12, (h - 52) / 2), Size = UDim2.fromOffset(52, 52), BorderSizePixel = 0, BackgroundTransparency = 0.9,
 			Image = thumb("AvatarHeadShot", uid, 150), ImageTransparency = key == "hidden" and 0.5 or 0 }, r)
 		paint(a, "BackgroundColor3", "row")
 		new("UICorner", { CornerRadius = UDim.new(1, 0) }, a)
+		local function open() ui.openProfile(p) end
+		a.MouseButton1Click:Connect(open) -- the avatar (or one click on the name) opens the profile
 		local ring = new("UIStroke", { Thickness = 1.5, Transparency = 0.55, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, a)
 		paint(ring, "Color", "accent")
 		local ny = me and 14 or 12
 		local tag = key == "hidden" and (blocked[uid] and "  ·  blocked" or "  ·  hidden") or (key == "accounts" and "  ·  alt" or "")
-		copyable(r, p.DisplayName, hl(p.DisplayName, q) .. (me and " (you)" or ""), 76, ny, 141, 16, 10, "text2", { Font = FONT_B })
-		copyable(r, p.Name, hl("@" .. p.Name, q) .. tag, 76, ny + 18, 141, 13, 8, "sub")
+		copyable(r, p.DisplayName, hl(p.DisplayName, q) .. (me and " (you)" or ""), 76, ny, BX - 120, 16, 10, "text2", { Font = FONT_B }, open)
+		copyable(r, p.Name, hl("@" .. p.Name, q) .. tag, 76, ny + 18, BX - 120, 13, 8, "sub", nil, open)
 		-- level bars, bottom aligned next to the name
 		local bars = {}
 		for i = 1, 4 do
@@ -6615,33 +7303,40 @@ do
 		end)
 		cell(listening and "Unlisten" or "Listen", 1, 2, listening, function()
 			local on = not state.listen[uid]
-			if on and state.muted[uid] then ctx.setMuted(uid, false) end
+			local wasMuted = on and state.muted[uid] ~= nil
+			if wasMuted then ctx.setMuted(uid, false) end -- muted voice cannot be routed, so unmute first
 			local ok, why = ctx.setListen(uid, on)
-			if on and not ok then return ctx.notify(why, 5) end
+			if on and not ok then
+				if wasMuted then ctx.setMuted(uid, true) end -- it failed: they stay muted, as the card still says
+				return ctx.notify(why, 5)
+			end
 			render(on) -- listening pins the card to the top, so scroll up to it
 		end)
 		cell(hidden and "Unhide" or "Hide", 2, 2, hidden, function()
 			ctx.Run((ctx.isHidden(uid) and "unhide " or "hide ") .. p.Name)
 			render()
 		end)
-		slider(r, 76, 53, 120, uid)
+		slider(r, 76, 53, 160, uid)
 	end
 
 	-- an alt that is in another server: avatar, name, Join
 	local function altRow(a, order)
 		local r = fr(plist, 0, 0, CW, 56, "row", 0.85, 8, "edge", 1, 0.55)
 		r.Size, r.LayoutOrder = UDim2.new(1, 0, 0, 56), order
+		S.lit(r)
 		local av = new("ImageLabel", { Position = UDim2.fromOffset(12, 6), Size = UDim2.fromOffset(44, 44), BorderSizePixel = 0, BackgroundTransparency = 0.9, Image = thumb("AvatarHeadShot", a.userId, 150) }, r)
 		paint(av, "BackgroundColor3", "row")
 		new("UICorner", { CornerRadius = UDim.new(1, 0) }, av)
 		txt(r, (a.displayName and a.displayName ~= "") and a.displayName or a.name, 10, "text2", 68, 10, 220, 16, { Font = FONT_B })
 		txt(r, "@" .. a.name .. "  ·  other server", 8, "sub", 68, 30, 240, 13)
-		btn(r, "Join", BX + 2 * (BW + BG), 12, BW, BH, "btnFill", BTN_OFF, function()
+		btn(r, "Join", BX + 2 * (BW + BG), 12, BW, BH, "primary", nil, function()
 			pcall(function() game:GetService("TeleportService"):TeleportToPlaceInstance(a.placeId, a.jobId, lp) end)
 		end)
 	end
 
 	function render(toTop)
+		S.plGen = (S.plGen or 0) + 1 -- a newer render cancels the cards an older one has not built yet
+		local my, jobs = S.plGen, {}
 		local keep = plist.CanvasPosition
 		clear(plist)
 		rows = {}
@@ -6674,17 +7369,17 @@ do
 		end
 		local order, y, count = 0, 0, 0
 		local function add(hh) y = y + (count > 0 and 6 or 0) + hh; count = count + 1 end
-		if me then order = order + 1; add(64); card(me, order, nil, blocked, q) end
+		if me then order = order + 1; add(64); local o = order; jobs[#jobs + 1] = function() card(me, o, nil, blocked, q) end end
 		for _, key in ipairs({ "accounts", "listening", "friends", "players", "hidden" }) do
 			local list = groups[key]
 			local extra = key == "accounts" and off or {}
 			if #list + #extra > 0 then
 				order = order + 1; add(20); header(key, #list + #extra, order); hdr[key] = order
 				for _, p in ipairs(list) do
-					order = order + 1; add(80); card(p, order, key, blocked, q)
+					order = order + 1; add(80); local o = order; jobs[#jobs + 1] = function() card(p, o, key, blocked, q) end
 				end
 				for _, a in ipairs(extra) do
-					order = order + 1; add(56); altRow(a, order)
+					order = order + 1; add(56); local o = order; jobs[#jobs + 1] = function() altRow(a, o) end
 				end
 			end
 		end
@@ -6694,6 +7389,18 @@ do
 		end
 		plist.CanvasSize = UDim2.fromOffset(0, y + 10)
 		plist.CanvasPosition = toTop == true and Vector2.zero or keep
+		ui.busy("players", false)
+		if #jobs > 0 then -- the cards are built 3 per frame (a full server used to freeze the panel); a big list shows the loading pill meanwhile
+			ui.busy("players", #jobs > 8, "Players")
+			task.spawn(function()
+				for i, job in ipairs(jobs) do
+					if my ~= S.plGen or not S.alive then return end
+					pcall(job)
+					if i % 3 == 0 then task.wait() end
+				end
+				if my == S.plGen then ui.busy("players", false) end
+			end)
+		end
 		local nl = 0
 		for _ in pairs(state.listen) do nl = nl + 1 end
 		stat.Text = ("%d players  ·  %d listening"):format(#S.Players:GetPlayers(), nl)
@@ -6733,11 +7440,14 @@ do
 		end
 	end)
 
+	ui.plRender = function() if visible() then render() end end -- the profile refreshes the cards under it after an action
+	ui.plSearch = function(q) sbox.Text = q or "" end -- ;player with several matches filters the list
 	sbox:GetPropertyChangedSignal("Text"):Connect(function() render() end)
 	onShow["Players"] = function() sortMenu.Visible = false; fetchFriends(true); render(true) end
+	onHide["Players"] = function() S.plGen = (S.plGen or 0) + 1; ui.busy("players", false); clear(plist); rows = {}; ctx.vcClear() end
 	conn(S.Players.PlayerAdded, function() if visible() then fetchFriends(); render() end end)
 	conn(S.Players.PlayerRemoving, function(p)
-		if state.viewing == p then state.viewing = nil end
+		if state.viewing == p then ctx.Run("unview") end -- the camera comes back to you (it used to stay on the leaving player's body)
 		task.defer(function() if visible() then render() end end)
 	end)
 end
@@ -6748,8 +7458,8 @@ do
 	local box = input(pg, "Region (city, country or code)…", 9, 10, 299, 32, 11)
 	box.Text = cfg.srvRegion or ""
 	
-	local stat = txt(pg, "", 9, "sub", 316, 46, 207, 26, { TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Center, TextTruncate = Enum.TextTruncate.AtEnd })
-	local list = scroller(pg, 0, 78, 532, 301)
+	local stat = txt(pg, "", 9, "sub", L.IW - 216, 46, 207, 26, { TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Center, TextTruncate = Enum.TextTruncate.AtEnd })
+	local list = scroller(pg, 0, 80, L.IW, L.IH - 80)
 	list.AutomaticCanvasSize = Enum.AutomaticSize.None
 	new("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, list)
 	new("UIPadding", { PaddingLeft = UDim.new(0, 9), PaddingRight = UDim.new(0, 12), PaddingTop = UDim.new(0, 2), PaddingBottom = UDim.new(0, 8) }, list)
@@ -6790,20 +7500,21 @@ do
 		end)
 		for i, row in ipairs(rows) do
 			local s, r = row.s, row.r
-			local c = fr(list, 0, 0, 511, 46, "row", 0.85, 8, "edge", 1, 0.55)
-			c.Size, c.LayoutOrder = UDim2.new(1, 0, 0, 46), i
+			local c = fr(list, 0, 0, L.IW - 21, 50, "row", 0.85, 8, "edge", 1, 0.55)
+			c.Size, c.LayoutOrder = UDim2.new(1, 0, 0, 50), i
+			S.lit(c)
 			local e = SR.byId[s.id]
 			txt(c, r and (r.label .. (e and e.t and ("  ·  scanned " .. ago(e.t)) or "")) or "Not scanned yet", 10, r and "text2" or "sub", 14, 7, 330, 16, { Font = FONT_B })
 			txt(c, ("%d/%d players  ·  %s  ·  %s"):format(s.playing or 0, s.maxPlayers or 0, s.ping and ("~" .. math.floor(s.ping * (cfg.mod.srvPingMult or 2) + 0.5) .. " ms") or "ping ?", s.fps and (math.floor(s.fps + 0.5) .. " fps") or "fps ?"),
 				8, "sub", 14, 26, 330, 13)
 			local cur = s.id == game.JobId
-			local b = btn(c, cur and "Current" or "Join", 511 - 12 - 78, 11, 78, 24, nil, nil, function() SR.join(game.PlaceId, s.id) end)
+			local b = btn(c, cur and "Current" or "Join", L.IW - 21 - 12 - 82, 12, 82, 26, not cur and "primary" or nil, nil, function() SR.join(game.PlaceId, s.id) end)
 			if cur then b.Active = false; b.TextTransparency = 0.55 end
 		end
 		if #rows == 0 then
-			empty(list, listErr and ("Server list failed: " .. listErr) or (#servers == 0 and "No public servers found." or "No scanned server matches. Press Scan regions."))
+			empty(list, listErr and ("Server list failed: " .. listErr) or (#servers == 0 and (listBusy and "Loading servers..." or "No public servers found.") or "No scanned server matches. Press Scan regions."))
 		end
-		list.CanvasSize = UDim2.fromOffset(0, math.max(#rows, 1) * 50 + 10)
+		list.CanvasSize = UDim2.fromOffset(0, math.max(#rows, 1) * 54 + 10)
 		setStat()
 		if SR.running() then tick() end -- a scan started by ;scanregions shows up too
 	end
@@ -6822,7 +7533,9 @@ do
 		if ticking then return end
 		ticking = true
 		task.spawn(function()
-			while (listBusy or SR.running()) and S.alive do setStat(); task.wait(0.4) end
+			ui.busy("servers", true, "Servers")
+			while (listBusy or SR.running()) and S.alive do ui.busy("servers", true, "Servers"); setStat(); task.wait(0.4) end -- refreshed: the pill drops entries older than 20 s
+			ui.busy("servers", false)
 			ticking = false
 			setStat()
 		end)
@@ -6863,12 +7576,12 @@ do
 		end)
 		if started then tick() else scanBtn.Text = "Scan regions" end
 	end
-	scanBtn = btn(pg, "Scan regions", 316, 13, 100, 26, nil, nil, function()
+	scanBtn = btn(pg, "Scan regions", L.IW - 216, 13, 100, 26, nil, nil, function()
 		if SR.running() then SR.stop = true; return end
 		startScan()
 	end)
 	rescanBtn = btn(pg, "Rescan", 241, 46, 68, 26, nil, nil, function() refresh(true) end) -- new servers only: shown as "Not scanned yet" until Scan regions
-	btn(pg, "Join match", 422, 13, 100, 26, nil, nil, function()
+	btn(pg, "Join match", L.IW - 110, 13, 100, 26, "primary", nil, function()
 		local q = box.Text:lower():match("^%s*(.-)%s*$")
 		if q == "" then return ctx.notify("Type a region first (city, country or code)") end
 		ctx.Run("region " .. q)
@@ -6892,43 +7605,449 @@ do
 		save(); render()
 	end)
 	box.FocusLost:Connect(function() cfg.srvRegion = box.Text; save() end)
+	onHide["Servers"] = function() clear(list) end
 	onShow["Servers"] = function()
 		menu.Visible = false
 		if not SR.shown then SR.shown = true; ctx.notify("Region cache: " .. (SR.loaded or 0) .. " servers loaded from KLOSAD/servers.json", 4) end
-		render(); refresh()
+		refresh(); render() -- refresh first (it only starts the fetch), so the empty list says Loading
 	end
 end
 -- [/PG_PLAYERS]
+-- [PROFILE]
+-- ===== player profile: ONE window over the page area, reused (never two). Opens from a Players card (avatar, or one click on the name), a friend tile or ;player <name>.
+-- Every open bumps P.gen: late answers (friends with you, friends list, outfit prices) for an older profile are dropped and its live refresh stops. Leaving Players closes it =====
+do
+	local W, H = L.IW, L.IH
+	local LX, LW, RX, TOPY = 16, 180, 212, 44 -- left column (avatar + actions), the right column's x, top of the content
+	local RW = W - RX - 16
+	local P = { gen = 0, open = false, friend = {}, price = {} }
+	ui.prof = P
+	local joined = {} -- userId -> os.time() they joined (players already here when rOSAD started are unknown)
+	conn(S.Players.PlayerAdded, function(p) joined[p.UserId] = os.time() end)
+	local function prop(o, k) local ok, v = pcall(function() return o[k] end); return ok and v or nil end
+	local function comma(n) local s = tostring(math.floor((tonumber(n) or 0) + 0.5)); return (s:reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")) end
+	local function date(f, t) local ok, s = pcall(os.date, f, t); return ok and type(s) == "string" and s or "?" end -- an executor with a cut down os.date never breaks the profile
+	local function blockedIds()
+		local ok, ids = pcall(function() return ctx.StarterGui:GetCore("GetBlockedUserIds") end)
+		return ok and type(ids) == "table" and ids or {}
+	end
+	local function copy(text, what)
+		if not setclipboard then return ctx.notify("This executor cannot copy: " .. text, 6) end
+		pcall(setclipboard, text)
+		ctx.notify("Copied " .. what)
+	end
+	local function chip(parent, text, key, order)
+		local c = new("TextLabel", { AutomaticSize = Enum.AutomaticSize.X, Size = UDim2.fromOffset(0, 20), BorderSizePixel = 0, BackgroundTransparency = 0.82,
+			Text = text, Font = FONT_B, TextSize = fs(8), LayoutOrder = order }, parent)
+		paint(c, "BackgroundColor3", key)
+		paint(c, "TextColor3", key == "accent" and "accentText" or key == "sub" and "text2" or key)
+		new("UICorner", { CornerRadius = UDim.new(1, 0) }, c)
+		new("UIPadding", { PaddingLeft = UDim.new(0, 9), PaddingRight = UDim.new(0, 9) }, c)
+	end
+
+	local win = new("CanvasGroup", { Name = "Profile", Size = UDim2.fromScale(1, 1), BorderSizePixel = 0, GroupTransparency = 1, Visible = false, ZIndex = 20, Active = true }, ui.inner)
+	paint(win, "BackgroundColor3", "panel")
+	win.BackgroundTransparency = 0.03 -- solid enough that the list under it does not show through
+	new("UICorner", { CornerRadius = UDim.new(0, ST.rPane) }, win)
+	local body = new("CanvasGroup", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0 }, win) -- its own group so switching profiles cross-fades it
+	txt(win, "PROFILE", 7.5, "hint", LX + 2, 16, 200, 14, { Font = FONT_B })
+	btn(win, "×", W - 44, 10, 32, 28, "ghost", nil, function() ui.closeProfile() end, 13)
+
+	local function build(p, my)
+		clear(body)
+		local uid, me = p.UserId, p == lp
+		local function live() return my == P.gen and P.open and S.alive end
+		local function here() return p.Parent ~= nil end
+		local loaders = {}
+
+		-- left: the full avatar (the actions go under it)
+		local at = fr(body, LX, TOPY, LW, LW, "row", 0.85, ST.rPane)
+		new("ImageLabel", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Image = thumb("Avatar", uid, 420), ScaleType = Enum.ScaleType.Fit }, at)
+
+		-- right: headshot, names, state chips, section switcher, the section
+		local hs = new("ImageLabel", { Position = UDim2.fromOffset(RX, TOPY), Size = UDim2.fromOffset(52, 52), BorderSizePixel = 0, BackgroundTransparency = 0.9, Image = thumb("AvatarHeadShot", uid, 150) }, body)
+		paint(hs, "BackgroundColor3", "row")
+		new("UICorner", { CornerRadius = UDim.new(1, 0) }, hs)
+		paint(new("UIStroke", { Thickness = 1.5, Transparency = 0.4 }, hs), "Color", "accent")
+		txt(body, p.DisplayName, 15, "text", RX + 66, TOPY + 2, RW - 66, 24, { Font = FONT_B, TextTruncate = Enum.TextTruncate.AtEnd })
+		txt(body, "@" .. p.Name, 10, "sub", RX + 66, TOPY + 28, RW - 66, 16, { TextTruncate = Enum.TextTruncate.AtEnd })
+		local chips = new("Frame", { Position = UDim2.fromOffset(RX, TOPY + 62), Size = UDim2.fromOffset(RW, 20), BackgroundTransparency = 1 }, body)
+		new("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, chips)
+		local PY = TOPY + 126
+		local PH = H - PY - 14
+		local panes, sw = {}, {}
+		local function showPane(name)
+			for n, f in pairs(panes) do f.Visible = n == name end
+			for n, b in pairs(sw) do setFill(b, n == name and "ctrlOn" or "ctrlOff", BTN_OFF) end
+			local f = loaders[name]
+			if f then loaders[name] = nil; task.spawn(f) end -- a section loads the first time you open it
+		end
+		for i, n in ipairs({ "Overview", "Outfit", "Friends" }) do
+			sw[n] = btn(body, n, RX + (i - 1) * 96, TOPY + 92, 90, 26, "ctrlOff", BTN_OFF, function() showPane(n) end)
+			panes[n] = new("Frame", { Position = UDim2.fromOffset(RX, PY), Size = UDim2.fromOffset(RW, PH), BackgroundTransparency = 1, Visible = false }, body)
+		end
+
+		-- Overview: label / value rows
+		local val, nrow = {}, 0
+		local function kv(k, v)
+			local y = nrow * 21
+			nrow = nrow + 1
+			txt(panes.Overview, k, 9.5, "sub", 0, y, 128, 21, { TextYAlignment = Enum.TextYAlignment.Center })
+			val[k] = txt(panes.Overview, v, 9.5, "text", 128, y, RW - 128, 21, { TextYAlignment = Enum.TextYAlignment.Center, TextTruncate = Enum.TextTruncate.AtEnd })
+		end
+		local age = tonumber(prop(p, "AccountAge")) or 0
+		local fid = tonumber(prop(p, "FollowUserId")) or 0
+		local fpl = fid ~= 0 and S.Players:GetPlayerByUserId(fid)
+		local jt = joined[uid]
+		kv("User ID", tostring(uid))
+		kv("Account age", ("%s days  ·  on Roblox since %s"):format(comma(age), date("%b %Y", os.time() - age * 86400)))
+		kv("Membership", prop(p, "MembershipType") == Enum.MembershipType.Premium and "Premium" or "Standard")
+		kv("Verified badge", prop(p, "HasVerifiedBadge") and "Yes" or "No")
+		kv("Friends with you", me and "-" or "checking...")
+		kv("Team", "None")
+		kv("Distance", "-")
+		kv("In this server", me and "you" or jt and ("since " .. date("%H:%M", jt)) or "since before rOSAD started")
+		kv("Followed someone in", fid == 0 and "No" or fpl and ("@" .. fpl.Name) or ("user " .. fid))
+		if not me then
+			task.spawn(function()
+				local ok, v = pcall(function() return lp:IsFriendsWith(uid) end)
+				if ok then P.friend[uid] = v == true end
+				if live() then val["Friends with you"].Text = ok and (v and "Yes" or "No") or "unknown (Roblox did not answer)" end
+			end)
+		end
+
+		-- Outfit: what they wear, with catalog prices (MarketplaceService, cached per asset for the session)
+		local osum = txt(panes.Outfit, "Loading the outfit...", 9.5, "sub", 0, 0, RW, 20, { TextYAlignment = Enum.TextYAlignment.Center, TextTruncate = Enum.TextTruncate.AtEnd })
+		local olist = scroller(panes.Outfit, 0, 24, RW, PH - 24)
+		new("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, olist)
+		new("UIPadding", { PaddingRight = UDim.new(0, 8) }, olist)
+		loaders.Outfit = function()
+			local ids, seen = {}, {}
+			local function addId(id) id = tonumber(id); if id and id > 0 and not seen[id] then seen[id] = true; ids[#ids + 1] = id end end
+			local ok, desc = pcall(function()
+				local h = p.Character and p.Character:FindFirstChildOfClass("Humanoid")
+				if h then return h:GetAppliedDescription() end -- what they wear in this server
+				return S.Players:GetHumanoidDescriptionFromUserId(uid)
+			end)
+			if ok and desc then
+				pcall(function() for _, a in ipairs(desc:GetAccessories(true)) do addId(a.AssetId) end end)
+				for _, k in ipairs({ "Shirt", "Pants", "GraphicTShirt", "Face" }) do pcall(function() addId(desc[k]) end) end
+			end
+			if #ids == 0 and request then -- no description: the avatar API's "currently wearing" list (their saved avatar, may differ from this game)
+				pcall(function()
+					local r = request({ Url = ("https://avatar.roblox.com/v1/users/%d/currently-wearing"):format(uid), Method = "GET" })
+					for _, id in ipairs(S.HttpService:JSONDecode(r.Body).assetIds or {}) do addId(id) end
+				end)
+			end
+			if not live() then return end
+			if #ids == 0 then osum.Text = "Outfit unavailable: Roblox returned no worn items"; return end
+			local total, priced, other = 0, 0, 0
+			local function sum()
+				osum.Text = ("Est. value R$ %s  ·  %d of %d items priced%s"):format(comma(total), priced, #ids, other > 0 and ("  ·  %d off sale / limited"):format(other) or "")
+			end
+			for i, id in ipairs(ids) do
+				local row = fr(olist, 0, 0, RW - 8, 40, "row", 0.85, ST.rCtrl)
+				row.Size, row.LayoutOrder = UDim2.new(1, 0, 0, 40), i
+				new("ImageLabel", { Position = UDim2.fromOffset(6, 4), Size = UDim2.fromOffset(32, 32), BackgroundTransparency = 1, Image = thumb("Asset", id, 150) }, row)
+				local nm = txt(row, "Item " .. id, 9.5, "text", 46, 4, RW - 160, 16, { TextTruncate = Enum.TextTruncate.AtEnd })
+				local by = txt(row, "", 8, "sub", 46, 21, RW - 160, 14, { TextTruncate = Enum.TextTruncate.AtEnd })
+				local pr = txt(row, "...", 9.5, "text2", RW - 110, 0, 94, 40, { Font = FONT_B, TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Center })
+				task.spawn(function()
+					local info = P.price[id]
+					if not info then
+						local okI, res = pcall(function() return S.MarketplaceService:GetProductInfo(id, Enum.InfoType.Asset) end)
+						if okI and type(res) == "table" then info = res; P.price[id] = res end
+					end
+					if not live() then return end
+					if not info then pr.Text = "unavailable"; other = other + 1; sum(); return end
+					nm.Text = tostring(info.Name or ("Item " .. id))
+					by.Text = (type(info.Creator) == "table" and info.Creator.Name) and ("by " .. tostring(info.Creator.Name)) or ""
+					local cd = info.CollectiblesItemDetails
+					local limited = info.IsLimited or info.IsLimitedUnique or (type(cd) == "table" and cd.IsLimited)
+					local price = tonumber(info.PriceInRobux)
+					if limited then pr.Text = "Limited"; other = other + 1 -- resale value is not exposed in game
+					elseif info.IsForSale and price and price > 0 then pr.Text = "R$ " .. comma(price); total = total + price; priced = priced + 1
+					elseif info.IsForSale then pr.Text = "Free"; priced = priced + 1
+					else pr.Text = "Off sale"; other = other + 1 end
+					sum()
+				end)
+			end
+			sum()
+		end
+
+		-- Friends: the first page of their friends list (Players:GetFriendsAsync), the ones in this server first, then online
+		local fsum = txt(panes.Friends, "Loading friends...", 9.5, "sub", 0, 0, RW, 20, { TextYAlignment = Enum.TextYAlignment.Center })
+		local fl = scroller(panes.Friends, 0, 24, RW, PH - 24)
+		new("UIGridLayout", { CellSize = UDim2.fromOffset(66, 80), CellPadding = UDim2.fromOffset(6, 6), SortOrder = Enum.SortOrder.LayoutOrder }, fl)
+		loaders.Friends = function()
+			local ok, items, more = pcall(function()
+				local pg = S.Players:GetFriendsAsync(uid)
+				return pg:GetCurrentPage(), not pg.IsFinished
+			end)
+			if not live() then return end
+			if not ok or type(items) ~= "table" then fsum.Text = "Friends list unavailable (Roblox refused or it is private)"; return end
+			local function inS(f) return S.Players:GetPlayerByUserId(f.Id) ~= nil end
+			table.sort(items, function(a, b)
+				if inS(a) ~= inS(b) then return inS(a) end
+				if (a.IsOnline == true) ~= (b.IsOnline == true) then return a.IsOnline == true end
+				return tostring(a.Username):lower() < tostring(b.Username):lower()
+			end)
+			local nHere = 0
+			for i, f in ipairs(items) do
+				local hereF = inS(f)
+				if hereF then nHere = nHere + 1 end
+				local t = new("TextButton", { Text = "", AutoButtonColor = false, BackgroundTransparency = 1, LayoutOrder = i }, fl)
+				local av = new("ImageLabel", { AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 4), Size = UDim2.fromOffset(46, 46), BorderSizePixel = 0,
+					BackgroundTransparency = 0.9, Image = thumb("AvatarHeadShot", f.Id, 150), Interactable = false }, t)
+				paint(av, "BackgroundColor3", "row")
+				new("UICorner", { CornerRadius = UDim.new(1, 0) }, av)
+				paint(new("UIStroke", { Thickness = hereF and 2 or 1, Transparency = hereF and 0 or 0.7 }, av), "Color", hereF and "accent" or "edge")
+				local dn = (f.DisplayName and f.DisplayName ~= "") and f.DisplayName or f.Username
+				txt(t, tostring(dn), 8, hereF and "accentText" or "text2", 0, 54, 66, 13, { TextXAlignment = Enum.TextXAlignment.Center, TextTruncate = Enum.TextTruncate.AtEnd, Interactable = false })
+				txt(t, hereF and "here" or (f.IsOnline and "online" or ""), 7, "hint", 0, 67, 66, 11, { TextXAlignment = Enum.TextXAlignment.Center, Interactable = false })
+				t.MouseButton1Click:Connect(function()
+					local pl = S.Players:GetPlayerByUserId(f.Id)
+					if pl then return ui.openProfile(pl) end
+					copy("https://www.roblox.com/users/" .. f.Id .. "/profile", "@" .. tostring(f.Username) .. "'s profile link (not in this server)")
+				end)
+			end
+			fsum.Text = ("%d%s friends  ·  %d in this server"):format(#items, more and "+" or "", nHere)
+		end
+
+		-- actions, two columns under the avatar. on() = selected look, en() = extra condition; any = also works for you / a player who left
+		local function run(cmd) ctx.Run(cmd .. " " .. p.Name) end
+		local A = {
+			{ label = function() return state.viewing == p and "Unview" or "View" end, on = function() return state.viewing == p end,
+				run = function() if state.viewing == p then ctx.Run("unview") else run("view") end end },
+			{ label = function() return state.listen[uid] and "Unlisten" or "Listen" end, on = function() return state.listen[uid] ~= nil end,
+				run = function()
+					local on = not state.listen[uid]
+					local wasMuted = on and state.muted[uid] ~= nil
+					if wasMuted then ctx.setMuted(uid, false) end
+					local ok, why = ctx.setListen(uid, on)
+					if on and not ok then
+						if wasMuted then ctx.setMuted(uid, true) end
+						ctx.notify(why, 5)
+					end
+				end },
+			{ label = function() return "Go to" end, run = function() run("goto") end },
+			{ label = function() return P.friend[uid] and "Friends" or "Add friend" end, en = function() return not P.friend[uid] end, run = function() run("friend") end },
+			{ label = function() return state.muted[uid] and "Unmute" or "Mute" end, on = function() return state.muted[uid] ~= nil end,
+				run = function() ctx.setMuted(uid, not state.muted[uid]) end },
+			{ label = function() return ctx.isHidden(uid) and "Unhide" or "Hide" end, on = function() return ctx.isHidden(uid) end,
+				run = function() run(ctx.isHidden(uid) and "unhide" or "hide") end },
+			{ label = function() return table.find(blockedIds(), uid) and "Unblock" or "Block" end, key = "danger",
+				run = function() run(table.find(blockedIds(), uid) and "unblock" or "block") end },
+			{ label = function() return "Inspect" end, any = true,
+				run = function() if not pcall(function() S.GuiService:InspectPlayerFromUserId(uid) end) then ctx.notify("This experience has the avatar inspect menu turned off") end end },
+			{ label = function() return "Copy ID" end, any = true, run = function() copy(tostring(uid), "the user ID") end },
+			{ label = function() return "Copy link" end, any = true, run = function() copy("https://www.roblox.com/users/" .. uid .. "/profile", "the profile link") end },
+		}
+		for i, a in ipairs(A) do
+			a.k = a.key
+			a.b = btn(body, a.label(), LX + ((i - 1) % 2) * 93, TOPY + LW + 12 + math.floor((i - 1) / 2) * 32, 87, 26, a.key, nil, function()
+				a.run()
+				task.delay(0.1, function()
+					if live() then P.refresh() end
+					if ui.plRender then ui.plRender() end
+				end)
+			end)
+		end
+
+		-- live state: buttons, chips, distance, team (every 0.5 s while this profile is open)
+		local sig
+		function P.refresh()
+			if not live() then return end
+			local can = here() and not me
+			for _, a in ipairs(A) do
+				a.b.Text = a.label()
+				local k = (a.on and a.on()) and "ctrlOn" or a.key
+				if k ~= a.k then a.k = k; setFill(a.b, k) end
+				local en = (a.any or can) and (not a.en or a.en())
+				if a.b.Active ~= en then a.b.Active = en end
+			end
+			local list = {}
+			local function add(t, k) list[#list + 1] = { t, k } end
+			if me then add("You", "accent") end
+			if state.alts and state.alts[uid] then add("Your alt", "accent") end
+			if P.friend[uid] then add("Friend", "accent") end
+			if prop(p, "HasVerifiedBadge") then add("Verified", "info") end
+			if prop(p, "MembershipType") == Enum.MembershipType.Premium then add("Premium", "sub") end
+			if state.viewing == p then add("Viewing", "accent") end
+			if state.listen[uid] then add("Listening", "accent") end
+			if state.muted[uid] then add("Muted", "danger") end
+			if ctx.isHidden(uid) then add("Hidden", "danger") end
+			if table.find(blockedIds(), uid) then add("Blocked", "danger") end
+			if not here() then add("Left the server", "danger") end
+			local s = ""
+			for _, c in ipairs(list) do s = s .. c[1] .. "|" end
+			if s ~= sig then
+				sig = s
+				clear(chips)
+				for i, c in ipairs(list) do chip(chips, c[1], c[2], i) end
+			end
+			local mine, r = ctx.root(), p.Character and p.Character:FindFirstChild("HumanoidRootPart")
+			val.Distance.Text = me and "-" or not here() and "left the server" or (mine and r) and (comma((mine.Position - r.Position).Magnitude) .. " studs") or "not loaded (outside your streaming range)"
+			val.Team.Text = p.Team and p.Team.Name or "None"
+		end
+		showPane("Overview")
+		P.refresh()
+		task.spawn(function()
+			while live() do
+				task.wait(0.5)
+				P.refresh()
+			end
+		end)
+	end
+
+	function ui.openProfile(p)
+		if typeof(p) ~= "Instance" or not p.Parent then return ctx.notify("That player is not in this server") end
+		if ui.tab ~= "Players" then ctx.openTab("Players") elseif not S.panelOpen then ui.setPanel(true) end
+		if P.open and P.p == p then return end -- already showing them
+		local switching = P.open
+		P.gen, P.p, P.open = P.gen + 1, p, true
+		build(p, P.gen)
+		win.Visible = true
+		if switching then
+			body.GroupTransparency = 1
+			tw(body, { GroupTransparency = 0 }, 0.16)
+		else
+			body.GroupTransparency = 0
+			ui.pageIn(win)
+		end
+	end
+	function ui.closeProfile(instant)
+		if not P.open then return end
+		P.open, P.gen = false, P.gen + 1
+		if instant or cfg.anim == 0 then win.Visible, win.GroupTransparency = false, 1; return end
+		tw(win, { GroupTransparency = 1 }, 0.16)
+		task.delay(dur(0.16) + 0.02, function() if not P.open then win.Visible = false end end) -- reopened meanwhile = stays
+	end
+	-- leaving Players closes the profile at once; clicking Players again while it is open goes back to the list
+	local select0 = ui.selectTab
+	function ui.selectTab(name)
+		if P.open and (name ~= "Players" or name == ui.tab) then ui.closeProfile(name ~= "Players") end
+		S.syncSwitches() -- switches show the real value when you come back to a page
+		return select0(name)
+	end
+end
+-- [/PROFILE]
 
 -- [PG_LOOK]
 -- ===== page: Look and feel (slide 7, every control at the deck's position) ============================
 do
-	local pg = scroller(pages["Look and feel"], 0, 0, 532, 379)
-	local function label(str, x, y) txt(pg, str, 12, "text", x, y, 214, 19) end
-	txt(pg, "Main", 14, "text", 21, 12, 214, 23, { Font = FONT_B })
-	label("Default theme", 33, 46)
-	seg(pg, 44, { 285, 396 }, 104, { { "Dark Mode", "Dark" }, { "Light Mode", "Light" } }, "theme")
-	label("UI Opacity", 33, 81)
-	seg(pg, 79, { 285, 340, 396, 451 }, 47, { { "20%", 0.2 }, { "50%", 0.5 }, { "80%", 0.8 }, { "100%", 1 } }, "opacity")
-	label("Accent Color", 33, 118)
-	fr(pg, 322, 116, 30, 23, "accent", 0, 3, "edge", 1)
-	local hexBox = input(pg, "#FFFF00", 359, 116, 104, 23, 9, "ctrlOff", BTN_OFF, { Text = cfg.accent, TextXAlignment = Enum.TextXAlignment.Center })
+	local pg = scroller(pages["Look and feel"], 0, 0, L.IW, L.IH)
+	pg.AutomaticCanvasSize, pg.CanvasSize = Enum.AutomaticSize.None, UDim2.fromOffset(0, 462) -- fixed height so the last row is never cut off
+	local X0 = L.IW - 252 -- left edge of the control column, its right edge sits 20 px from the page edge
+	local function label(str, x, y) txt(pg, str, 12, "text", x, y, X0 - x - 10, 19) end
+	local function cols(n, step) local t = {} for i = 1, n do t[i] = X0 + (i - 1) * step end return t end
+	txt(pg, "Main", 14, "text", 21, 14, 214, 23, { Font = FONT_B })
+	label("Default theme", 33, 50)
+	seg(pg, 48, { X0, X0 + 116 }, 108, { { "Dark Mode", "Dark" }, { "Light Mode", "Light" } }, "theme")
+	label("UI Opacity", 33, 88)
+	seg(pg, 86, cols(4, 60), 52, { { "20%", 0.2 }, { "50%", 0.5 }, { "80%", 0.8 }, { "100%", 1 } }, "opacity")
+	label("Glow Opacity", 33, 126)
+	seg(pg, 124, cols(4, 60), 52, { { "0%", 0 }, { "10%", 10 }, { "25%", 25 }, { "50%", 50 }, { "75%", 75 }, { "100%", 100 } }, "glow")
+	label("Accent Color", 33, 164)
+	local swatch = fr(pg, X0 + 37, 162, 30, 25, "accent", 0, 3, "edge", 1)
+	local hexBox = input(pg, "#FFFF00", X0 + 74, 162, 104, 25, 9, "ctrlOff", BTN_OFF, { Text = cfg.accent, TextXAlignment = Enum.TextXAlignment.Center })
+	local picker -- HSL picker, built on first click (see below)
 	hexBox.FocusLost:Connect(function()
 		local t = hexBox.Text:upper()
 		if parseHex(t) then cfg.accent = t; save(); ui.apply() end
 		hexBox.Text = cfg.accent
+		if picker then picker.load() end
 	end)
-	label("Animation Speed", 33, 155)
-	seg(pg, 153, { 285, 340, 396, 451 }, 47, { { "0.5x", 0.5 }, { "1.0x", 1 }, { "2.0x", 2 }, { "none", 0 } }, "anim")
-	label("UI Scaling", 33, 192)
-	seg(pg, 190, { 285, 340, 396, 451 }, 47, { { "80%", 0.8 }, { "100%", 1 }, { "120%", 1.2 }, { "140%", 1.4 } }, "scale")
-	txt(pg, "Command Bar", 14, "text", 17, 228, 214, 23, { Font = FONT_B })
-	label("Max suggestion lines", 28, 262)
-	seg(pg, 260, { 281, 354, 428 }, 69, { { "6", 6 }, { "12", 12 }, { "20", 20 } }, "lines")
-	label("Blur Size", 28, 297)
-	seg(pg, 295, { 281, 336, 391, 447 }, 47, { { "0x", 0 }, { "0.5x", 0.5 }, { "1.0x", 1 }, { "1.5x", 1.5 } }, "blur")
-	label("Position", 28, 331)
-	seg(pg, 329, { 281, 354, 428 }, 68, { { "Bottom", "Bottom" }, { "Center", "Center" }, { "Top", "Top" } }, "pos")
+	-- HSL picker: click the swatch. Three sliders (hue 0-360, saturation, lightness 0-100) with live gradients; applies while you drag, saves on release
+	local function toColor(h, sat, lig)
+		local c = (1 - math.abs(2 * lig - 1)) * sat
+		local x = c * (1 - math.abs((h / 60) % 2 - 1))
+		local m, i = lig - c / 2, math.floor(h / 60) % 6
+		local r, g, b = c, 0, x
+		if i == 0 then r, g, b = c, x, 0 elseif i == 1 then r, g, b = x, c, 0 elseif i == 2 then r, g, b = 0, c, x elseif i == 3 then r, g, b = 0, x, c elseif i == 4 then r, g, b = x, 0, c end
+		return Color3.new(r + m, g + m, b + m)
+	end
+	local function toHsl(c)
+		local mx, mn = math.max(c.R, c.G, c.B), math.min(c.R, c.G, c.B)
+		local l, d = (mx + mn) / 2, mx - mn
+		if d < 1e-6 then return 0, 0, l end
+		local sat = d / (1 - math.abs(2 * l - 1))
+		local h = mx == c.R and ((c.G - c.B) / d) % 6 or mx == c.G and (c.B - c.R) / d + 2 or (c.R - c.G) / d + 4
+		return h * 60, sat, l
+	end
+	swatch.InputBegan:Connect(function(i)
+		if i.UserInputType ~= Enum.UserInputType.MouseButton1 and i.UserInputType ~= Enum.UserInputType.Touch then return end
+		if picker then picker.frame.Visible = not picker.frame.Visible; if picker.frame.Visible then picker.load() end; return end
+		local H, Sa, Li = 0, 1, 0.5
+		local f = fr(pg, X0 - 22, 193, 242, 124, "panel", 0, 10, "edge", 1, 0.3)
+		f.ZIndex, f.Active = 50, true -- Active: clicks inside the picker never reach the controls under it
+		picker = { frame = f }
+		local tracks, last = {}, 0
+		local function push(final)
+			cfg.accent = hex(toColor(H, Sa, Li))
+			hexBox.Text = cfg.accent
+			if final then save(); ui.apply() elseif os.clock() - last > 0.06 then last = os.clock(); ui.apply() end
+		end
+		local function paintTracks()
+			local hs = {}
+			for k = 0, 6 do hs[#hs + 1] = ColorSequenceKeypoint.new(k / 6, toColor(k * 60, 1, 0.5)) end
+			tracks[1].grad.Color = ColorSequence.new(hs)
+			tracks[2].grad.Color = ColorSequence.new(toColor(H, 0, Li), toColor(H, 1, Li))
+			tracks[3].grad.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, toColor(H, Sa, 0)), ColorSequenceKeypoint.new(0.5, toColor(H, Sa, 0.5)), ColorSequenceKeypoint.new(1, toColor(H, Sa, 1)) })
+			tracks[1].set(H / 360); tracks[2].set(Sa); tracks[3].set(Li)
+		end
+		for k, def in ipairs({ { "H", 360 }, { "S", 100 }, { "L", 100 } }) do
+			local y = 14 + (k - 1) * 36
+			txt(f, def[1], 10, "sub", 14, y - 1, 14, 18, { Font = FONT_B })
+			local val = txt(f, "", 9, "dim", 190, y - 1, 40, 18, { TextXAlignment = Enum.TextXAlignment.Right })
+			local track = new("Frame", { Position = UDim2.fromOffset(34, y + 2), Size = UDim2.fromOffset(150, 12), BorderSizePixel = 0, BackgroundColor3 = Color3.new(1, 1, 1) }, f)
+			new("UICorner", { CornerRadius = UDim.new(0, 6) }, track)
+			local grad = new("UIGradient", {}, track)
+			local knob = new("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0, 0, 0.5, 0), Size = UDim2.fromOffset(6, 18), BorderSizePixel = 0, BackgroundColor3 = Color3.new(1, 1, 1) }, track)
+			new("UICorner", { CornerRadius = UDim.new(0, 3) }, knob)
+			new("UIStroke", { Thickness = 1, Color = Color3.new(0, 0, 0), Transparency = 0.4 }, knob)
+			local T = { grad = grad }
+			function T.set(v) knob.Position = UDim2.new(v, 0, 0.5, 0); val.Text = k == 1 and (math.floor(v * 360 + 0.5) .. "°") or (math.floor(v * 100 + 0.5) .. "%") end
+			local drag = false
+			local function move(x)
+				local v = math.clamp((x - track.AbsolutePosition.X) / math.max(track.AbsoluteSize.X, 1), 0, 1)
+				if k == 1 then H = v * 360 elseif k == 2 then Sa = v else Li = v end
+				paintTracks(); push(false)
+			end
+			track.InputBegan:Connect(function(i2)
+				if i2.UserInputType == Enum.UserInputType.MouseButton1 or i2.UserInputType == Enum.UserInputType.Touch then drag = true; move(i2.Position.X) end
+			end)
+			conn(S.UserInputService.InputChanged, function(i2)
+				if drag and (i2.UserInputType == Enum.UserInputType.MouseMovement or i2.UserInputType == Enum.UserInputType.Touch) then move(i2.Position.X) end
+			end)
+			conn(S.UserInputService.InputEnded, function(i2)
+				if drag and (i2.UserInputType == Enum.UserInputType.MouseButton1 or i2.UserInputType == Enum.UserInputType.Touch) then drag = false; push(true) end
+			end)
+			tracks[k] = T
+		end
+		function picker.load() H, Sa, Li = toHsl(parseHex(cfg.accent) or S.accent); paintTracks() end
+		picker.load()
+		-- a click outside the picker (and not on the swatch) closes it
+		conn(S.UserInputService.InputBegan, function(i2)
+			if i2.UserInputType ~= Enum.UserInputType.MouseButton1 or not f.Visible then return end
+			local m = S.UserInputService:GetMouseLocation()
+			local function inside(o) local p, z = o.AbsolutePosition, o.AbsoluteSize; return m.X >= p.X and m.X <= p.X + z.X and m.Y >= p.Y and m.Y <= p.Y + z.Y end
+			if not inside(f) and not inside(swatch) then f.Visible = false end
+		end)
+	end)
+	onHide["Look and feel"] = function() if picker then picker.frame.Visible = false end end
+	label("Animation Speed", 33, 202)
+	seg(pg, 200, cols(4, 60), 52, { { "0.5x", 0.5 }, { "1.0x", 1 }, { "2.0x", 2 }, { "none", 0 } }, "anim")
+	label("UI Scaling", 33, 240)
+	seg(pg, 238, cols(4, 60), 52, { { "70%", 0.7 }, { "80%", 0.8 }, { "90%", 0.9 }, { "100%", 1 }, { "110%", 1.1 }, { "120%", 1.2 }, { "130%", 1.3 }, { "140%", 1.4 } }, "scale")
+	fr(pg, 17, 272, L.IW - 34, 1, "edge", 0.6) -- divider between the two groups
+	txt(pg, "Command Bar", 14, "text", 21, 288, 214, 23, { Font = FONT_B })
+	label("Max suggestion lines", 33, 326)
+	seg(pg, 324, cols(3, 80), 72, { { "6", 6 }, { "12", 12 }, { "20", 20 } }, "lines")
+	label("Blur Size", 33, 364)
+	seg(pg, 362, cols(4, 60), 52, { { "0x", 0 }, { "0.5x", 0.5 }, { "1.0x", 1 }, { "1.5x", 1.5 } }, "blur")
+	label("Position", 33, 402)
+	seg(pg, 400, cols(3, 80), 72, { { "Bottom", "Bottom" }, { "Center", "Center" }, { "Top", "Top" } }, "pos")
 end
 -- [/PG_LOOK]
 
@@ -6937,7 +8056,7 @@ end
 do
 	local pg = pages["Load scripts"]
 	local sbox = input(pg, "Search scripts…", 9, 10, 299, 32, 11)
-	local list = scroller(pg, 0, 53, 532, 326)
+	local list = scroller(pg, 0, 56, L.IW, L.IH - 56)
 	new("UIListLayout", { Padding = UDim.new(0, 0), SortOrder = Enum.SortOrder.LayoutOrder }, list)
 
 	local function ghInfo(url)
@@ -6952,16 +8071,19 @@ do
 	end
 	-- first click launches, afterwards the button says Relaunch so a double click can't open two copies by accident
 	local function item(name, desc, locked, label, key, action)
-		local r = fr(list, 0, 0, 532, 76, "row", 0.9)
-		r.Size, r.LayoutOrder = UDim2.new(1, 0, 0, 76), nx()
-		txt(r, (locked and "🔒 " or "") .. name, 11, "text2", 17, 12, 380, 18, { Font = FONT_B, TextTruncate = Enum.TextTruncate.AtEnd })
-		txt(r, desc, 8, "sub", 22, 35, 380, 26, { TextWrapped = true, TextTruncate = Enum.TextTruncate.AtEnd })
-		return btn(r, S.launched[key] and "Relaunch" or label, 418, 26, 94, 23, "btnFill", BTN_OFF, function(b)
+		local r = fr(list, 0, 0, L.IW, 82, "row", 0.9)
+		r.Size, r.LayoutOrder = UDim2.new(1, 0, 0, 82), nx()
+		S.lit(r)
+		txt(r, (locked and "🔒 " or "") .. name, 11, "text2", 17, 14, L.IW - 150, 18, { Font = FONT_B, TextTruncate = Enum.TextTruncate.AtEnd })
+		txt(r, desc, 8, "sub", 22, 38, L.IW - 150, 28, { TextWrapped = true, TextTruncate = Enum.TextTruncate.AtEnd })
+		return btn(r, S.launched[key] and "Relaunch" or label, L.IW - 114, 29, 96, 25, "btnFill", BTN_OFF, function(b)
+			if b.Text == "Loading..." then return end -- a double click used to fetch and run it twice
 			b.Text = "Loading..."
 			task.spawn(function()
-				action()
-				S.launched[key] = true
-				b.Text = "Relaunch"
+				local ok, e = pcall(action)
+				if not ok then ctx.notify(name .. ": " .. tostring(e), 6) end -- it used to stay on "Loading..." for good
+				S.launched[key] = ok or S.launched[key]
+				b.Text = S.launched[key] and "Relaunch" or label
 			end)
 		end)
 	end
@@ -7008,6 +8130,7 @@ do
 	end
 	sbox:GetPropertyChangedSignal("Text"):Connect(render)
 	onShow["Load scripts"] = render
+	onHide["Load scripts"] = function() clear(list) end
 end
 -- [/PG_SCRIPTS]
 
@@ -7016,7 +8139,7 @@ end
 do
 	local pg = pages["Commands"]
 	local sbox = input(pg, "Search commands, or what they do…", 9, 10, 299, 32, 11)
-	local list = scroller(pg, 0, 53, 532, 326)
+	local list = scroller(pg, 0, 56, L.IW, L.IH - 56)
 	new("UIListLayout", { Padding = UDim.new(0, 0), SortOrder = Enum.SortOrder.LayoutOrder }, list)
 	local NOLOOP = { panel = 1, cmds = 1, ui = 1, exit = 1, reload = 1, bind = 1, unbind = 1, alias = 1, prefix = 1, selftest = 1, kill = 1, ["break"] = 1, loop = 1, unloop = 1 }
 	local function render()
@@ -7025,40 +8148,44 @@ do
 		local n = 0
 		for _, e in ipairs(hits) do
 			n = n + 1
-			local r = fr(list, 0, 0, 532, 66, "row", 0.9)
-			r.Size, r.LayoutOrder = UDim2.new(1, 0, 0, 66), n
+			local r = fr(list, 0, 0, L.IW, 72, "row", 0.9)
+			r.Size, r.LayoutOrder = UDim2.new(1, 0, 0, 72), n
+				S.lit(r)
 			local names = {}
 			for _, nm in ipairs(e.names) do names[#names + 1] = nm end
 			local head = table.concat(names, " / ")
-			txt(r, head, 11, "text2", 17, 8, 360, 18, { Font = FONT_B, TextTruncate = Enum.TextTruncate.AtEnd })
-			if e.args ~= "" then txt(r, e.args, 9, "dim", 17, 8, 488, 18, { TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Center }) end
-			txt(r, e.desc ~= "" and e.desc or "-", 8, "sub", 17, 28, 488, 22, { TextWrapped = true, TextTruncate = Enum.TextTruncate.AtEnd })
-			txt(r, NOLOOP[e.canon] and "modifier: none" or ("modifier: loop^" .. e.canon), 8, "dim", 17, 50, 488, 12)
+			txt(r, head, 11, "text2", 17, 9, L.IW - 190, 18, { Font = FONT_B, TextTruncate = Enum.TextTruncate.AtEnd })
+			if e.args ~= "" then txt(r, e.args, 9, "dim", 17, 9, L.IW - 44, 18, { TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Center }) end
+			txt(r, e.desc ~= "" and e.desc or "-", 8, "sub", 17, 31, L.IW - 44, 22, { TextWrapped = true, TextTruncate = Enum.TextTruncate.AtEnd })
+			txt(r, NOLOOP[e.canon] and "modifier: none" or ("modifier: loop^" .. e.canon), 8, "dim", 17, 55, L.IW - 44, 12)
 		end
 		if n == 0 then empty(list, "No command matches that.") end
 	end
 	sbox:GetPropertyChangedSignal("Text"):Connect(render)
 	onShow["Commands"] = render
+	onHide["Commands"] = function() clear(list) end -- gen was an undefined global: the error stopped clear(list) from ever running
 end
 -- [/PG_CMDS]
 
 -- [PG_FLOW]
 -- ===== pages without a slide (Keybinds, Module Cfg, Preferences): same tokens and sizes, flow layout ======
 local function flow(name)
-	local sc = scroller(pages[name], 0, 0, 532, 379)
-	new("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, sc)
-	new("UIPadding", { PaddingLeft = UDim.new(0, 21), PaddingRight = UDim.new(0, 21), PaddingTop = UDim.new(0, 12), PaddingBottom = UDim.new(0, 12) }, sc)
+	local sc = scroller(pages[name], 0, 0, L.IW, L.IH)
+	new("UIListLayout", { Padding = UDim.new(0, 10), SortOrder = Enum.SortOrder.LayoutOrder }, sc)
+	new("UIPadding", { PaddingLeft = UDim.new(0, 24), PaddingRight = UDim.new(0, 24), PaddingTop = UDim.new(0, 16), PaddingBottom = UDim.new(0, 16) }, sc)
 	return sc
 end
 local function fhdr(sc, str)
+	ui.tick()
 	local h = txt(sc, str, 14, "text", 0, 0, 400, 23, { LayoutOrder = nx(), Font = FONT_B })
 	fr(h, -10, 4, 3, 15, "accent", 0, 2) -- accent mark in the left margin
 	return h
 end
 -- label on the left, a right-anchored group (width w) on the right
 local function frow(sc, str, w)
+	ui.tick()
 	local r = new("Frame", { Size = UDim2.new(1, 0, 0, 23), BackgroundTransparency = 1, LayoutOrder = nx() }, sc)
-	txt(r, str, 12, "text", 12, 2, math.max(60, 466 - w), 19, { TextTruncate = Enum.TextTruncate.AtEnd }) -- never runs under the control
+	txt(r, str, 12, "text", 12, 2, math.max(60, L.IW - 72 - w), 19, { TextTruncate = Enum.TextTruncate.AtEnd }) -- never runs under the control
 	return new("Frame", { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, 0, 0, 0), Size = UDim2.fromOffset(w, 23), BackgroundTransparency = 1 }, r)
 end
 -- [/PG_FLOW]
@@ -7104,14 +8231,14 @@ do
 			local r = card(48)
 			txt(r, it.name, 11, "text2", 12, 6, 270, 18, { Font = FONT_B, TextTruncate = Enum.TextTruncate.AtEnd })
 			txt(r, (KIND[it.kind] or it.kind) .. ((it.kind == "url" or it.kind == "cmd") and (": " .. it.ref) or ""), 8, "sub", 12, 27, 270, 14, { TextTruncate = Enum.TextTruncate.AtEnd })
-			local rb = btn(r, it.respawn and "After reset: On" or "After reset: Off", 300, 12, 100, 23, "ctrlOff", BTN_OFF, function(b)
+			local rb = btn(r, it.respawn and "After reset: On" or "After reset: Off", L.IW - 238, 12, 100, 23, "ctrlOff", BTN_OFF, function(b)
 				it.respawn = not it.respawn
 				save()
 				b.Text = it.respawn and "After reset: On" or "After reset: Off"
 				setFill(b, it.respawn and "ctrlOn" or "ctrlOff", it.respawn and BTN_ON or BTN_OFF)
 			end)
 			if it.respawn then setFill(rb, "ctrlOn", BTN_ON) end
-			btn(r, "Remove", 406, 12, 76, 23, "btnFill", BTN_OFF, function()
+			btn(r, "Remove", L.IW - 132, 12, 76, 23, "danger", nil, function()
 				table.remove(cfg.autostart.items, idx)
 				save(); render()
 			end)
@@ -7128,7 +8255,7 @@ do
 		local crow = new("Frame", { Size = UDim2.new(1, 0, 0, 23), BackgroundTransparency = 1, LayoutOrder = nx() }, list)
 		local cbox = input(crow, "any command, e.g. speed 30", 0, 0, 0, 23, 9, "ctrlOff", BTN_OFF)
 		cbox.Parent.Size = UDim2.new(1, -112, 0, 23)
-		local cb = btn(crow, "Add command", 0, 0, 104, 23, "btnFill", BTN_OFF, function()
+		local cb = btn(crow, "Add command", 0, 0, 104, 23, "primary", nil, function()
 			local line = ((cbox.Text:gsub("^%s*;", "")):match("^%s*(.-)%s*$"))
 			local first = line:match("^(%S+)")
 			local canon = first and ctx.Aliases[first:lower()]
@@ -7147,7 +8274,7 @@ do
 				shown = shown + 1
 				local r = card(34)
 				txt(r, b.name, 10, "text2", 12, 8, 380, 18, { TextTruncate = Enum.TextTruncate.AtEnd })
-				btn(r, "Add", 400, 5, 82, 23, "btnFill", BTN_OFF, function() add({ name = b.name, kind = "builtin", ref = b.name }) end)
+				btn(r, "Add", L.IW - 138, 5, 82, 23, "btnFill", BTN_OFF, function() add({ name = b.name, kind = "builtin", ref = b.name }) end)
 			end
 		end
 		if HAS_FS and HAS_LOAD then
@@ -7158,7 +8285,7 @@ do
 					shown = shown + 1
 					local r = card(34)
 					txt(r, n .. "  (local file)", 10, "text2", 12, 8, 380, 18, { TextTruncate = Enum.TextTruncate.AtEnd })
-					btn(r, "Add", 400, 5, 82, 23, "btnFill", BTN_OFF, function() add({ name = n, kind = "local", ref = f }) end)
+					btn(r, "Add", L.IW - 138, 5, 82, 23, "btnFill", BTN_OFF, function() add({ name = n, kind = "local", ref = f }) end)
 				end
 			end
 		end
@@ -7167,7 +8294,7 @@ do
 				shown = shown + 1
 				local r = card(34)
 				txt(r, g.name .. "  (GitHub)", 10, "text2", 12, 8, 380, 18, { TextTruncate = Enum.TextTruncate.AtEnd })
-				btn(r, "Add", 400, 5, 82, 23, "btnFill", BTN_OFF, function() add({ name = g.name, kind = "github", ref = g.name }) end)
+				btn(r, "Add", L.IW - 138, 5, 82, 23, "btnFill", BTN_OFF, function() add({ name = g.name, kind = "github", ref = g.name }) end)
 			end
 		end
 		if shown == 0 then txt(list, "Everything available is already added.", 10, "dim", 0, 0, 400, 20, { LayoutOrder = nx() }) end
@@ -7176,7 +8303,7 @@ do
 		local row = new("Frame", { Size = UDim2.new(1, 0, 0, 23), BackgroundTransparency = 1, LayoutOrder = nx() }, list)
 		local link = input(row, "https://raw.githubusercontent.com/...", 0, 0, 0, 23, 9, "ctrlOff", BTN_OFF)
 		link.Parent.Size = UDim2.new(1, -90, 0, 23)
-		local ab = btn(row, "Add link", 0, 0, 82, 23, "btnFill", BTN_OFF, function()
+		local ab = btn(row, "Add link", 0, 0, 82, 23, "primary", nil, function()
 			local u = link.Text:match("^%s*(.-)%s*$")
 			if not u:match("^https?://") then return ctx.notify("That doesn't look like a link") end
 			add({ name = u:match("([^/]+)$") or u, kind = "url", ref = u })
@@ -7184,6 +8311,7 @@ do
 		ab.AnchorPoint = Vector2.new(1, 0); ab.Position = UDim2.new(1, 0, 0, 0)
 	end
 	onShow["Autostart"] = render
+	onHide["Autostart"] = function() clear(list) end
 end
 -- [/PG_AUTOSTART]
 
@@ -7192,10 +8320,12 @@ do
 	local pg = flow("Keybinds")
 	-- two tiles side by side: caption + keycap (click the keycap, then press the new key)
 	local function keyTile(row, x, cap, key)
-		local t = fr(row, x, 0, 241, 54, "row", 0.9, 5, "edge", 1, 0.6)
+		local t = fr(row, x, 0, math.floor((L.IW - 56) / 2), 54, "row", 0.9, 5, "edge", 1, 0.6)
 		txt(t, cap, 9, "dim", 12, 8, 200, 12, { Font = FONT_B })
 		txt(t, "click, then press a key", 9, "hint", 130, 28, 106, 14)
 		return btn(t, "", 12, 24, 110, 23, "ctrlOff", BTN_OFF, function(b)
+			if S.capBtn and S.capBtn ~= b and S.capBtn.Parent then setFill(S.capBtn, "ctrlOff", BTN_OFF) end -- arming one keycap disarms the other
+			S.capBtn = b
 			b.Text = "press a key..."
 			setFill(b, "ctrlOn", BTN_ON) -- colored only while it waits for a key
 			S.capture = function(kc)
@@ -7207,7 +8337,7 @@ do
 	end
 	fhdr(pg, "Hotkeys")
 	local hot = new("Frame", { Size = UDim2.new(1, 0, 0, 54), BackgroundTransparency = 1, LayoutOrder = nx() }, pg)
-	local barBtn, panelBtn = keyTile(hot, 0, "COMMAND BAR", "barKey"), keyTile(hot, 249, "PANEL", "panelKey")
+	local barBtn, panelBtn = keyTile(hot, 0, "COMMAND BAR", "barKey"), keyTile(hot, math.floor((L.IW - 56) / 2) + 8, "PANEL", "panelKey")
 	-- experience (universe) ID -> game name, cached in cfg.exp. cb(name) or cb(nil, networkFailed)
 	local function expName(id, cb)
 		local k = string.format("%d", id)
@@ -7313,7 +8443,7 @@ do
 					txt(area, (t.exp and "Inactive here: this tab only works in the experience above." or "Inactive here: no experience ID set."), 9, "dim", 0, 0, 440, 16, { LayoutOrder = nx() })
 				end
 			end
-			btn(frow(area, "Delete this tab", 76), "Delete", 0, 0, 76, 23, "btnFill", BTN_OFF, function()
+			btn(frow(area, "Delete this tab", 76), "Delete", 0, 0, 76, 23, "danger", nil, function()
 				for i, x in ipairs(cfg.kbTabs) do
 					if x == t then table.remove(cfg.kbTabs, i); break end
 				end
@@ -7412,12 +8542,17 @@ do
 		end
 	end
 	onShow["Keybinds"] = ui.refreshKeys
+	onHide["Keybinds"] = function() -- leaving disarms key capture (the next letter typed in chat became the hotkey)
+		clear(area); newKey = nil
+		S.capture = nil -- the keycap text resets on the next visit (onShow = ui.refreshKeys)
+		setFill(barBtn, "ctrlOff", BTN_OFF); setFill(panelBtn, "ctrlOff", BTN_OFF)
+	end
 end
 -- [/PG_KEYS]
 
 -- [PG_MODCFG]
 -- Module Cfg: default values and multipliers for commands. Typing a number commits on Enter / click away.
-do
+ui.lazy("Module Cfg", function() -- built the first time the tab opens, a few rows per frame
 	local pg = flow("Module Cfg")
 	local M = cfg.mod
 	local function numRow(label, key)
@@ -7514,11 +8649,11 @@ do
 	numRow("Anti ear rape: threshold", "aeThreshold"); numRow("Anti ear rape: window (s)", "aeDuration")
 	numRow("Anti afk: interval (s)", "afkInterval"); numRow("Anti spam: messages", "spamCount")
 	onShow["Module Cfg"] = function() if ui.layoutHud and state.active.showfps then ui.layoutHud() end end
-end
+end)
 -- [/PG_MODCFG]
 
 -- [PG_PREFS]
-do
+ui.lazy("Preferences", function() -- built the first time the tab opens, a few rows per frame
 	local pg = flow("Preferences")
 	fhdr(pg, "General")
 	seg(frow(pg, "Notifications", 102), 0, { 0, 55 }, 47, { { "On", true }, { "Off", false } }, "toasts")
@@ -7538,7 +8673,7 @@ do
 	local nr = new("Frame", { Size = UDim2.new(1, 0, 0, 23), BackgroundTransparency = 1, LayoutOrder = nx() }, pg)
 	local nb = input(nr, "username to watch (also ;notifyuser)…", 0, 0, 330, 23, 11)
 	local function addNu() ctx.nuAdd(nb.Text); nb.Text = "" end
-	btn(nr, "Add", 336, 0, 60, 23, "btnFill", BTN_OFF, addNu)
+	btn(nr, "Add", 336, 0, 60, 23, "primary", nil, addNu)
 	nb.FocusLost:Connect(function(enter) if enter then addNu() end end)
 	local nl = new("Frame", { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, LayoutOrder = nx() }, pg)
 	new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, nl)
@@ -7562,7 +8697,7 @@ do
 			local dot = new("Frame", { Position = UDim2.fromOffset(59, 40), Size = UDim2.fromOffset(8, 8), BorderSizePixel = 0, BackgroundColor3 = color }, r)
 			new("UICorner", { CornerRadius = UDim.new(1, 0) }, dot)
 			txt(r, status, 9, "text", 73, 36, 320, 16, { TextTruncate = Enum.TextTruncate.AtEnd })
-			btn(r, "Remove", 404, 16, 70, 23, "btnFill", BTN_OFF, function() ctx.nuRemove(n) end)
+			btn(r, "Remove", L.IW - 134, 16, 70, 23, "danger", nil, function() ctx.nuRemove(n) end)
 		end
 	end
 	ui.refreshNu()
@@ -7601,11 +8736,11 @@ do
 		table.sort(names)
 		active.Text = #names > 0 and table.concat(names, ", ") or "none"
 	end
-	btn(br, "Reset all effects", 0, 0, 120, 23, "btnFill", BTN_OFF, function() ctx.resetAll(); refresh() end)
-	btn(br, "Unload panel", 126, 0, 100, 23, "btnFill", BTN_OFF, function() ui.unload() end)
+	btn(br, "Reset all effects", 0, 0, 120, 23, "danger", nil, function() ctx.resetAll(); refresh() end)
+	btn(br, "Unload panel", 126, 0, 100, 23, "danger", nil, function() ui.unload() end)
 	txt(pg, "KL rOSAD v" .. VERSION, 8, "dim", 0, 0, 300, 14, { LayoutOrder = nx() })
 	onShow["Preferences"] = function() refresh(); ui.refreshNu(); pcall(refreshSys) end
-end
+end)
 -- [/PG_PREFS]
 
 -- [ENTRY]
@@ -7651,9 +8786,8 @@ function ui.apply()
 			if o:GetAttribute("base") ~= nil then o:SetAttribute("base", v) end
 		end
 	end
-	for _, tn in ipairs({ "glowTween", "borderTween", "orbitTween" }) do
-		if ui[tn] then pcall(function() if cfg.anim == 0 then ui[tn]:Pause() else ui[tn]:Play() end end) end
-	end
+	if ui.setGlow then ui.setGlow() end
+	ui.ambient()
 	ui.title.Text = '<font color="' .. hex(S.accent) .. '">&gt;</font>KL rOSAD'
 	ui.box.PlaceholderText = "[ " .. keyStr(cfg.barKey) .. " ] enter or search a command…"
 	ui.layoutBar()
@@ -7700,10 +8834,50 @@ conn(workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"), function(
 	ui.layoutBar()
 end)
 
+-- while the mouse is over the panel / bar / list: move its cursor light and sink mouse + wheel input for the game's own ContextActionService handlers
+-- (the Active surfaces already stop Roblox's camera and tools). shortcut: a game that reads clicks straight from UserInputService without checking gameProcessed still sees them; nothing client side can hide input from that
+do
+	local CAS, blocking = S.ContextActionService, false
+	-- GetMouseLocation includes the topbar inset; this gui's AbsolutePosition does not, so the light sat one inset (36-58 px) too low. Change to 0 if it ever lands too high
+	S.spotDY = 0
+	pcall(function() S.spotDY = S.GuiService:GetGuiInset().Y end)
+	conn(S.RunService.RenderStepped, function()
+		local m = (S.panelOpen or S.barOpen) and S.UserInputService:GetMouseLocation() or nil
+		local over = false
+		for _, sp in ipairs(S.spots) do
+			local inside = false
+			if m and sp.live() then
+				local p, z = sp.area.AbsolutePosition, sp.area.AbsoluteSize
+				if m.X >= p.X and m.X <= p.X + z.X and m.Y >= p.Y and m.Y <= p.Y + z.Y then
+					inside = true
+					local sc = z.X / math.max(sp.area.Size.X.Offset, 1) -- the scale it is really drawn at (UIScale, open animation), like the button ripple does
+					sp.hold.Position = UDim2.fromOffset((m.X - p.X) / sc, (m.Y - S.spotDY - p.Y) / sc)
+				end
+			end
+			if sp.hold.Visible ~= inside then sp.hold.Visible = inside end
+			over = over or inside
+		end
+		if over ~= blocking then
+			blocking = over
+			if over then
+				pcall(CAS.BindActionAtPriority, CAS, "KLOSAD_Block", function() return Enum.ContextActionResult.Sink end, false, Enum.ContextActionPriority.High.Value,
+					Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2, Enum.UserInputType.MouseButton3, Enum.UserInputType.MouseWheel, Enum.UserInputType.Touch)
+			else
+				pcall(CAS.UnbindAction, CAS, "KLOSAD_Block")
+			end
+		end
+	end)
+end
+
 function ui.unload()
 	S.alive = false
 	pcall(ctx.resetAll)
+	pcall(function() -- ;nofog / ;time saved the original lighting too (resetAll only restores it for fullbright)
+		for k, v in pairs(state.saved.light or {}) do ctx.Lighting[k] = v end
+		state.saved.light = nil
+	end)
 	pcall(function() S.ContextActionService:UnbindAction("KLOSAD_Shift") end)
+	pcall(function() S.ContextActionService:UnbindAction("KLOSAD_Block") end)
 	for uid in pairs(state.listen) do pcall(ctx.setListen, uid, false) end
 	for uid in pairs(state.vcVol or {}) do pcall(ctx.setVoiceVol, uid, 1) end
 	pcall(ctx.vcClear)
@@ -7713,6 +8887,7 @@ function ui.unload()
 	pcall(function() ui.borderTween:Cancel() end)
 	pcall(function() ui.glowTween:Cancel() end) -- endless tween: kept running after the gui was destroyed
 	pcall(function() ui.orbitTween:Cancel() end)
+	pcall(function() ui.busyTween:Cancel() end)
 	for _, c in ipairs(S.cons) do pcall(function() c:Disconnect() end) end
 	for k in pairs(state.conns) do ctx.disconnect(k) end
 	for uid in pairs(state.muted) do pcall(ctx.setMuted, uid, false) end
@@ -7721,12 +8896,13 @@ function ui.unload()
 	pcall(function() -- hand the chat handler back to the game
 		if S.chatPrev then S.TextChatService.OnIncomingMessage = S.chatPrev.fn end
 	end)
-	for _, p in ipairs(state.baseParts or {}) do pcall(function() p:Destroy() end) end
+	pcall(ctx.baseplate, false) -- the extra tiles are gone
+	pcall(ui.closeProfile, true)
 	S.panelOpen, S.barOpen = false, false
 	ui.syncMouse()
 	pcall(function() ui.blur:Destroy() end)
 	pcall(function() gui:Destroy() end)
-	env.KLOSAD = nil
+	if env.KLOSAD and env.KLOSAD.Unload == ui.unload then env.KLOSAD = nil end -- ;cleanup unloading an older run must not wipe this run's handle
 	local i = env.KLOSAD_ALL and table.find(env.KLOSAD_ALL, ui.unload)
 	if i then table.remove(env.KLOSAD_ALL, i) end
 end
