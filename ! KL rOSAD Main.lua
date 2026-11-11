@@ -3,24 +3,24 @@
 -- [DATA] builtin slots, GitHub links, welcome/home/tip text | BUILTIN, GITHUB, WELCOME, TIPS | deps: BOOT | L48-169
 -- [STATE] service cache, settings load/save, Module Cfg defaults | S, cfg, save(), MODDEF | deps: BOOT | L171-257
 -- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L259-428
--- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L430-1080
--- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1082-1914
--- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, baseplate, tools, autoexec, autostart, notifier, cleanup | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1916-5181
--- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches | deps: THEME, CMD_CORE | L5183-5888
--- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L5890-6408
--- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L6410-6779
--- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop | deps: UI_PANEL | L6781-7065
--- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L7067-7615
--- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L7616-7934
--- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L7936-8052
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L8054-8135
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L8137-8168
--- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L8170-8191
--- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L8193-8316
--- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L8318-8551
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L8553-8653
--- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L8655-8744
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L8746-8927
+-- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L430-1083
+-- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1085-1917
+-- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, baseplate, tools, autoexec, autostart, notifier, cleanup | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1919-5403
+-- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L5405-6233
+-- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L6235-6797
+-- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L6799-7169
+-- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L7171-7460
+-- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L7462-8010
+-- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L8011-8417
+-- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L8419-8535
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L8537-8618
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L8620-8651
+-- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L8653-8674
+-- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L8676-8799
+-- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L8801-9034
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L9036-9136
+-- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L9138-9227
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L9229-9417
 -- [BOOT]
 local VERSION = "1.2"
 local DIR = "KLOSAD"
@@ -875,6 +875,7 @@ local TOGGLES = {
 	lockmouse = "unlockmouse", ctrllock = "unctrllock", showfps = "unshowfps", hide = "unhide all", placeholder1 = "unplaceholder1", noplayercollision = "playercollision", hidecursor = "unhidecursor", look = "unlook", keepemotes = "unkeepemotes",
 }
 TOGGLES.spider, TOGGLES.serverpos = "unspider", "unserverpos"
+TOGGLES.antigameplaypaused = "unantigameplaypaused"
 -- commands that flip themselves on and off and keep state.active up to date on their own
 local SELF = { float = true, blink = true, ghost = true, hide = true }
 
@@ -1020,8 +1021,10 @@ local CATS = {
 	rOSAD = "ui exit cmds config keeposad unkeeposad alias unalias bind unbind loop unloop breakloop prefix fpscap gamedefault text stopall reload panel selftest",
 }
 CATS.Movement = CATS.Movement .. " spider unspider"
+CATS.Defense = CATS.Defense .. " antigameplaypaused unantigameplaypaused"
 CATS.Visuals = CATS.Visuals .. " serverpos unserverpos"
 CATS.Server = (CATS.Server or "") .. " region serverbrowser scanregions serverhop leave"
+CATS.Players = CATS.Players .. " report"
 ctx.catOf = {}
 for cat, names in pairs(CATS) do
 	for w in names:gmatch("%S+") do ctx.catOf[w] = cat end
@@ -3244,6 +3247,128 @@ def({ "antifreeze" }, "", "Un-anchor yourself if something locks you in place", 
 end)
 def({ "unantifreeze" }, "", "Turn anti freeze off", "anchor stuck lock", function() ctx.disconnect("antifreeze") end)
 
+-- anti gameplay paused: when streaming can't keep up the server pauses gameplay (Workspace.GameplayPaused) and your character stops until the area loads.
+-- Two things: StreamingIntegrityMode is set to Disabled (the setting that causes the pause, original remembered for ;unantipause), and GameplayPaused is forced back to false every frame.
+-- Both are tried as a normal property write first, then through sethiddenproperty (executors that have it).
+-- shortcut: if the server itself freezes your character while paused (not just the client), this cannot undo that part
+do
+	local saved
+	local function get(p)
+		local ok, v = pcall(function() return workspace[p] end)
+		if ok then return v end
+		if gethiddenproperty then
+			local ok2, v2 = pcall(gethiddenproperty, workspace, p)
+			if ok2 then return v2 end
+		end
+	end
+	local function set(p, v)
+		if pcall(function() workspace[p] = v end) and get(p) == v then return true end
+		if sethiddenproperty then return pcall(sethiddenproperty, workspace, p, v) end
+		return false
+	end
+	def({ "antigameplaypaused", "antipause" }, "", "Stop the game from pausing you (the \"gameplay paused\" state when streaming can't keep up)", "pause paused streaming freeze stuck lag loading gameplay", function()
+		if saved == nil then saved = get("StreamingIntegrityMode") or false end
+		set("StreamingIntegrityMode", Enum.StreamingIntegrityMode.Disabled)
+		ctx.connect("antipause", RS.Heartbeat, function()
+			if get("GameplayPaused") then
+				set("GameplayPaused", false)
+				dnotify("pause", "Anti gameplay paused: un-paused the game")
+			end
+		end)
+	end)
+	def({ "unantigameplaypaused", "unantipause" }, "", "Turn anti gameplay paused off", "pause paused streaming gameplay", function()
+		ctx.disconnect("antipause")
+		if saved then set("StreamingIntegrityMode", saved) end
+		saved = nil
+	end)
+end
+
+-- anti gameplay paused: when streaming can't keep up the server pauses gameplay (Workspace.GameplayPaused) and your character stops until the area loads.
+-- Two things: StreamingIntegrityMode is set to Disabled (the setting that causes the pause, original remembered for ;unantipause), and GameplayPaused is forced back to false every frame.
+-- Both are tried as a normal property write first, then through sethiddenproperty (executors that have it).
+-- shortcut: if the server itself freezes your character while paused (not just the client), this cannot undo that part
+do
+	local saved
+	local function get(p)
+		local ok, v = pcall(function() return workspace[p] end)
+		if ok then return v end
+		if gethiddenproperty then
+			local ok2, v2 = pcall(gethiddenproperty, workspace, p)
+			if ok2 then return v2 end
+		end
+	end
+	local function set(p, v)
+		if pcall(function() workspace[p] = v end) and get(p) == v then return true end
+		if sethiddenproperty then return pcall(sethiddenproperty, workspace, p, v) end
+		return false
+	end
+	def({ "antigameplaypaused", "antipause" }, "", "Stop the game from pausing you (the \"gameplay paused\" state when streaming can't keep up)", "pause paused streaming freeze stuck lag loading gameplay", function()
+		if saved == nil then saved = get("StreamingIntegrityMode") or false end
+		set("StreamingIntegrityMode", Enum.StreamingIntegrityMode.Disabled)
+		ctx.connect("antipause", RS.Heartbeat, function()
+			if get("GameplayPaused") then
+				set("GameplayPaused", false)
+				dnotify("pause", "Anti gameplay paused: un-paused the game")
+			end
+		end)
+	end)
+	def({ "unantigameplaypaused", "unantipause" }, "", "Turn anti gameplay paused off", "pause paused streaming gameplay", function()
+		for _, k in ipairs({ "antipause", "antipauseR", "antipauseS", "antipauseC" }) do ctx.disconnect(k) end
+		if saved then set("StreamingIntegrityMode", saved) end
+		saved = nil
+	end)
+end
+
+-- anti gameplay paused: when streaming can't keep up the server pauses gameplay (Workspace.GameplayPaused) and your character stops until the area loads.
+-- Two things: StreamingIntegrityMode is set to Disabled (the setting that causes the pause, original remembered for ;unantipause), and GameplayPaused is forced back to false every frame.
+-- Both are tried as a normal property write first, then through sethiddenproperty (executors that have it).
+-- shortcut: if the server itself freezes your character while paused (not just the client), this cannot undo that part
+do
+	local saved
+	local function get(p)
+		local ok, v = pcall(function() return workspace[p] end)
+		if ok then return v end
+		if gethiddenproperty then
+			local ok2, v2 = pcall(gethiddenproperty, workspace, p)
+			if ok2 then return v2 end
+		end
+	end
+	local function set(p, v)
+		if pcall(function() workspace[p] = v end) and get(p) == v then return true end
+		if sethiddenproperty then return pcall(sethiddenproperty, workspace, p, v) end
+		return false
+	end
+	def({ "antigameplaypaused", "antipause" }, "", "Stop the game from pausing you (the \"gameplay paused\" state when streaming can't keep up)", "pause paused streaming freeze stuck lag loading gameplay", function()
+		if saved == nil then saved = get("StreamingIntegrityMode") or false end
+		set("StreamingIntegrityMode", Enum.StreamingIntegrityMode.Disabled)
+		local function unpause()
+			if get("GameplayPaused") then
+				pcall(function() if setthreadidentity then setthreadidentity(8) end end) -- the write needs a high identity on some executors
+				set("GameplayPaused", false)
+				dnotify("pause", "Anti gameplay paused: un-paused the game")
+			end
+		end
+		-- every frame step, and the moment the property flips (the paused state can skip Heartbeat)
+		ctx.connect("antipauseR", RS.RenderStepped, unpause)
+		ctx.connect("antipauseS", RS.Stepped, unpause)
+		pcall(function() ctx.connect("antipauseC", workspace:GetPropertyChangedSignal("GameplayPaused"), unpause) end)
+		-- what this client actually reports, so a failure is visible instead of silent
+		ctx.notify(("Anti pause on. GameplayPaused now: %s. StreamingIntegrityMode: %s (%s)"):format(tostring((get("GameplayPaused"))), tostring((get("StreamingIntegrityMode"))),
+			get("StreamingIntegrityMode") == Enum.StreamingIntegrityMode.Disabled and "set to Disabled" or "could not be changed"), 8)
+		ctx.connect("antipause", RS.Heartbeat, function()
+			if get("GameplayPaused") then
+				set("GameplayPaused", false)
+				dnotify("pause", "Anti gameplay paused: un-paused the game")
+			end
+		end)
+	end)
+	def({ "unantigameplaypaused", "unantipause" }, "", "Turn anti gameplay paused off", "pause paused streaming gameplay", function()
+		for _, k in ipairs({ "antipause", "antipauseR", "antipauseS", "antipauseC" }) do ctx.disconnect(k) end
+		if saved then set("StreamingIntegrityMode", saved) end
+		saved = nil
+	end)
+end
+
 -- ===== POSITION SPOOFING =====
 -- How blink works: your real body stays where you activated it and is anchored on YOUR client only, so the server
 -- stops receiving position updates and everyone keeps seeing you standing there. You walk around in a local copy of
@@ -4204,6 +4329,17 @@ do
 	end
 	def({ "sudo" }, "[@alt] <command>", "Run a command on your OTHER accounts (not this one; needs region-relay.py running)", "alt alts multi instance accounts everywhere execute run", function(...) bcast(false, ...) end)
 	def({ "all" }, "[@alt] <command>", "Run a command on this account AND your other accounts (needs region-relay.py running)", "alt alts multi instance accounts everywhere execute run every", function(...) bcast(true, ...) end)
+	-- while the @alt part is being typed, the bar suggests your connected accounts (Tab fills "sudo @name ")
+	local function altChoices(i, partial)
+		local out = {}
+		if i == 1 and partial:sub(1, 1) == "@" then
+			for _, a in pairs(state.alts or {}) do
+				out[#out + 1] = { text = "@" .. a.name, desc = (a.displayName and a.displayName ~= "") and a.displayName or "" }
+			end
+		end
+		return out
+	end
+	ctx.Meta.sudo.complete, ctx.Meta.all.complete = altChoices, altChoices
 end
 
 -- ===== MOUSE =====
@@ -4375,6 +4511,61 @@ def({ "unshowfps", "hidefps", "unshowping", "hideping", "unshowperf", "hideperf"
 	active("showfps", nil)
 end)
 
+-- ===== REPORT: ;report <type> <player> <reason> [additional] =====
+-- Sends a real Roblox report through Players:ReportAbuse (the same thing the in-game report menu uses). One player at a time, never me / all / others / random.
+-- The command bar fills in the type, the player and the reason as you type (Tab accepts the highlighted one): see Meta.report.complete and ui.argSuggest.
+do
+	local TYPES = {
+		chat = { swearing = "Swearing", bullying = "Bullying", scamming = "Scamming", dating = "Dating", personal = "Personal Question", links = "Offsite Links" },
+		username = { inappropriate = "Inappropriate Username" },
+		voice = { swearing = "Swearing", bullying = "Bullying", scamming = "Scamming", dating = "Dating", personal = "Personal Question", links = "Offsite Links" },
+		exploit = { cheating = "Cheating/Exploiting" },
+	}
+	local TYPE_DESC = { chat = "Something they said in chat", voice = "Something they said in voice chat", username = "Their username", exploit = "Cheating / exploiting" }
+	local function keys(t) local k = {} for n in pairs(t) do k[#k + 1] = n end table.sort(k) return table.concat(k, ", ") end
+	def({ "report" }, "<type> <player> <reason> [additional]", "Report a player to Roblox (types: chat, voice, username, exploit). The bar fills in types, players and reasons", "report abuse moderation chat exploit cheating scam bully swear", function(tp, who, rs, ...)
+		if not (tp and who) then return ctx.notify("Usage: report <type> <player> <reason> [additional]") end
+		local T = TYPES[tp:lower()]
+		if not T then return ctx.notify("Unknown report type '" .. tp .. "'. Types: " .. keys(TYPES), 5) end
+		if ({ me = 1, all = 1, others = 1, random = 1 })[who:lower()] then return ctx.notify("Report one player by name") end
+		local p = ctx.findPlayer(who)
+		if not p then return end
+		if p == lp then return ctx.notify("You can't report yourself") end
+		local reason, extra = rs and T[rs:lower()], { ... }
+		if not reason then
+			local only, n = nil, 0
+			for _, v in pairs(T) do only, n = v, n + 1 end
+			if n == 1 and not rs then reason = only
+			else return ctx.notify("Pick a reason for " .. tp:lower() .. ": " .. keys(T), 6) end
+		end
+		local note = table.concat(extra, " "):sub(1, 200)
+		-- the report call has no voice category of its own: a voice report goes in with the normal reason and a tag in the comment
+		if tp:lower() == "voice" then note = (("[Voice chat] " .. note):gsub("%s+$", "")):sub(1, 200) end
+		local ok, err = pcall(function() ctx.Players:ReportAbuse(p, reason, note) end)
+		if ok then return ctx.notify("Reported " .. p.Name .. " for " .. reason .. (note ~= "" and (": " .. note) or ""), 5) end
+		-- ReportAbuse is a secured Roblox API: the engine / executor refuses it ("dangerous call"), so a script cannot send a report.
+		-- Fallback: the text is copied and Roblox's own menu is opened, so you only pick Report > Person > the player.
+		local text = ("%s | %s%s"):format(p.Name, reason, note ~= "" and (" | " .. note) or "")
+		if setclipboard then pcall(setclipboard, text) end
+		pcall(function() S.GuiService:SetMenuIsOpen(true) end)
+		ctx.notify("Scripts can't send reports (" .. tostring(err):sub(1, 70) .. "). Roblox's menu is open: Report > Person > " .. p.Name .. " > " .. reason .. (setclipboard and ". Your note is copied." or ""), 10)
+	end)
+	ctx.Meta.report.complete = function(i, partial, prev) -- i = which argument is being typed, prev = the ones before it
+		local out = {}
+		if i == 1 then
+			for k in pairs(TYPES) do out[#out + 1] = { text = k, desc = TYPE_DESC[k] } end
+		elseif i == 2 then
+			for _, pl in ipairs(Players:GetPlayers()) do
+				if pl ~= lp then out[#out + 1] = { text = pl.Name, desc = pl.DisplayName ~= pl.Name and pl.DisplayName or "" } end
+			end
+		elseif i == 3 then
+			for k, v in pairs(TYPES[(prev[1] or ""):lower()] or {}) do out[#out + 1] = { text = k, desc = v } end
+		end
+		table.sort(out, function(a, b) return a.text:lower() < b.text:lower() end)
+		return out
+	end
+end
+
 -- ===== CHAT =====
 def({ "text", "chat", "t" }, "<message>", "Send a chat message", "say talk message", function(...)
 	local msg = table.concat({ ... }, " ")
@@ -4483,65 +4674,96 @@ do
 	end
 	function ctx.baseplate(on)
 		ctx.disconnect("baseplate")
-		for _, p in pairs(B.cells) do pcall(p.Destroy, p) end
+		for _, e in pairs(B.cells) do pcall(e.v.Destroy, e.v); pcall(e.c.Destroy, e.c) end
 		B.cells, state.baseParts = {}, {}
 		if not on then return true end
-		local g, r = gameBase(), ctx.root()
-		local top, x0, z0, tex = nil, nil, nil, {}
-		if g then
-			top, x0, z0 = g.Position.Y + g.Size.Y / 2 - 0.01, g.Position.X - g.Size.X / 2, g.Position.Z - g.Size.Z / 2
-			for _, t in ipairs(g:GetChildren()) do if t:IsA("Texture") then tex[#tex + 1] = t end end
-		else -- the game changed its baseplate: the height of whatever you stand on, 0.05 under it (no z-fighting with a floor we cannot hide)
+		-- The floor is only added OUTSIDE the game's own ground (the baseplate + the extra platforms). It never overlaps a part, so nothing can z-fight and nothing is cut around.
+		local base, top = gameBase(), nil
+		if base then
+			top = base.Position.Y + base.Size.Y / 2
+		else -- the game changed its baseplate: the part you stand on is the reference
+			local r = ctx.root()
 			if not r then return false, "No character" end
 			local params = RaycastParams.new()
 			params.FilterType = Enum.RaycastFilterType.Exclude
 			params.FilterDescendantsInstances = { ctx.char() }
 			local hit = workspace:Raycast(r.Position, Vector3.new(0, -300, 0), params)
-			if not hit then return false, "Stand on the baseplate first, then run baseplate" end
-			top, x0, z0 = hit.Position.Y - 0.05, r.Position.X, r.Position.Z
+			if not (hit and hit.Instance:IsA("BasePart")) then return false, "Stand on the baseplate first, then run baseplate" end
+			base, top = hit.Instance, hit.Position.Y
 		end
-		-- a tile is a whole number of texture tiles wide, so the pattern runs on across tile edges
-		-- shortcut: assumes StudsPerTileU == StudsPerTileV (true for the stock baseplate texture); use the lcm of both if a game ever differs
-		local s = tex[1] and tex[1].StudsPerTileU or 0
-		local T = s >= 1 and math.floor(2048 / s) * s or 2048
-		local color = g and g.Color or rgb(99, 95, 98)
+		-- footprint of the ground = the baseplate plus every extra platform at the same height (parts named "platform", or inside a folder called extra_room)
+		local minX, maxX, minZ, maxZ = math.huge, -math.huge, math.huge, -math.huge
+		local function add(p)
+			if math.abs(p.Position.Y + p.Size.Y / 2 - top) > 0.5 then return end -- only parts whose top is at ground level
+			local c, s = p.CFrame, p.Size
+			local rv, uv, lv = c.RightVector, c.UpVector, c.LookVector
+			local hx = (math.abs(rv.X) * s.X + math.abs(uv.X) * s.Y + math.abs(lv.X) * s.Z) / 2 -- half width along X, rotation included
+			local hz = (math.abs(rv.Z) * s.X + math.abs(uv.Z) * s.Y + math.abs(lv.Z) * s.Z) / 2
+			minX, maxX = math.min(minX, p.Position.X - hx), math.max(maxX, p.Position.X + hx)
+			minZ, maxZ = math.min(minZ, p.Position.Z - hz), math.max(maxZ, p.Position.Z + hz)
+		end
+		add(base)
+		for _, o in ipairs(workspace:GetDescendants()) do
+			if o:IsA("BasePart") and o ~= base and (o.Name == "platform" or (o.Parent and o.Parent.Name == "extra_room")) then add(o) end
+		end
+		local x0, z0 = minX, minZ
+		local W, D = math.min(maxX - minX, 2048), math.min(maxZ - minZ, 2048) -- one tile = exactly the size of that footprint (a part is 2048 studs at most), so the footprint itself is cell 0,0 and is skipped
+		local tex = {}
+		for _, t in ipairs(base:GetChildren()) do if t:IsA("Texture") then tex[#tex + 1] = t end end
+		local color = rgb(25, 25, 25) -- very dark grey
+		-- baseplateoffset: DROP = how far (studs) the floor sits under the ground level. 0 = level with it; the floor never overlaps the game's parts, so 0 is safe. THICK = the see-through skin (thin, so no side walls show where tiles meet)
+		local THICK, DROP = 0.1, 0 -- baseplateoffset
 		local function make()
-			local p = Instance.new("Part")
-			p.Name, p.Anchored, p.CanTouch, p.CastShadow, p.Locked = "_baseplateExt", true, false, false, true
-			p.Material, p.Transparency, p.Color = Enum.Material.SmoothPlastic, 0, color
-			p.TopSurface, p.BottomSurface = Enum.SurfaceType.Smooth, Enum.SurfaceType.Smooth
-			p.Size = Vector3.new(T, 16, T)
+			local v = Instance.new("Part")
+			v.Name, v.Anchored, v.CanCollide, v.CanTouch, v.CanQuery, v.CastShadow, v.Locked = "_baseplateExt", true, false, false, false, false, true
+			v.Material, v.Transparency, v.Color, v.Reflectance = Enum.Material.SmoothPlastic, 0.5, color, 0.1 -- 50% opacity, 10% reflectance
+			v.TopSurface, v.BottomSurface = Enum.SurfaceType.Smooth, Enum.SurfaceType.Smooth
+			v.Size = Vector3.new(W, THICK, D)
 			for _, t in ipairs(tex) do
 				local c = t:Clone()
-				c.Parent = p
+				c.Parent = v
 			end
-			p.Parent = workspace
-			return p
+			v.Parent = workspace
+			local c = Instance.new("Part") -- invisible 16 stud slab: the part you actually stand on
+			c.Name, c.Anchored, c.CanCollide, c.CanTouch, c.CastShadow, c.Locked, c.Transparency = "_baseplateExtCol", true, true, false, false, true, 1
+			c.Size = Vector3.new(W, 16, D)
+			c.Parent = workspace
+			return { v = v, c = c }
 		end
 		local function sync()
 			local want = {}
-			local function around(pos)
+			local function around(pos) -- 5 x 5 cells around you and around the camera focus, never cell 0,0 (the game's own ground)
 				if not pos then return end
-				local cx, cz = math.floor((pos.X - x0) / T), math.floor((pos.Z - z0) / T)
-				for dx = -1, 1 do for dz = -1, 1 do want[(cx + dx) .. "," .. (cz + dz)] = Vector2.new(cx + dx, cz + dz) end end
+				local cx, cz = math.floor((pos.X - x0) / W), math.floor((pos.Z - z0) / D)
+				for dx = -2, 2 do
+					for dz = -2, 2 do
+						local ix, iz = cx + dx, cz + dz
+						if ix ~= 0 or iz ~= 0 then want[ix .. "," .. iz] = Vector2.new(ix, iz) end
+					end
+				end
 			end
 			local me = ctx.root()
 			around(me and me.Position)
 			around(workspace.CurrentCamera and workspace.CurrentCamera.Focus.Position)
 			local free = {}
-			for k, p in pairs(B.cells) do
-				if not want[k] or not p.Parent then B.cells[k] = nil; if p.Parent then free[#free + 1] = p end end
+			for k, e in pairs(B.cells) do
+				if not want[k] or not e.v.Parent or not e.c.Parent then
+					B.cells[k] = nil
+					if e.v.Parent and e.c.Parent then free[#free + 1] = e else pcall(e.v.Destroy, e.v); pcall(e.c.Destroy, e.c) end
+				end
 			end
 			for k, c in pairs(want) do
 				if not B.cells[k] then
-					local p = table.remove(free) or make() -- move a tile that is no longer needed before making a new one
-					p.CFrame = CFrame.new(x0 + (c.X + 0.5) * T, top - 8, z0 + (c.Y + 0.5) * T)
-					B.cells[k] = p
+					local e = table.remove(free) or make() -- move a tile that is no longer needed before making a new one
+					local px, pz = x0 + (c.X + 0.5) * W, z0 + (c.Y + 0.5) * D
+					e.v.CFrame = CFrame.new(px, top - DROP - THICK / 2, pz)
+					e.c.CFrame = CFrame.new(px, top - DROP - 8, pz)
+					B.cells[k] = e
 				end
 			end
-			for _, p in ipairs(free) do p:Destroy() end
+			for _, e in ipairs(free) do e.v:Destroy(); e.c:Destroy() end
 			local list = {}
-			for _, p in pairs(B.cells) do list[#list + 1] = p end
+			for _, e in pairs(B.cells) do list[#list + 1] = e.v; list[#list + 1] = e.c end
 			state.baseParts = list -- ;cleanup and unload read it
 		end
 		sync()
@@ -4555,7 +4777,7 @@ do
 		return true
 	end
 end
-def({ "baseplate" }, "", "Endless smooth plastic baseplate in MIC UP / MIC UP 18+: same color and texture as the game's own (which stays as it is), follows you and the camera", "map floor ground mic up glass infinite endless", function()
+def({ "baseplate" }, "", "Endless smooth plastic baseplate in MIC UP / MIC UP 18+: very dark grey, 50% opacity, 10% reflectance, with the game's own texture; the game's baseplate stays as it is. Follows you and the camera", "map floor ground mic up glass infinite endless", function()
 	if not (MICUP[game.PlaceId] or tostring(game.Name):lower():find("mic up", 1, true)) then
 		return ctx.notify("baseplate only works in MIC UP and MIC UP 18+ (this is place " .. game.PlaceId .. ")", 5)
 	end
@@ -5864,7 +6086,7 @@ end
 -- ===== mouse: always free while the panel or bar is open, handed back to the game afterwards ==============
 function ui.syncMouse()
 	local UIS = S.UserInputService
-	local need = S.panelOpen or S.barOpen
+	local need = S.panelOpen or S.barOpen or S.profOpen
 	if need and not S.mouseFree then
 		S.mouseFree = true
 		S.mouseSaved = { UIS.MouseBehavior, UIS.MouseIconEnabled }
@@ -5884,6 +6106,129 @@ function ui.syncMouse()
 			UIS.MouseIconEnabled = S.mouseSaved[2]
 		end
 	end
+end
+-- ===== avatar value: what a player wears, priced through MarketplaceService (same method as the profile's Outfit tab) =====
+-- One asset cache for the whole session (the same hat is looked up once), shared by the profile and Home. At most 3 lookups run at a time and every real call is followed by a short wait, so a full server stays under the throttle.
+-- Counts worn accessories, shirt, pants, t-shirt and face. Limited / off sale items have no price in game: counted separately, not added. The server total only uses characters that are loaded; a player who streams in later is added then.
+do
+	 local AV = { asset = {}, failT = {}, pend = {}, user = {}, busy = {}, skip = {}, rapC = {}, rapF = {}, workers = 0 }
+	 ctx.AV = AV
+	 function AV.comma(n) local s = tostring(math.floor((tonumber(n) or 0) + 0.5)); return (s:reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")) end
+	 local function priceOf(info) -- price, or 0 + the reason it is not counted
+		 local cd = info.CollectiblesItemDetails
+		 if info.IsLimited or info.IsLimitedUnique or (type(cd) == "table" and cd.IsLimited) then return 0, "limited" end
+		 local price = tonumber(info.PriceInRobux)
+		 if info.IsForSale and price and price > 0 then return price end
+		 if info.IsForSale then return 0 end
+		 return 0, "off"
+	 end
+	 function AV.info(id) -- yields; nil = could not be looked up (retried after 30 s)
+		 local c = AV.asset[id]
+		 if c then return c end
+		 if AV.failT[id] and os.clock() - AV.failT[id] < 30 then return nil end
+		 if AV.pend[id] then -- another worker is already asking for this asset
+			 local t = os.clock()
+			 while AV.pend[id] and os.clock() - t < 15 do task.wait(0.05) end
+			 return AV.asset[id]
+		 end
+		 AV.pend[id] = true
+		 local ok, res = pcall(function() return S.MarketplaceService:GetProductInfo(id, Enum.InfoType.Asset) end)
+		 AV.pend[id] = nil
+		 if ok and type(res) == "table" then AV.asset[id] = res; task.wait(0.15); return res end
+		 AV.failT[id] = os.clock()
+	 end
+	 -- what a limited is worth: a new UGC limited reports its lowest resale price in the product info, a classic limited has a recent average price (RAP) on the economy API. Cached; a failed lookup is retried after 60 s
+	 function AV.limitedPrice(id, info) -- yields; nil = unknown
+		 if AV.rapC[id] then return AV.rapC[id] end
+		 if AV.rapF[id] and os.clock() - AV.rapF[id] < 60 then return nil end
+		 local cd = type(info) == "table" and info.CollectiblesItemDetails
+		 local v = type(cd) == "table" and tonumber(cd.CollectibleLowestResalePrice) or nil
+		 if not (v and v > 0) then
+			 local body = ctx.fetch("https://economy.roblox.com/v1/assets/" .. id .. "/resale-data")
+			 local ok, d = pcall(function() return S.HttpService:JSONDecode(body) end)
+			 v = ok and type(d) == "table" and tonumber(d.recentAveragePrice) or nil
+			 task.wait(0.25)
+		 end
+		 if v and v > 0 then AV.rapC[id] = v; return v end
+		 AV.rapF[id] = os.clock()
+	 end
+	 local function wornIds(p, web) -- web = also ask Roblox when the character is not loaded (profile only, the server scan skips those)
+		 local ids, seen = {}, {}
+		 local function add(id) id = tonumber(id); if id and id > 0 and not seen[id] then seen[id] = true; ids[#ids + 1] = id end end
+		 local ok, desc = pcall(function()
+			 local h = p.Character and p.Character:FindFirstChildOfClass("Humanoid")
+			 if h then return h:GetAppliedDescription() end
+			 if web then return S.Players:GetHumanoidDescriptionFromUserId(p.UserId) end
+		 end)
+		 if ok and desc then
+			 pcall(function() for _, a in ipairs(desc:GetAccessories(true)) do add(a.AssetId) end end)
+			 for _, k in ipairs({ "Shirt", "Pants", "GraphicTShirt", "Face", "Head", "Torso", "LeftArm", "RightArm", "LeftLeg", "RightLeg" }) do pcall(function() add(desc[k]) end) end
+		 end
+		 return ids
+	 end
+	 function AV.fresh(uid) local r = AV.user[uid]; return r ~= nil and os.clock() - r.t < (r.miss > 0 and 30 or 300) end -- a value with failed lookups is retried after 30 s, a complete one lasts 5 min
+	 function AV.value(p, web) -- yields; { total, priced, n, other, miss } or nil when the outfit is not available
+		 local uid = p.UserId
+		 if AV.fresh(uid) then return AV.user[uid] end
+		 if AV.busy[uid] then
+			 local t = os.clock()
+			 while AV.busy[uid] and os.clock() - t < 30 do task.wait(0.1) end
+			 return AV.user[uid]
+		 end
+		 AV.busy[uid] = true
+		 local rec
+		 pcall(function()
+			 local ids = wornIds(p, web)
+			 if #ids == 0 then return end
+			 local r = { total = 0, priced = 0, n = #ids, other = 0, miss = 0, lim = 0 }
+			 for _, id in ipairs(ids) do
+				 local info = AV.info(id)
+				 if not info then
+					 r.miss = r.miss + 1
+				 else
+					 local price, why = priceOf(info)
+					 local rap = (why == "limited") and AV.limitedPrice(id, info) or nil
+					 if rap then r.total = r.total + rap; r.priced = r.priced + 1; r.lim = r.lim + 1
+					 elseif why then r.other = r.other + 1
+					 else r.total = r.total + price; r.priced = r.priced + 1 end
+				 end
+			 end
+			 r.t = os.clock()
+			 AV.user[uid] = r
+			 rec = r
+		 end)
+		 AV.busy[uid] = nil
+		 return rec
+	 end
+	 function AV.srvTotal() -- value of everyone in the server who has been counted: total, counted, players
+		 local total, done, of = 0, 0, 0
+		 for _, p in ipairs(S.Players:GetPlayers()) do
+			 of = of + 1
+			 local r = AV.user[p.UserId]
+			 if r then done = done + 1; total = total + r.total end
+		 end
+		 return total, done, of
+	 end
+	 function AV.srvStep() -- Home calls this once a second while it is open: 3 workers take the players that have no fresh value yet
+		 if AV.workers > 0 then return end
+		 local q, now = {}, os.clock()
+		 for _, p in ipairs(S.Players:GetPlayers()) do
+			 local uid = p.UserId
+			 if p.Character and not AV.fresh(uid) and not (AV.skip[uid] and now - AV.skip[uid] < 20) then q[#q + 1] = p end
+		 end
+		 for _ = 1, math.min(3, #q) do
+			 AV.workers = AV.workers + 1
+			 task.spawn(function()
+				 while S.alive do
+					 local p = table.remove(q)
+					 if not p then break end
+					 local ok, r = pcall(AV.value, p)
+					 if not (ok and r) then AV.skip[p.UserId] = os.clock() end -- no outfit yet: not asked again for 20 s
+				 end
+				 AV.workers = AV.workers - 1
+			 end)
+		 end
+	 end
 end
 -- [/UI_SHARED]
 
@@ -6232,10 +6577,52 @@ end)
 		end
 	end
 
+	-- argument suggestions for a command whose Meta has a complete(i, partial, prev) function (;report): fills S.cur with the matching choices for the argument being typed
+	function ui.argSuggest(meta, q, rest)
+		local toks = {}
+		for w in rest:gmatch("%S+") do toks[#toks + 1] = w end
+		local partial = ""
+		if not rest:match("%s$") then partial = table.remove(toks) or "" end
+		local lq, list = partial:lower(), {}
+		local base = (S.pre or "") .. q .. " " .. table.concat(toks, " ") .. (#toks > 0 and " " or "")
+		for _, it in ipairs(meta.complete(#toks + 1, lq, toks) or {}) do
+			local t = it.text
+			if lq == "" or t:lower():find(lq, 1, true) then
+				list[#list + 1] = { names = { t }, args = "", desc = it.desc or "", canon = t, fill = base .. (t:find("%s") and ('"' .. t .. '"') or t) .. " ", pre = t:lower():sub(1, #lq) == lq }
+			end
+		end
+		table.sort(list, function(x, z)
+			if x.pre ~= z.pre then return x.pre end
+			return x.names[1]:lower() < z.names[1]:lower()
+		end)
+		for i = 1, math.min(#list, 10) do S.cur[#S.cur + 1] = list[i] end
+		if #S.cur > 1 then S.sel, S.q = 2, partial end
+	end
+
 	function ui.search()
 		local line = box.Text:gsub("^%s*;", "")
 		local q, rest = line:match("^%s*(%S*)(.*)$")
 		q = (q or ""):lower()
+		S.pre, S.tail = "", rest
+		do -- ;sudo / ;all: suggest for the command typed after them ("sudo fly 5", "sudo @alt goto Bob"), the part before it is kept when you pick one
+			local c0 = ctx.Aliases[q]
+			if rest ~= "" and (c0 == "sudo" or c0 == "all") then
+				local after = rest:gsub("^%s+", "")
+				local alt = after:match("^@%S*")
+				local ok = true
+				if alt then
+					local tail = after:sub(#alt + 1)
+					if tail:match("^%s") then after = tail:gsub("^%s+", "") else ok = false end -- still typing the @name
+				end
+				if ok then -- also when nothing is typed after "sudo " / "sudo @alt " yet: the whole command list shows, as on an empty bar
+					S.pre = line:sub(1, #line - #after)
+					line = after
+					q, rest = line:match("^%s*(%S*)(.*)$")
+					q = (q or ""):lower()
+					S.tail = rest
+				end
+			end
+		end
 		S.q, S.sel, S.cur, S.ghost, S.ghostX, S.sugOn = q, 1, {}, "", nil, false
 		if rest ~= "" and ctx.Aliases[q] then
 			-- typing arguments: show just that command's usage
@@ -6244,12 +6631,14 @@ end)
 			end
 			-- a command that takes a <player>: suggest the server's players while the first argument is typed (Tab fills it)
 			local part = rest:match("^%s+(%S*)$")
-			if S.cur[1] and part and tostring(S.cur[1].args):find("^<player") then
+			local cm = S.cur[1] and ctx.Meta[S.cur[1].canon]
+			if cm and cm.complete then ui.argSuggest(cm, q, rest) end
+			if S.cur[1] and part and not (cm and cm.complete) and tostring(S.cur[1].args):find("^<player") then
 				local lq, list = part:lower(), {}
 				for _, pl in ipairs(S.Players:GetPlayers()) do
 					local nm, dn = pl.Name:lower(), pl.DisplayName:lower()
 					if lq == "" or nm:find(lq, 1, true) or dn:find(lq, 1, true) then
-						list[#list + 1] = { names = { pl.Name }, args = "", desc = pl.DisplayName ~= pl.Name and pl.DisplayName or "", canon = pl.Name, fill = q .. " " .. pl.Name .. " ", pre = nm:sub(1, #lq) == lq or dn:sub(1, #lq) == lq }
+						list[#list + 1] = { names = { pl.Name }, args = "", desc = pl.DisplayName ~= pl.Name and pl.DisplayName or "", canon = pl.Name, fill = (S.pre or "") .. q .. " " .. pl.Name .. " ", pre = nm:sub(1, #lq) == lq or dn:sub(1, #lq) == lq }
 					end
 				end
 				table.sort(list, function(x, z)
@@ -6264,7 +6653,7 @@ end)
 			S.cur = ui.matches(line)
 			S.q = ""
 		elseif q == "" then
-			if S.showAll then S.cur = ui.entries() else S.sugOn = true end
+			if S.showAll or S.pre ~= "" then S.cur = ui.entries() else S.sugOn = true end
 		else
 			S.cur = ui.matches(q)
 			for _, nm in ipairs(S.cur[1] and S.cur[1].names or {}) do
@@ -6336,7 +6725,7 @@ end
 		for _, nm in ipairs(e.names) do
 			if nm:sub(1, #q) == q then name = nm; break end
 		end
-		box.Text = name .. (box.Text:match("^%s*;?%S*(.*)$") or "") -- keeps the arguments already typed ("speed 50" + Tab stays "speed 50")
+		box.Text = (S.pre or "") .. name .. (S.tail or "") -- keeps the arguments already typed ("speed 50" + Tab stays "speed 50") and the "sudo @alt " in front
 		box.CursorPosition = #box.Text + 1
 	end
 
@@ -6487,7 +6876,8 @@ do
 
 	ui.panel = panel
 	ui.panelScale = new("UIScale", {}, panel)
-	S.spot(panel, L.PW, L.PH, 12, 60, panel, function() return S.panelOpen and not S.barOpen end) -- above every page, below nothing: the cursor light
+	-- ZIndex 1 and created right after the drifting glows, before the sidebar / inner area / pages: it draws over the glows and under every tile, card and button
+	S.spot(panel, L.PW, L.PH, 12, 1, panel, function() return S.panelOpen and not S.barOpen end)
 	-- accent line along the top edge: a dim base plus a highlight that glides across (paused with Animation Speed: none)
 	fr(panel, 14, 0, L.PW - 28, 2, "accent", 0.7)
 	do
@@ -6808,7 +7198,7 @@ do
 	paint(hero, "BackgroundColor3", "row")
 	new("UICorner", { CornerRadius = UDim.new(0, ST.rPane) }, hero)
 	paint(new("UIStroke", { Thickness = 1, Transparency = 0.55, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, hero), "Color", "accent")
-	local heroName, heroSub, layers, dotBox
+	local heroName, heroSub, heroVal, layers, dotBox
 	do
 		local fb = new("Frame", { Size = UDim2.fromScale(1, 1), BorderSizePixel = 0, BackgroundTransparency = 0.55, ZIndex = 1 }, hero) -- shown until a screenshot loads (or when there is none)
 		paint(fb, "BackgroundColor3", "accent")
@@ -6832,6 +7222,8 @@ do
 		heroName = white(expName or "...", 15, 90, 52, HW - 104, 26, FONT_B)
 		heroSub = white("", 9, 90, 80, HW - 104, 18)
 		heroSub.TextTransparency = 0.15
+		 heroVal = white("", 9, 90, 98, HW - 104, 16)
+		 heroVal.TextTransparency = 0.15
 		-- server chip (top left): click copies the job id
 		local jid = game.JobId ~= "" and game.JobId or "local"
 		local chip = new("TextButton", { Position = UDim2.fromOffset(12, 10), Size = UDim2.fromOffset(0, 20), AutomaticSize = Enum.AutomaticSize.X, BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.5,
@@ -7051,6 +7443,9 @@ do
 					local t = math.floor(workspace.DistributedGameTime)
 					vals["Uptime"].Text = ("%02d:%02d:%02d"):format(math.floor(t / 3600), math.floor(t / 60) % 60, t % 60)
 					heroSub.Text = region .. "   ·   " .. n .. " players"
+					 ctx.AV.srvStep()
+					 local avT, avD, avN = ctx.AV.srvTotal()
+					 heroVal.Text = ("Avatars  R$ %s  ·  %d/%d counted"):format(ctx.AV.comma(avT), avD, avN)
 				end)
 			end
 			if os.clock() - last > 300 then
@@ -7620,7 +8015,7 @@ do
 	local W, H = L.IW, L.IH
 	local LX, LW, RX, TOPY = 16, 180, 212, 44 -- left column (avatar + actions), the right column's x, top of the content
 	local RW = W - RX - 16
-	local P = { gen = 0, open = false, friend = {}, price = {} }
+	local P = { gen = 0, open = false, friend = {}, price = ctx.AV.asset } -- the same cache Home's server total fills
 	ui.prof = P
 	local joined = {} -- userId -> os.time() they joined (players already here when rOSAD started are unknown)
 	conn(S.Players.PlayerAdded, function(p) joined[p.UserId] = os.time() end)
@@ -7645,13 +8040,91 @@ do
 		new("UIPadding", { PaddingLeft = UDim.new(0, 9), PaddingRight = UDim.new(0, 9) }, c)
 	end
 
-	local win = new("CanvasGroup", { Name = "Profile", Size = UDim2.fromScale(1, 1), BorderSizePixel = 0, GroupTransparency = 1, Visible = false, ZIndex = 20, Active = true }, ui.inner)
-	paint(win, "BackgroundColor3", "panel")
-	win.BackgroundTransparency = 0.03 -- solid enough that the list under it does not show through
-	new("UICorner", { CornerRadius = UDim.new(0, ST.rPane) }, win)
-	local body = new("CanvasGroup", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0 }, win) -- its own group so switching profiles cross-fades it
-	txt(win, "PROFILE", 7.5, "hint", LX + 2, 16, 200, 14, { Font = FONT_B })
-	btn(win, "×", W - 44, 10, 32, 28, "ghost", nil, function() ui.closeProfile() end, 13)
+	-- the profile is its own window: `win` is a full screen fade group (like the panel's), `frame` is the window in the main panel's style, dragged by its header
+	local WW, WH, HD = W + 24, H + 56, 44
+	local win = new("CanvasGroup", { Name = "Profile", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0, GroupTransparency = 1, Visible = false, ZIndex = 5 }, gui)
+	local frame = new("Frame", { Name = "ProfileWindow", AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(WW, WH), BorderSizePixel = 0, Active = true }, win)
+	paint(frame, "BackgroundColor3", "panel")
+	frame.BackgroundTransparency = 1 - cfg.opacity
+	new("UICorner", { CornerRadius = UDim.new(0, 12) }, frame)
+	local pst = new("UIStroke", { Thickness = 1.5, Transparency = 0.1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, frame)
+	paint(pst, "Color", "accent")
+	local pgr = new("UIGradient", { Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.3, 0.88), NumberSequenceKeypoint.new(0.7, 0.88), NumberSequenceKeypoint.new(1, 0) }) }, pst)
+	S.deco(pgr)
+	P.comet = S.TweenService:Create(pgr, TweenInfo.new(7, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1), { Rotation = 360 }) -- only runs while the window is open
+	ui.profWin, ui.profScale = frame, new("UIScale", { Scale = cfg.scale }, frame)
+	S.spot(frame, WW, WH, 12, 1, frame, function() return P.open and not S.barOpen end) -- cursor light, under everything else in the window
+	fr(frame, 14, 0, WW - 28, 2, "accent", 0.7)
+	local ttl = txt(frame, "", 14, "text", 22, 9, 200, 26, { Font = FONT_CODE, RichText = true, TextSize = 21 })
+	S.deco(new("UIGradient", { Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(165, 165, 178)) }, ttl))
+	function P.retitle() ttl.Text = '<font color="' .. hex(S.accent) .. '">&gt;</font>PROFILE' end
+	P.retitle()
+	do -- hairline under the header, fading out at both ends
+		local hd = fr(frame, 14, HD - 1, WW - 28, 1, "accent", 0.8)
+		new("UIGradient", { Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0), NumberSequenceKeypoint.new(1, 1) }) }, hd)
+		S.deco(hd)
+	end
+	btn(frame, "×", WW - 46, 8, 34, 28, "ghost", nil, function() ui.closeProfile() end, 13)
+	-- position is kept as a fraction of the screen, like the panel's
+	P.pos = Vector2.new(0.5, 0.5)
+	function P.place(extraY, animate)
+		local vp = workspace.CurrentCamera.ViewportSize
+		local pos = UDim2.fromScale(P.pos.X, P.pos.Y + (extraY or 0) / vp.Y)
+		if animate then tw(frame, { Position = pos }, 0.3) else frame.Position = pos end
+	end
+	do
+		local header = new("Frame", { Size = UDim2.fromOffset(WW - 50, HD - 6), BackgroundTransparency = 1 }, frame)
+		local drag, d0, p0
+		header.InputBegan:Connect(function(i)
+			if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then drag, d0, p0 = true, i.Position, P.pos end
+		end)
+		conn(S.UserInputService.InputChanged, function(i)
+			if drag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+				local vp = workspace.CurrentCamera.ViewportSize
+				local d = i.Position - d0
+				P.pos = Vector2.new(p0.X + d.X / vp.X, p0.Y + d.Y / vp.Y)
+				P.place(0)
+			end
+		end)
+		conn(S.UserInputService.InputEnded, function(i)
+			if drag and (i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch) then drag = false end
+		end)
+	end
+	-- content area: the same dark veil as the panel's inner area; everything build() makes goes in here
+	P.inner = fr(frame, 12, HD, W, H, "glass", 0.75, 10, "edge", 1, 0.7)
+	P.inner.ClipsDescendants = true
+	-- dark layer over the window while the command bar is open (same as the panel)
+	local shade = fr(frame, 0, 0, WW, WH, "tabOff", 0.45, 9)
+	shade.ZIndex, shade.Active, shade.Visible = 50, true, false
+	conn(S.RunService.Heartbeat, function()
+		local v = P.open == true and S.barOpen == true
+		if shade.Visible ~= v then shade.Visible = v end
+	end)
+	function P.show() -- a fresh open: slides up while it fades in
+		P.retitle()
+		if not P.placed then
+			P.placed = true
+			P.pos = Vector2.new(math.clamp(ui.panelPos.X + 0.04, 0.2, 0.8), math.clamp(ui.panelPos.Y + 0.03, 0.2, 0.8))
+		end
+		ui.profScale.Scale = ui.curScale()
+		S.profOpen = true
+		P.place(18, false)
+		tw(win, { GroupTransparency = 0 }, 0.16)
+		P.place(0, true)
+		if cfg.anim ~= 0 then P.comet:Play() end
+		ui.syncMouse()
+	end
+	function P.hideHook()
+		S.profOpen = false
+		pcall(function() P.comet:Pause() end)
+		ui.syncMouse()
+	end
+	-- (the window's own fill is on `frame`)
+	-- (see frame)
+	-- (corners are on frame)
+	local body = new("CanvasGroup", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0 }, P.inner) -- its own group so switching profiles cross-fades it
+	-- (the title is in the window header)
+	-- (the close button is in the window header)
 
 	local function build(p, my)
 		clear(body)
@@ -7703,11 +8176,18 @@ do
 		kv("Account age", ("%s days  ·  on Roblox since %s"):format(comma(age), date("%b %Y", os.time() - age * 86400)))
 		kv("Membership", prop(p, "MembershipType") == Enum.MembershipType.Premium and "Premium" or "Standard")
 		kv("Verified badge", prop(p, "HasVerifiedBadge") and "Yes" or "No")
+		 kv("Avatar value", "checking...")
 		kv("Friends with you", me and "-" or "checking...")
 		kv("Team", "None")
 		kv("Distance", "-")
 		kv("In this server", me and "you" or jt and ("since " .. date("%H:%M", jt)) or "since before rOSAD started")
 		kv("Followed someone in", fid == 0 and "No" or fpl and ("@" .. fpl.Name) or ("user " .. fid))
+		 task.spawn(function() -- worn items priced (shared cache with the Outfit tab and Home's server total)
+			 local ok, r = pcall(ctx.AV.value, p, true)
+			 if not live() then return end
+			 if not (ok and r) then val["Avatar value"].Text = "unavailable (outfit not loaded)"; return end
+			 val["Avatar value"].Text = ("R$ %s  ·  %d of %d priced%s%s"):format(ctx.AV.comma(r.total), r.priced, r.n, (r.lim > 0 and ("  ·  %d limited at RAP"):format(r.lim) or "") .. (r.other > 0 and ("  ·  %d off sale / no price"):format(r.other) or ""), r.miss > 0 and ("  ·  %d unknown"):format(r.miss) or "")
+		 end)
 		if not me then
 			task.spawn(function()
 				local ok, v = pcall(function() return lp:IsFriendsWith(uid) end)
@@ -7731,7 +8211,7 @@ do
 			end)
 			if ok and desc then
 				pcall(function() for _, a in ipairs(desc:GetAccessories(true)) do addId(a.AssetId) end end)
-				for _, k in ipairs({ "Shirt", "Pants", "GraphicTShirt", "Face" }) do pcall(function() addId(desc[k]) end) end
+				for _, k in ipairs({ "Shirt", "Pants", "GraphicTShirt", "Face", "Head", "Torso", "LeftArm", "RightArm", "LeftLeg", "RightLeg" }) do pcall(function() addId(desc[k]) end) end
 			end
 			if #ids == 0 and request then -- no description: the avatar API's "currently wearing" list (their saved avatar, may differ from this game)
 				pcall(function()
@@ -7765,7 +8245,10 @@ do
 					local cd = info.CollectiblesItemDetails
 					local limited = info.IsLimited or info.IsLimitedUnique or (type(cd) == "table" and cd.IsLimited)
 					local price = tonumber(info.PriceInRobux)
-					if limited then pr.Text = "Limited"; other = other + 1 -- resale value is not exposed in game
+					if limited then
+						local v = ctx.AV.limitedPrice(id, info) -- RAP / lowest resale price
+						if v then pr.Text = "R$ " .. comma(v) .. " (RAP)"; total = total + v; priced = priced + 1
+						else pr.Text = "Limited"; other = other + 1 end
 					elseif info.IsForSale and price and price > 0 then pr.Text = "R$ " .. comma(price); total = total + price; priced = priced + 1
 					elseif info.IsForSale then pr.Text = "Free"; priced = priced + 1
 					else pr.Text = "Off sale"; other = other + 1 end
@@ -7902,7 +8385,7 @@ do
 
 	function ui.openProfile(p)
 		if typeof(p) ~= "Instance" or not p.Parent then return ctx.notify("That player is not in this server") end
-		if ui.tab ~= "Players" then ctx.openTab("Players") elseif not S.panelOpen then ui.setPanel(true) end
+		-- the profile is its own window: it no longer switches tab or opens the panel
 		if P.open and P.p == p then return end -- already showing them
 		local switching = P.open
 		P.gen, P.p, P.open = P.gen + 1, p, true
@@ -7913,12 +8396,12 @@ do
 			tw(body, { GroupTransparency = 0 }, 0.16)
 		else
 			body.GroupTransparency = 0
-			ui.pageIn(win)
+			P.show()
 		end
 	end
 	function ui.closeProfile(instant)
 		if not P.open then return end
-		P.open, P.gen = false, P.gen + 1
+		P.open, P.gen = false, P.gen + 1; P.hideHook()
 		if instant or cfg.anim == 0 then win.Visible, win.GroupTransparency = false, 1; return end
 		tw(win, { GroupTransparency = 1 }, 0.16)
 		task.delay(dur(0.16) + 0.02, function() if not P.open then win.Visible = false end end) -- reopened meanwhile = stays
@@ -7926,7 +8409,7 @@ do
 	-- leaving Players closes the profile at once; clicking Players again while it is open goes back to the list
 	local select0 = ui.selectTab
 	function ui.selectTab(name)
-		if P.open and (name ~= "Players" or name == ui.tab) then ui.closeProfile(name ~= "Players") end
+		-- the profile window stays open while you change tab
 		S.syncSwitches() -- switches show the real value when you come back to a page
 		return select0(name)
 	end
@@ -7947,7 +8430,7 @@ do
 	label("UI Opacity", 33, 88)
 	seg(pg, 86, cols(4, 60), 52, { { "20%", 0.2 }, { "50%", 0.5 }, { "80%", 0.8 }, { "100%", 1 } }, "opacity")
 	label("Glow Opacity", 33, 126)
-	seg(pg, 124, cols(4, 60), 52, { { "0%", 0 }, { "10%", 10 }, { "25%", 25 }, { "50%", 50 }, { "75%", 75 }, { "100%", 100 } }, "glow")
+	seg(pg, 124, cols(4, 60), 52, { { "0%", 0 }, { "25%", 25 }, { "50%", 50 }, { "75%", 75 }, { "100%", 100 } }, "glow")
 	label("Accent Color", 33, 164)
 	local swatch = fr(pg, X0 + 37, 162, 30, 25, "accent", 0, 3, "edge", 1)
 	local hexBox = input(pg, "#FFFF00", X0 + 74, 162, 104, 25, 9, "ctrlOff", BTN_OFF, { Text = cfg.accent, TextXAlignment = Enum.TextXAlignment.Center })
@@ -8751,6 +9234,7 @@ function ui.rescale()
 	local s = ui.curScale()
 	ui.panelScale.Scale, ui.barScale.Scale, ui.toastScale.Scale, ui.hudScale.Scale, ui.popScale.Scale = s, s, s, s, s
 	ui.actScale.Scale = s
+	if ui.profScale then ui.profScale.Scale = s end
 end
 
 -- Roblox's shift lock listens on both Shift keys. When one of them is the panel / bar key, a higher priority action eats it
@@ -8778,7 +9262,13 @@ function ui.apply()
 	ui.panel.BackgroundTransparency = 1 - cfg.opacity
 	-- everything in the panel follows UI Opacity relative to its 80 % design (tiles, cards, buttons, fields, washes)
 	S.opK = math.clamp(tonumber(cfg.opacity) or 0.8, 0.2, 1) / 0.8
-	for _, o in ipairs(ui.panel:GetDescendants()) do
+	local scope = ui.panel:GetDescendants()
+	if ui.profWin then -- the profile window follows UI Opacity too
+		ui.profWin.BackgroundTransparency = 1 - cfg.opacity
+		for _, o in ipairs(ui.profWin:GetDescendants()) do scope[#scope + 1] = o end
+	end
+	if ui.prof and ui.prof.retitle then ui.prof.retitle() end
+	for _, o in ipairs(scope) do
 		local r = o:GetAttribute("raw")
 		if r then
 			local v = S.opx(r)
@@ -8842,7 +9332,7 @@ do
 	S.spotDY = 0
 	pcall(function() S.spotDY = S.GuiService:GetGuiInset().Y end)
 	conn(S.RunService.RenderStepped, function()
-		local m = (S.panelOpen or S.barOpen) and S.UserInputService:GetMouseLocation() or nil
+		local m = (S.panelOpen or S.barOpen or S.profOpen) and S.UserInputService:GetMouseLocation() or nil
 		local over = false
 		for _, sp in ipairs(S.spots) do
 			local inside = false
