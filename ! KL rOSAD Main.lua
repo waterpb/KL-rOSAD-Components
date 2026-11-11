@@ -5,22 +5,22 @@
 -- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L259-428
 -- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L430-1083
 -- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1085-1917
--- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, baseplate, tools, autoexec, autostart, notifier, cleanup | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1919-5403
--- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L5405-6233
--- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L6235-6797
--- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L6799-7169
--- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L7171-7460
--- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L7462-8010
--- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L8011-8417
--- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L8419-8535
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L8537-8618
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L8620-8651
--- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L8653-8674
--- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L8676-8799
--- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L8801-9034
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L9036-9136
--- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L9138-9227
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L9229-9417
+-- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, baseplate, tools, autoexec, autostart, notifier, cleanup | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1919-5379
+-- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L5381-6209
+-- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L6211-6773
+-- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L6775-7145
+-- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L7147-7436
+-- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L7438-7990
+-- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L7991-8397
+-- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L8399-8515
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L8517-8598
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L8600-8631
+-- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L8633-8654
+-- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L8656-8779
+-- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L8781-9014
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L9016-9116
+-- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L9118-9207
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L9209-9398
 -- [BOOT]
 local VERSION = "1.2"
 local DIR = "KLOSAD"
@@ -3247,124 +3247,51 @@ def({ "antifreeze" }, "", "Un-anchor yourself if something locks you in place", 
 end)
 def({ "unantifreeze" }, "", "Turn anti freeze off", "anchor stuck lock", function() ctx.disconnect("antifreeze") end)
 
--- anti gameplay paused: when streaming can't keep up the server pauses gameplay (Workspace.GameplayPaused) and your character stops until the area loads.
--- Two things: StreamingIntegrityMode is set to Disabled (the setting that causes the pause, original remembered for ;unantipause), and GameplayPaused is forced back to false every frame.
--- Both are tried as a normal property write first, then through sethiddenproperty (executors that have it).
+-- anti gameplay paused: with streaming on, Roblox pauses YOU when the area around you is not loaded: Player.GameplayPaused turns true (a property of the player, set by the client),
+-- your character stops and "gameplay paused" shows. The old version read workspace.GameplayPaused, which does not exist, so it never did anything.
+-- Four things: StreamingIntegrityMode is set to Disabled (original remembered for ;unantipause), the pause notice is hidden (GuiService:SetGameplayPausedNotificationEnabled),
+-- and lp.GameplayPaused is forced back to false every frame and the moment it flips. Each write is tried as a normal property write first, then through sethiddenproperty.
 -- shortcut: if the server itself freezes your character while paused (not just the client), this cannot undo that part
 do
 	local saved
-	local function get(p)
-		local ok, v = pcall(function() return workspace[p] end)
+	local function get(o, p)
+		local ok, v = pcall(function() return o[p] end)
 		if ok then return v end
 		if gethiddenproperty then
-			local ok2, v2 = pcall(gethiddenproperty, workspace, p)
+			local ok2, v2 = pcall(gethiddenproperty, o, p)
 			if ok2 then return v2 end
 		end
 	end
-	local function set(p, v)
-		if pcall(function() workspace[p] = v end) and get(p) == v then return true end
-		if sethiddenproperty then return pcall(sethiddenproperty, workspace, p, v) end
+	local function set(o, p, v)
+		if pcall(function() o[p] = v end) and get(o, p) == v then return true end
+		if sethiddenproperty then return pcall(sethiddenproperty, o, p, v) end
 		return false
 	end
-	def({ "antigameplaypaused", "antipause" }, "", "Stop the game from pausing you (the \"gameplay paused\" state when streaming can't keep up)", "pause paused streaming freeze stuck lag loading gameplay", function()
-		if saved == nil then saved = get("StreamingIntegrityMode") or false end
-		set("StreamingIntegrityMode", Enum.StreamingIntegrityMode.Disabled)
-		ctx.connect("antipause", RS.Heartbeat, function()
-			if get("GameplayPaused") then
-				set("GameplayPaused", false)
-				dnotify("pause", "Anti gameplay paused: un-paused the game")
-			end
-		end)
-	end)
-	def({ "unantigameplaypaused", "unantipause" }, "", "Turn anti gameplay paused off", "pause paused streaming gameplay", function()
-		ctx.disconnect("antipause")
-		if saved then set("StreamingIntegrityMode", saved) end
-		saved = nil
-	end)
-end
-
--- anti gameplay paused: when streaming can't keep up the server pauses gameplay (Workspace.GameplayPaused) and your character stops until the area loads.
--- Two things: StreamingIntegrityMode is set to Disabled (the setting that causes the pause, original remembered for ;unantipause), and GameplayPaused is forced back to false every frame.
--- Both are tried as a normal property write first, then through sethiddenproperty (executors that have it).
--- shortcut: if the server itself freezes your character while paused (not just the client), this cannot undo that part
-do
-	local saved
-	local function get(p)
-		local ok, v = pcall(function() return workspace[p] end)
-		if ok then return v end
-		if gethiddenproperty then
-			local ok2, v2 = pcall(gethiddenproperty, workspace, p)
-			if ok2 then return v2 end
+	local function unpause()
+		if get(lp, "GameplayPaused") then
+			pcall(function() if setthreadidentity then setthreadidentity(8) end end) -- the write needs a high identity on some executors
+			set(lp, "GameplayPaused", false)
+			dnotify("pause", "Anti gameplay paused: un-paused you")
 		end
 	end
-	local function set(p, v)
-		if pcall(function() workspace[p] = v end) and get(p) == v then return true end
-		if sethiddenproperty then return pcall(sethiddenproperty, workspace, p, v) end
-		return false
-	end
 	def({ "antigameplaypaused", "antipause" }, "", "Stop the game from pausing you (the \"gameplay paused\" state when streaming can't keep up)", "pause paused streaming freeze stuck lag loading gameplay", function()
-		if saved == nil then saved = get("StreamingIntegrityMode") or false end
-		set("StreamingIntegrityMode", Enum.StreamingIntegrityMode.Disabled)
-		ctx.connect("antipause", RS.Heartbeat, function()
-			if get("GameplayPaused") then
-				set("GameplayPaused", false)
-				dnotify("pause", "Anti gameplay paused: un-paused the game")
-			end
-		end)
-	end)
-	def({ "unantigameplaypaused", "unantipause" }, "", "Turn anti gameplay paused off", "pause paused streaming gameplay", function()
-		for _, k in ipairs({ "antipause", "antipauseR", "antipauseS", "antipauseC" }) do ctx.disconnect(k) end
-		if saved then set("StreamingIntegrityMode", saved) end
-		saved = nil
-	end)
-end
-
--- anti gameplay paused: when streaming can't keep up the server pauses gameplay (Workspace.GameplayPaused) and your character stops until the area loads.
--- Two things: StreamingIntegrityMode is set to Disabled (the setting that causes the pause, original remembered for ;unantipause), and GameplayPaused is forced back to false every frame.
--- Both are tried as a normal property write first, then through sethiddenproperty (executors that have it).
--- shortcut: if the server itself freezes your character while paused (not just the client), this cannot undo that part
-do
-	local saved
-	local function get(p)
-		local ok, v = pcall(function() return workspace[p] end)
-		if ok then return v end
-		if gethiddenproperty then
-			local ok2, v2 = pcall(gethiddenproperty, workspace, p)
-			if ok2 then return v2 end
-		end
-	end
-	local function set(p, v)
-		if pcall(function() workspace[p] = v end) and get(p) == v then return true end
-		if sethiddenproperty then return pcall(sethiddenproperty, workspace, p, v) end
-		return false
-	end
-	def({ "antigameplaypaused", "antipause" }, "", "Stop the game from pausing you (the \"gameplay paused\" state when streaming can't keep up)", "pause paused streaming freeze stuck lag loading gameplay", function()
-		if saved == nil then saved = get("StreamingIntegrityMode") or false end
-		set("StreamingIntegrityMode", Enum.StreamingIntegrityMode.Disabled)
-		local function unpause()
-			if get("GameplayPaused") then
-				pcall(function() if setthreadidentity then setthreadidentity(8) end end) -- the write needs a high identity on some executors
-				set("GameplayPaused", false)
-				dnotify("pause", "Anti gameplay paused: un-paused the game")
-			end
-		end
+		if saved == nil then saved = get(workspace, "StreamingIntegrityMode") or false end
+		set(workspace, "StreamingIntegrityMode", Enum.StreamingIntegrityMode.Disabled)
+		pcall(function() S.GuiService:SetGameplayPausedNotificationEnabled(false) end)
 		-- every frame step, and the moment the property flips (the paused state can skip Heartbeat)
+		ctx.connect("antipause", RS.Heartbeat, unpause)
 		ctx.connect("antipauseR", RS.RenderStepped, unpause)
 		ctx.connect("antipauseS", RS.Stepped, unpause)
-		pcall(function() ctx.connect("antipauseC", workspace:GetPropertyChangedSignal("GameplayPaused"), unpause) end)
-		-- what this client actually reports, so a failure is visible instead of silent
-		ctx.notify(("Anti pause on. GameplayPaused now: %s. StreamingIntegrityMode: %s (%s)"):format(tostring((get("GameplayPaused"))), tostring((get("StreamingIntegrityMode"))),
-			get("StreamingIntegrityMode") == Enum.StreamingIntegrityMode.Disabled and "set to Disabled" or "could not be changed"), 8)
-		ctx.connect("antipause", RS.Heartbeat, function()
-			if get("GameplayPaused") then
-				set("GameplayPaused", false)
-				dnotify("pause", "Anti gameplay paused: un-paused the game")
-			end
-		end)
+		pcall(function() ctx.connect("antipauseC", lp:GetPropertyChangedSignal("GameplayPaused"), unpause) end)
+		unpause()
+		-- what this client reports, so a failure is visible instead of silent
+		ctx.notify(("Anti pause on. Player.GameplayPaused: %s. StreamingIntegrityMode: %s (%s)"):format(tostring(get(lp, "GameplayPaused")), tostring(get(workspace, "StreamingIntegrityMode")),
+			get(workspace, "StreamingIntegrityMode") == Enum.StreamingIntegrityMode.Disabled and "set to Disabled" or "could not be changed"), 8)
 	end)
 	def({ "unantigameplaypaused", "unantipause" }, "", "Turn anti gameplay paused off", "pause paused streaming gameplay", function()
 		for _, k in ipairs({ "antipause", "antipauseR", "antipauseS", "antipauseC" }) do ctx.disconnect(k) end
-		if saved then set("StreamingIntegrityMode", saved) end
+		pcall(function() S.GuiService:SetGameplayPausedNotificationEnabled(true) end)
+		if saved then set(workspace, "StreamingIntegrityMode", saved) end
 		saved = nil
 	end)
 end
@@ -3887,11 +3814,60 @@ do
 		end)
 		return true
 	end
+	-- joining keeps retrying while the server is full, with no "server is full" popup (Roblox's own error prompt is held back while it runs).
+	-- SRV.joining = { id } while it runs; the Servers tab turns that server's Join button into Cancel (SRV.onJoin redraws it)
+	function SRV.cancelJoin(quiet)
+		local j = SRV.joining
+		if not j then return end
+		j.stop, SRV.joining = true, nil
+		for _, c in ipairs(j.conns) do pcall(function() c:Disconnect() end) end
+		pcall(function() if j.prompt and j.prompt.Parent then j.prompt.Enabled = j.was end end)
+		if not quiet then ctx.notify("Join cancelled", 3) end
+		if SRV.onJoin then SRV.onJoin() end
+	end
 	function SRV.join(placeId, id)
 		SRV.save()
-		ctx.notify("Joining server...", 3)
-		local ok, err = pcall(function() S.TeleportService:TeleportToPlaceInstance(placeId, id, lp) end)
-		if not ok then ctx.notify("Teleport failed: " .. tostring(err), 5) end
+		SRV.cancelJoin(true) -- joining another server replaces the attempt that is running
+		local TS, GS = S.TeleportService, S.GuiService
+		local j = { id = id, stop = false, conns = {}, res = nil }
+		SRV.joining = j
+		pcall(function()
+			j.prompt = S.CoreGui:FindFirstChild("RobloxPromptGui")
+			if j.prompt then j.was = j.prompt.Enabled; j.prompt.Enabled = false end
+		end)
+		local function hush() pcall(function() GS:ClearError() end) end
+		j.conns[1] = TS.TeleportInitFailed:Connect(function(_, res) j.res = res; hush() end)
+		j.conns[2] = GS.ErrorMessageChanged:Connect(hush)
+		ctx.notify("Joining server... it keeps retrying if it is full. Press Cancel to stop", 5)
+		if SRV.onJoin then SRV.onJoin() end
+		task.spawn(function()
+			local errs, fatal = 0, nil
+			while not j.stop and SRV.joining == j and S.alive do
+				j.res = nil
+				local ok, err = pcall(function() TS:TeleportToPlaceInstance(placeId, id, lp) end)
+				local pause = 2
+				if ok then
+					errs = 0
+					local t = os.clock()
+					while not j.stop and j.res == nil and os.clock() - t < 12 do task.wait(0.1) end
+					local r = j.res
+					if r == Enum.TeleportResult.Flooded then pause = 5
+					elseif r == Enum.TeleportResult.GameEnded or r == Enum.TeleportResult.GameNotFound then fatal = "That server no longer exists"
+					elseif r == Enum.TeleportResult.Unauthorized then fatal = "You are not allowed to join that server"
+					elseif r == nil then pause = 3 end -- no answer: the teleport is probably still going
+				else
+					errs = errs + 1
+					if errs >= 8 then fatal = "Teleport failed: " .. tostring(err) end
+				end
+				if fatal then break end
+				local t2 = os.clock()
+				while not j.stop and os.clock() - t2 < pause do task.wait(0.1) end
+			end
+			if fatal and SRV.joining == j then
+				SRV.cancelJoin(true)
+				ctx.notify(fatal, 5)
+			end
+		end)
 	end
 	-- this server's own region (Home tab): the cache first, else one lookup of this JobId. Returns the label, or nil + why
 	function SRV.here()
@@ -7903,7 +7879,10 @@ do
 			txt(c, ("%d/%d players  ·  %s  ·  %s"):format(s.playing or 0, s.maxPlayers or 0, s.ping and ("~" .. math.floor(s.ping * (cfg.mod.srvPingMult or 2) + 0.5) .. " ms") or "ping ?", s.fps and (math.floor(s.fps + 0.5) .. " fps") or "fps ?"),
 				8, "sub", 14, 26, 330, 13)
 			local cur = s.id == game.JobId
-			local b = btn(c, cur and "Current" or "Join", L.IW - 21 - 12 - 82, 12, 82, 26, not cur and "primary" or nil, nil, function() SR.join(game.PlaceId, s.id) end)
+			local joining = SR.joining ~= nil and SR.joining.id == s.id
+			local b = btn(c, cur and "Current" or (joining and "Cancel" or "Join"), L.IW - 21 - 12 - 82, 12, 82, 26, (not cur) and (joining and "danger" or "primary") or nil, nil, function()
+				if SR.joining and SR.joining.id == s.id then SR.cancelJoin() else SR.join(game.PlaceId, s.id) end
+			end)
 			if cur then b.Active = false; b.TextTransparency = 0.55 end
 		end
 		if #rows == 0 then
@@ -8000,6 +7979,7 @@ do
 		save(); render()
 	end)
 	box.FocusLost:Connect(function() cfg.srvRegion = box.Text; save() end)
+	SR.onJoin = later -- Join <-> Cancel redraws the rows
 	onHide["Servers"] = function() clear(list) end
 	onShow["Servers"] = function()
 		menu.Visible = false
@@ -9374,6 +9354,7 @@ function ui.unload()
 	pcall(ctx.noStereo, false)
 	pcall(ctx.crosshair, false)
 	pcall(ctx.syncStop)
+	pcall(ctx.SRV.cancelJoin, true) -- gives Roblox's prompt gui back if a join was still retrying
 	pcall(function() ui.borderTween:Cancel() end)
 	pcall(function() ui.glowTween:Cancel() end) -- endless tween: kept running after the gui was destroyed
 	pcall(function() ui.orbitTween:Cancel() end)
