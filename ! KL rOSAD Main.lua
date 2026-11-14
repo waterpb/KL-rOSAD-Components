@@ -3,24 +3,24 @@
 -- [DATA] builtin slots, GitHub links, welcome/home/tip text | BUILTIN, GITHUB, WELCOME, TIPS | deps: BOOT | L48-169
 -- [STATE] service cache, settings load/save, Module Cfg defaults | S, cfg, save(), MODDEF | deps: BOOT | L171-257
 -- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L259-428
--- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L430-1083
--- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1085-1917
--- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, baseplate, tools, autoexec, autostart, notifier, cleanup | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1919-5379
--- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L5381-6209
--- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L6211-6773
--- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L6775-7145
--- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L7147-7436
--- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L7438-7990
--- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L7991-8397
--- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L8399-8515
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L8517-8598
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L8600-8631
--- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L8633-8654
--- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L8656-8779
--- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L8781-9014
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L9016-9116
--- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L9118-9207
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L9209-9398
+-- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L430-1092
+-- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1094-1926
+-- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools, autoexec, autostart, notifier, cleanup, update | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1928-5710
+-- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L5712-6703
+-- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L6705-7267
+-- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7269-7639
+-- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L7641-7930
+-- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L7932-8484
+-- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L8485-8891
+-- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L8893-9009
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9011-9092
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9094-9125
+-- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9127-9148
+-- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9150-9273
+-- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9275-9508
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L9510-9610
+-- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L9612-9701
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L9703-9892
 -- [BOOT]
 local VERSION = "1.2"
 local DIR = "KLOSAD"
@@ -445,9 +445,13 @@ function ctx.notify(msg, secs)
 end
 function ctx.markMove() state.selfMove = os.clock() end -- tells anti teleport "this move was mine"
 function ctx.val(k, arg) return (tonumber(arg) or cfg.mod[k .. "Def"]) * (cfg.mod[k .. "Mult"] or 1) end
-function ctx.char() return lp.Character end
-function ctx.hum() local c = lp.Character; return c and c:FindFirstChildOfClass("Humanoid") end
-function ctx.root() local c = lp.Character; return c and c:FindFirstChild("HumanoidRootPart") end
+function ctx.char() -- while blink / ghost is on, every command (fly, speed, noclip, goto ...) acts on the copy you move, not on the frozen real body
+	local b = state.blink
+	if b and b.fake and b.fake.Parent then return b.fake end
+	return lp.Character
+end
+function ctx.hum() local c = ctx.char(); return c and c:FindFirstChildOfClass("Humanoid") end
+function ctx.root() local c = ctx.char(); return c and c:FindFirstChild("HumanoidRootPart") end
 
 -- last seen position of every player, kept while they are in range (used by ctx.reach)
 state.seen = state.seen or {} -- filled by the "seenTrack" connection below ctx.connect
@@ -876,6 +880,7 @@ local TOGGLES = {
 }
 TOGGLES.spider, TOGGLES.serverpos = "unspider", "unserverpos"
 TOGGLES.antigameplaypaused = "unantigameplaypaused"
+TOGGLES.hideui = "unhideui" -- also turned off by stopall / Reset all effects / exit, so the interface always comes back
 -- commands that flip themselves on and off and keep state.active up to date on their own
 local SELF = { float = true, blink = true, ghost = true, hide = true }
 
@@ -933,8 +938,8 @@ function ctx.Run(line)
 		local val = who and table.concat({ who, table.unpack(args, 2) }, " ") or table.concat(args, " ")
 		if #val > 30 then val = val:sub(1, 28) .. ".." end
 		if cnt > 0 then ui.act(cnt == 1 and offOf or (cmd:gsub("^un", "")), "off")
-		elseif SELF[cmd] then ui.act(cmd, state.active[cmd] and "on" or "off")
-		elseif TOGGLES[cmd] then ui.act(cmd, val ~= "" and val or "on")
+		elseif SELF[cmd] then if not state.active[cmd] then ui.act(cmd, "off") end -- while it is on it stays in the feed (ui.syncActive)
+		elseif TOGGLES[cmd] then -- an effect that turns on stays in the feed instead of popping up (ui.syncActive)
 		else ui.act(cmd, val) end
 	end
 	if SELF[cmd] then return end
@@ -942,9 +947,11 @@ function ctx.Run(line)
 		state.active[cmd] = true
 		state.who = state.who or {}
 		state.who[cmd] = who
+		state.val = state.val or {} -- the arguments, shown next to the name in the feed ("fly 80")
+		state.val[cmd] = (not who and #args > 0) and table.concat(args, " ") or nil
 	else
 		for on, off in pairs(TOGGLES) do
-			if off == cmd then state.active[on] = nil; if state.who then state.who[on] = nil end end
+			if off == cmd then state.active[on] = nil; if state.who then state.who[on] = nil end; if state.val then state.val[on] = nil end end
 		end
 	end
 end
@@ -1023,8 +1030,10 @@ local CATS = {
 CATS.Movement = CATS.Movement .. " spider unspider"
 CATS.Defense = CATS.Defense .. " antigameplaypaused unantigameplaypaused"
 CATS.Visuals = CATS.Visuals .. " serverpos unserverpos"
+CATS.Visuals = CATS.Visuals .. " hideui unhideui"
 CATS.Server = (CATS.Server or "") .. " region serverbrowser scanregions serverhop leave"
 CATS.Players = CATS.Players .. " report"
+CATS.Tools = CATS.Tools .. " update"
 ctx.catOf = {}
 for cat, names in pairs(CATS) do
 	for w in names:gmatch("%S+") do ctx.catOf[w] = cat end
@@ -1951,6 +1960,7 @@ state.defaults = env.KLOSAD_DEF
 
 -- a fresh character has the server's values, before any command touched it
 ctx.connect("defCap", lp.CharacterAdded, function(c)
+	if state.swapped and state.swapped[c] then return end -- a blink swap is not a fresh character: its values may already be changed by your commands
 	task.wait(1.5)
 	local hh = ctx.hum()
 	if state.blink or not hh or hh.Parent ~= c then return end
@@ -3302,39 +3312,88 @@ end
 -- your character instead, and the frozen real body is drawn at 50% so you can see where the server thinks you are.
 --   blink: switching off teleports the real body to where the copy ended up
 --   ghost: switching off just drops the copy, so you are "back" at the original spot
+-- the Roblox menu's Reset button normally kills only the copy you walk around in. While blink is on it goes through this hook instead: the copy ends, the real body dies, you respawn.
+-- resetHook(false) gives the menu its normal Reset back (blinkOff calls it, and the guard below does when blink ended some other way)
+local function resetHook(on)
+	if state.blinkReset then pcall(function() state.blinkReset:Destroy() end); state.blinkReset = nil end
+	if not on then
+		if not state.resetBlocked then pcall(function() ctx.StarterGui:SetCore("ResetButtonCallback", true) end) end
+		return
+	end
+	pcall(function()
+		local ev = Instance.new("BindableEvent")
+		state.blinkReset = ev
+		ev.Event:Connect(function()
+			local b = state.blink
+			local real = b and b.real
+			if b then pcall(ctx.Run, "unblink") end -- control goes back to the real body first
+			resetHook(false)
+			local h = (real and real.Parent and real:FindFirstChildOfClass("Humanoid")) or ctx.hum()
+			if h then h.Health = 0 end
+		end)
+		ctx.StarterGui:SetCore("ResetButtonCallback", ev)
+	end)
+end
+-- v2: lp.Character is NEVER swapped any more. Swapping it fired CharacterAdded, so the game and every script you run saw a respawn.
+-- Now the real body (lp.Character) stays put and anchored, and a client-only copy is driven by your own input (PlayerModule move vector, Space).
+local BLINK_CONNS = { "blinkDeath", "blinkChar", "blinkNC", "blinkGuard", "blinkMove", "blinkJump" }
 local function blinkOff()
 	local b = state.blink
 	if not b then return end
 	state.blink = nil
-	ctx.disconnect("blinkDeath"); ctx.disconnect("blinkChar"); ctx.disconnect("blinkNC")
+	for _, k in ipairs(BLINK_CONNS) do ctx.disconnect(k) end
 	local fr = b.fake and b.fake:FindFirstChild("HumanoidRootPart")
 	local landed = fr and fr.CFrame
-	pcall(function() lp.Character = b.real end) -- hand control back to the real body
+	resetHook(false)
+	-- hand the real body's input back
+	pcall(function() if b.controls and b.oldMove then b.controls.moveFunction = b.oldMove end end)
+
+	local cam = workspace.CurrentCamera
+	local rh
 	if b.real and b.real.Parent then
-		local rr, rh = b.real:FindFirstChild("HumanoidRootPart"), b.real:FindFirstChildOfClass("Humanoid")
+		local rr = b.real:FindFirstChild("HumanoidRootPart")
+		rh = b.real:FindFirstChildOfClass("Humanoid")
 		if rr then
-			rr.Anchored = state.selfFrozen and true or false
+			rr.AssemblyLinearVelocity = Vector3.zero
+			rr.AssemblyAngularVelocity = Vector3.zero
+			-- blink: the real body (and so the server) jumps to where the copy ended up. ghost: it stays at the start, you are simply back there
 			if landed and not b.ghost then ctx.markMove(); rr.CFrame = landed end
+			rr.Anchored = state.selfFrozen and true or false
 		end
-		if rh then workspace.CurrentCamera.CameraSubject = rh end
 		for part, t in pairs(b.alpha) do
 			if part.Parent then part.Transparency = t end
 		end
 	end
 	if b.fake then b.fake:Destroy() end
+	local h = (rh and rh.Health > 0 and rh) or ctx.hum() -- ctx.hum() is lp.Character's again now that state.blink is gone
+	if h and cam and not state.viewing then cam.CameraSubject = h end
 	active("blink", nil); active("ghost", nil)
 end
 local function blinkOn(ghost)
 	local real, rr, rh = ctx.char(), ctx.root(), ctx.hum()
 	if not (real and rr and rh) then return ctx.notify("No character to blink with") end
+	-- Clone() skips anything with Archivable off, so turn it on for the copy and put it back
+	local wasArch = {}
+	for _, d in ipairs(real:GetDescendants()) do
+		if d.Archivable == false then wasArch[#wasArch + 1] = d; pcall(function() d.Archivable = true end) end
+	end
 	real.Archivable = true
 	local okc, fake = pcall(function() return real:Clone() end)
+	for _, d in ipairs(wasArch) do pcall(function() d.Archivable = false end) end
 	local fh = okc and fake and fake:FindFirstChildOfClass("Humanoid")
-	if not (fh and fake:FindFirstChild("HumanoidRootPart")) then
+	local fr0 = okc and fake and fake:FindFirstChild("HumanoidRootPart")
+	if not (fh and fr0) then
 		if okc and fake then fake:Destroy() end
 		return ctx.notify("Couldn't copy your character")
 	end
-	-- the real body: frozen where it is (for the server) and drawn at 50% (for you)
+	-- the copy must be free to move: a clone keeps whatever the original had (anchored by ;freeze, PlatformStand and BodyVelocity from ;fly)
+	fr0.Anchored = false
+	fh.PlatformStand, fh.Sit = false, false
+	for _, d in ipairs(fake:GetDescendants()) do
+		if d:IsA("BodyMover") or d:IsA("VectorForce") or d:IsA("LineForce") then pcall(function() d:Destroy() end) end
+		if d:IsA("LuaSourceContainer") then pcall(function() d.Disabled = true end) end -- the copy is not your Character, so its scripts must not run
+	end
+	-- the real body: frozen where it is (the server stops getting updates, everyone keeps seeing you there) and drawn at 50% (your own view of the server position)
 	local alpha = {}
 	for _, v in ipairs(real:GetDescendants()) do
 		if v:IsA("BasePart") or v:IsA("Decal") then
@@ -3343,40 +3402,112 @@ local function blinkOn(ghost)
 		end
 	end
 	rr.AssemblyLinearVelocity = Vector3.zero
+	rr.AssemblyAngularVelocity = Vector3.zero
 	rr.Anchored = true
-	-- the copy is the body you walk around in
+	-- the real body is left exactly as it was (animations, emotes, humanoid states): it just gets no input from you, see blinkMove / blinkNC
+	fake.Name = real.Name
 	fake.Parent = workspace
-	if not pcall(function() lp.Character = fake end) then
-		rr.Anchored = false
-		for part, t in pairs(alpha) do part.Transparency = t end
-		fake:Destroy()
-		return ctx.notify("This executor can't swap your character, so blink won't work")
-	end
-	workspace.CurrentCamera.CameraSubject = fh
-	local anim = fake:FindFirstChild("Animate")
-	if anim then anim.Disabled = true; anim.Disabled = false end
+	local cam = workspace.CurrentCamera
+	if not state.viewing then cam.CameraSubject = fh end
 	state.blink = { real = real, fake = fake, ghost = ghost, alpha = alpha }
 	active(ghost and "ghost" or "blink", true)
+
+
+	-- your input drives the copy
+	local controls
+	pcall(function() controls = require(lp.PlayerScripts:WaitForChild("PlayerModule", 3)):GetControls() end)
+	-- the PlayerModule feeds your move input to lp.Character every frame: swap its move function for a no-op while blink is on (GetMoveVector still works for the copy)
+	pcall(function()
+		if controls and controls.moveFunction then
+			state.blink.controls, state.blink.oldMove = controls, controls.moveFunction
+			controls.moveFunction = function() end
+		end
+	end)
+	local function kd(k) return UIS:IsKeyDown(k) and not UIS:GetFocusedTextBox() end
+	-- animations: the copy's Animate script does not run (it is not your Character), so play the same animations ourselves
+	local tracks, cur = {}, nil
+	do
+		local an = fake:FindFirstChild("Animate")
+		local animator = fh:FindFirstChildOfClass("Animator")
+		if not animator then animator = Instance.new("Animator"); animator.Parent = fh end
+		for _, name in ipairs({ "idle", "walk", "run", "jump", "fall", "climb", "sit" }) do
+			local f = an and an:FindFirstChild(name)
+			local a = f and f:FindFirstChildWhichIsA("Animation", true)
+			if a then
+				local ok, t = pcall(function() return animator:LoadAnimation(a) end)
+				if ok and t then tracks[name] = t end
+			end
+		end
+	end
+	local function play(name, speed)
+		if cur ~= name then
+			if cur and tracks[cur] then tracks[cur]:Stop(0.15) end
+			cur = name
+			if tracks[name] then tracks[name]:Play(0.15) end
+		end
+		if speed and tracks[name] then tracks[name]:AdjustSpeed(speed) end
+	end
+	local HS = Enum.HumanoidStateType
+	ctx.connect("blinkMove", RS.RenderStepped, function()
+		local b = state.blink
+		if not (b and b.fake == fake and fake.Parent and fh.Parent) then return end
+		local mv
+		if controls then
+			local ok, v = pcall(controls.GetMoveVector, controls)
+			if ok and typeof(v) == "Vector3" then mv = v end
+		end
+		if not mv then -- no PlayerModule (custom controls): plain WASD
+			mv = Vector3.new((kd(Enum.KeyCode.D) and 1 or 0) - (kd(Enum.KeyCode.A) and 1 or 0), 0, (kd(Enum.KeyCode.S) and 1 or 0) - (kd(Enum.KeyCode.W) and 1 or 0))
+		end
+		fh:Move(mv, true)
+		if rh.Parent then rh.Jump = false; rh:Move(Vector3.zero, false) end -- the real body gets no input
+
+		if kd(Enum.KeyCode.Space) then fh.Jump = true end
+		if not state.viewing and cam.CameraSubject ~= fh then cam.CameraSubject = fh end -- not while ;view is watching someone -- the camera script puts it back on your real humanoid now and then
+		local r = fake:FindFirstChild("HumanoidRootPart")
+		local st = fh:GetState()
+		local sp = r and Vector3.new(r.AssemblyLinearVelocity.X, 0, r.AssemblyLinearVelocity.Z).Magnitude or 0
+		if st == HS.Climbing then play("climb")
+		elseif st == HS.Seated then play("sit")
+		elseif st == HS.Jumping then play("jump")
+		elseif st == HS.Freefall or st == HS.FallingDown then play("fall")
+		elseif sp > 0.5 then play(tracks.run and "run" or "walk", math.clamp(sp / 16, 0.3, 2))
+		else play("idle") end
+	end)
+	ctx.connect("blinkJump", UIS.JumpRequest, function() if fh.Parent then fh.Jump = true end end) -- touch jump button
 	-- the frozen body must not collide with the copy standing inside it
 	ctx.connect("blinkNC", RS.Stepped, function()
+		if rh.Parent then rh.Jump = false end -- last word before physics runs: the real body never jumps, so it plays nothing and tells the server nothing
 		for part in pairs(alpha) do
 			if part.Parent and part:IsA("BasePart") then part.CanCollide = false end
 		end
 	end)
 	ctx.connect("blinkDeath", fh.Died, function()
 		blinkOff()
-		local h = ctx.hum()
-		if h then h.Health = 0 end
+		pcall(function() if rh.Parent then rh.Health = 0 end end) -- the real body dies too, so the game respawns you
 	end)
+	-- the game gave you a new character (it respawned you): drop the copy and hand the camera over
 	ctx.connect("blinkChar", lp.CharacterAdded, function(c)
 		local b = state.blink
-		if b and c ~= b.fake then -- the game gave you a new character: just drop the copy
-			state.blink = nil
-			ctx.disconnect("blinkDeath"); ctx.disconnect("blinkChar"); ctx.disconnect("blinkNC")
-			if b.fake then b.fake:Destroy() end
-			active("blink", nil); active("ghost", nil)
+		if b and c ~= b.real then blinkOff() end
+	end)
+	-- safety net: if anything makes this inconsistent, blink ends by itself, says why, and you are never left stuck
+	ctx.connect("blinkGuard", RS.Heartbeat, function()
+		local b = state.blink
+		if not b then
+			if state.blinkReset then resetHook(false) end
+			return
+		end
+		local why
+		if not (b.fake and b.fake.Parent) then why = "the copy was removed"
+		elseif not b.fake:FindFirstChildOfClass("Humanoid") then why = "the copy lost its humanoid"
+		elseif not (b.real and b.real.Parent) then why = "your real body is gone" end
+		if why then
+			blinkOff()
+			ctx.notify("Blink ended on its own: " .. why, 6)
 		end
 	end)
+	resetHook(true)
 end
 def({ "blink" }, "", "Look frozen to everyone else while you keep moving (toggle)", "lag teleport spoof position", function()
 	if state.blink then blinkOff() else blinkOn(false) end
@@ -3384,7 +3515,14 @@ end)
 def({ "ghost", "ghostblink" }, "", "Like blink, but sends you back to where you started (toggle)", "lag teleport spoof position", function()
 	if state.blink then blinkOff() else blinkOn(true) end
 end)
-def({ "unblink", "unghost" }, "", "Turn blink / ghost off (either name works for both)", "lag spoof position ghost", blinkOff)
+def({ "unblink", "unghost" }, "", "Turn blink / ghost off (either name works for both); also frees you if a blink went wrong", "lag spoof position ghost", function()
+	if state.blink then return blinkOff() end
+	-- nothing to turn off: make sure a failed blink did not leave you frozen or looking at nothing
+	resetHook(false)
+	local r, h = ctx.root(), ctx.hum()
+	if r and r.Anchored and not state.selfFrozen and not state.parked then r.Anchored = false end
+	if h then workspace.CurrentCamera.CameraSubject = h end
+end)
 
 -- ===== NAMES: driven by your Name Spoofer component (getgenv().NameSpoof) =====
 -- The component keeps its "other players" names in a constant, so before running it the names from Module Cfg
@@ -4487,6 +4625,198 @@ def({ "unshowfps", "hidefps", "unshowping", "hideping", "unshowperf", "hideperf"
 	active("showfps", nil)
 end)
 
+-- ===== HIDE UI: ;hideui / ;unhideui =====
+-- Hides EVERY interface on your screen and gives it back exactly as it was. Two layers, because Roblox's official switches alone leave parts of its UI up
+-- (the Roblox button, the menu, the player list kept showing):
+--  1) the actual ScreenGuis: every one in CoreGui (Roblox's top bar with the Roblox button, menu, chat and mic buttons, player list, backpack, chat window,
+--     emotes, health ...), in PlayerGui (the game's own HUDs, menus, shops ...) and in gethui(). Enabled is switched off, and an Enabled listener on each one
+--     puts it straight back to off if Roblox or the game switches it on again; new ScreenGuis are caught the moment they are added
+--  2) the official switches as well, so Roblox's own state agrees: SetCoreGuiEnabled for every CoreGui type, SetCore("TopbarEnabled"), and the TextChatService
+--     chat window, input bar and chat bubbles
+-- Each original value is recorded the first time it is changed, so ;unhideui restores what the game had, never a blanket "on". Left alone on purpose: rOSAD's
+-- own panel and bar (you need them to run ;unhideui), RobloxPromptGui / RobloxNetworkGui (kick, disconnect and purchase prompts), and TouchGui (hiding the
+-- touch controls would take away movement on mobile).
+do
+	local H = { on = false, gen = 0, core = {}, top = nil, chat = {}, guis = {}, conns = {}, hooked = {} }
+	local SKIP = { KLOSAD = true, KLCrosshair = true, TouchGui = true, RobloxPromptGui = true, RobloxNetworkGui = true }
+	local function roots()
+		local r = {}
+		if S.CoreGui then r[#r + 1] = S.CoreGui end
+		local pg = lp:FindFirstChildOfClass("PlayerGui")
+		if pg then r[#r + 1] = pg end
+		if gethui then
+			local ok, g = pcall(gethui)
+			if ok and typeof(g) == "Instance" and g ~= S.CoreGui and g ~= pg then r[#r + 1] = g end
+		end
+		return r
+	end
+	local function chatCfgs()
+		local out = {}
+		for _, cls in ipairs({ "ChatWindowConfiguration", "ChatInputBarConfiguration", "BubbleChatConfiguration" }) do
+			local o = ctx.TextChatService:FindFirstChildOfClass(cls)
+			if o then out[#out + 1] = o end
+		end
+		return out
+	end
+	local function take(g) -- one ScreenGui: remember its state, switch it off, and keep it off
+		if not g:IsA("ScreenGui") or SKIP[g.Name] then return end
+		if H.guis[g] == nil then
+			H.guis[g] = g.Enabled
+			H.conns[#H.conns + 1] = g:GetPropertyChangedSignal("Enabled"):Connect(function()
+				if H.on then pcall(function() if g.Enabled then g.Enabled = false end end) end
+			end)
+		end
+		if g.Enabled then g.Enabled = false end
+	end
+	-- one pass; my = the run it belongs to. GetCore / SetCore can yield, so a pass that was overtaken by ;unhideui stops before it writes anything
+	local function apply(my)
+		local SG = ctx.StarterGui
+		local function current() return H.on and H.gen == my end
+		if not current() then return end
+		for _, root in ipairs(roots()) do
+			if not H.hooked[root] then
+				H.hooked[root] = true
+				H.conns[#H.conns + 1] = root.ChildAdded:Connect(function(c) -- a new interface is hidden the moment it appears, not at the next pass
+					if H.on then task.defer(pcall, take, c) end
+				end)
+			end
+			for _, g in ipairs(root:GetChildren()) do pcall(take, g) end
+		end
+		for g in pairs(H.guis) do if not g.Parent then H.guis[g] = nil end end
+		for _, t in ipairs(Enum.CoreGuiType:GetEnumItems()) do
+			if t ~= Enum.CoreGuiType.All then
+				local ok, was = pcall(SG.GetCoreGuiEnabled, SG, t)
+				if ok and type(was) == "boolean" then
+					if H.core[t] == nil then H.core[t] = was end
+					if was then pcall(SG.SetCoreGuiEnabled, SG, t, false) end
+				end
+			end
+		end
+		for _, o in ipairs(chatCfgs()) do
+			local ok, v = pcall(function() return o.Enabled end)
+			if ok then
+				if H.chat[o] == nil then H.chat[o] = v end
+				if v then pcall(function() o.Enabled = false end) end
+			end
+		end
+		local okT, topOn = pcall(SG.GetCore, SG, "TopbarEnabled") -- last: this one can wait for Roblox to register it
+		if not current() then return end
+		if okT and type(topOn) == "boolean" then
+			if H.top == nil then H.top = topOn end
+			if topOn then pcall(SG.SetCore, SG, "TopbarEnabled", false) end
+		end
+	end
+	local function restore()
+		local SG = ctx.StarterGui
+		for _, c in ipairs(H.conns) do pcall(function() c:Disconnect() end) end -- the keep-it-off listeners go first, so restoring is not fought
+		for g, was in pairs(H.guis) do
+			if g.Parent then pcall(function() g.Enabled = was end) end
+		end
+		for t, was in pairs(H.core) do pcall(SG.SetCoreGuiEnabled, SG, t, was) end
+		if H.top ~= nil then pcall(SG.SetCore, SG, "TopbarEnabled", H.top) end
+		for o, was in pairs(H.chat) do pcall(function() o.Enabled = was end) end
+		H.core, H.top, H.chat, H.guis, H.conns, H.hooked = {}, nil, {}, {}, {}, {}
+	end
+	def({ "hideui", "hidegui" }, "", "Hide every interface: Roblox button, menu, player list, chat and mic buttons, backpack and the game's own GUIs (rOSAD's panel and bar stay usable)", "ui gui hud interface topbar menu roblox button playerlist chat mic voice buttons clean screenshot record clip", function()
+		if H.on then return end
+		H.on, H.gen = true, H.gen + 1
+		local my = H.gen
+		if ui.actHolder then ui.actHolder.Visible = false end -- the activation notices are interface too
+		task.spawn(function()
+			while H.on and H.gen == my and S.alive do
+				pcall(apply, my)
+				task.wait(0.5)
+			end
+		end)
+	end)
+	def({ "unhideui", "showui", "unhidegui" }, "", "Bring every interface back exactly as it was before ;hideui", "ui gui hud interface topbar menu roblox button playerlist chat mic voice buttons show restore", function()
+		H.on, H.gen = false, H.gen + 1 -- stops the watcher and cancels a pass that is still waiting
+		restore()
+		if ui.actHolder then ui.actHolder.Visible = true end
+	end)
+end
+
+-- ===== UPDATE: ;update <liu | all> =====
+-- Downloads the newest data of a tool from GitHub. Each target is one entry in TARGETS (title, desc, run), so another script is one more entry.
+-- liu: the Lighting Utility preset list is ONE text file with one preset per line, "LUTPRESET::<name>::{json}". Every line becomes its own file
+-- "<name>.json" (the json alone) in PRESET_DIR. A preset that is already there and identical is left untouched, a changed one is overwritten, a new one is added.
+do
+	local PRESETS_URL = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/refs/heads/main/Liu%20Stock%20Presets.json"
+	local PRESET_DIR = "LightingUtilityPresets" -- inside the executor workspace folder (Potassium\\workspace)
+	local function ensureDir(path) -- makefolder is not recursive on every executor: one level at a time
+		local cur = ""
+		for seg in path:gmatch("[^/]+") do
+			cur = cur == "" and seg or (cur .. "/" .. seg)
+			if not isfolder(cur) then makefolder(cur) end
+		end
+	end
+	local function fileName(n) -- "Blush Pink" -> "Blush Pink"; characters Windows cannot have in a file name are dropped
+		local s = (n:gsub('[\\/:*?"<>|%c]', ""))
+		s = (s:gsub("^%s+", ""):gsub("[%s%.]+$", ""))
+		return s
+	end
+	local function updateLiu()
+		ctx.notify("LiU: downloading presets...", 3)
+		local body, err = ctx.fetch(PRESETS_URL)
+		if not body then return ctx.notify("LiU: download failed (" .. tostring(err) .. ")", 6) end
+		body = body:gsub("^\239\187\191", "") -- a byte order mark in front of the first line
+		local okD, errD = pcall(ensureDir, PRESET_DIR)
+		if not okD then return ctx.notify("LiU: can't create " .. PRESET_DIR .. " (" .. tostring(errD) .. ")", 6) end
+		local new, upd, same, bad, n = 0, 0, 0, 0, 0
+		for line in body:gmatch("[^\r\n]+") do
+			local name, js = line:match("^%s*LUTPRESET::(.-):+(%b{})%s*$")
+			local fn = name and fileName(name)
+			local okJ, dec = pcall(S.HttpService.JSONDecode, S.HttpService, js or "")
+			if fn and fn ~= "" and okJ and type(dec) == "table" then
+				local path = PRESET_DIR .. "/" .. fn .. ".json"
+				local had = isfile(path)
+				local okR, old = false, nil
+				if had then okR, old = pcall(readfile, path) end
+				if okR and old == js then
+					same = same + 1
+				elseif pcall(writefile, path, js) then
+					if had then upd = upd + 1 else new = new + 1 end
+				else
+					bad = bad + 1
+				end
+			elseif line:match("%S") then
+				bad = bad + 1 -- not a preset line, or its json is broken
+			end
+			n = n + 1
+			if n % 10 == 0 then task.wait() end
+		end
+		if new + upd + same + bad == 0 then return ctx.notify("LiU: the downloaded file has no presets", 6) end
+		ctx.notify(("LiU presets: %d new, %d updated, %d unchanged%s (%s)"):format(new, upd, same, bad > 0 and (", " .. bad .. " skipped") or "", PRESET_DIR), 7)
+	end
+	local TARGETS = {
+		liu = { desc = "Lighting Utility: download its presets, one .json per preset", run = updateLiu },
+	}
+	local TARGET_ALIAS = { lighting = "liu", lightingutility = "liu", liupresets = "liu", presets = "liu" }
+	def({ "update" }, "<liu | all>", "Download the newest data of a tool from GitHub (liu = Lighting Utility's presets, one .json file per preset)", "update download github presets lighting liu refresh", function(q)
+		q = tostring(q or ""):lower()
+		if q == "" then return ctx.notify("Usage: update <liu | all>") end
+		if not (writefile and readfile and isfile and isfolder and makefolder) then return ctx.notify("update needs file access, this executor has none", 5) end
+		if q == "all" then
+			local keys = {}
+			for k in pairs(TARGETS) do keys[#keys + 1] = k end
+			table.sort(keys)
+			for _, k in ipairs(keys) do TARGETS[k].run() end
+			return
+		end
+		local t = TARGETS[TARGET_ALIAS[q] or q]
+		if not t then return ctx.notify("Unknown update target '" .. q .. "'. Try: liu, all") end
+		t.run()
+	end)
+	ctx.Meta.update.complete = function(i) -- the bar suggests the targets while the first argument is typed
+		local out = {}
+		if i == 1 then
+			for k, t in pairs(TARGETS) do out[#out + 1] = { text = k, desc = t.desc } end
+			out[#out + 1] = { text = "all", desc = "Update every target" }
+		end
+		return out
+	end
+end
+
 -- ===== REPORT: ;report <type> <player> <reason> [additional] =====
 -- Sends a real Roblox report through Players:ReportAbuse (the same thing the in-game report menu uses). One player at a time, never me / all / others / random.
 -- The command bar fills in the type, the player and the reason as you type (Tab accepts the highlighted one): see Meta.report.complete and ui.argSuggest.
@@ -5190,7 +5520,8 @@ function ctx.runAutostart(reason)
 	end
 end
 def({ "autostart" }, "", "Launch (relaunch) everything in Autostart now, like on execute", "startup launch run exec relaunch autorun", function() ctx.runAutostart("exec") end)
-ctx.connect("autoRespawn", lp.CharacterAdded, function()
+ctx.connect("autoRespawn", lp.CharacterAdded, function(c)
+	if state.swapped and state.swapped[c] then return end -- ;blink / ;ghost swapping bodies is not a respawn (it relaunched every autostart item on each toggle)
 	task.wait(1)
 	ctx.runAutostart("respawn")
 end)
@@ -5504,7 +5835,16 @@ function S.hover(o, fn)
 		local m, p, s = S.UserInputService:GetMouseLocation(), o.AbsolutePosition, o.AbsoluteSize
 		return m.X >= p.X and m.X <= p.X + s.X and m.Y >= p.Y and m.Y <= p.Y + s.Y
 	end
-	o.MouseEnter:Connect(function()
+	local function shown() -- really on screen: it has a size and no ancestor is hidden
+		if o.AbsoluteSize.X <= 0 then return false end
+		local p = o
+		while p and p:IsA("GuiObject") do
+			if not p.Visible then return false end
+			p = p.Parent
+		end
+		return true
+	end
+	local function start()
 		if on then return end
 		on = true
 		fn(true)
@@ -5513,6 +5853,18 @@ function S.hover(o, fn)
 			on = false
 			if S.alive and o.Parent then fn(false) end
 		end)
+	end
+	o.MouseEnter:Connect(start)
+	-- Roblox only fires MouseEnter when the mouse MOVES. A list that rebuilds its cards (a player joins, a friend loads...) puts a fresh card under a still mouse, which then never lit up,
+	-- so the highlight seemed to vanish while the mouse had not left. Look once the layout has placed the new object.
+	task.spawn(function()
+		for _ = 1, 3 do
+			S.RunService.Heartbeat:Wait()
+			if not (S.alive and o.Parent) then return end
+			if o.AbsoluteSize.X > 0 then break end
+		end
+		if on or not shown() then return end
+		if inside() then start() end
 	end)
 end
 -- THE control look: every button, option chip and strip tab. Six states (idle / hover / focus / press / selected / disabled) all go through st(),
@@ -5536,7 +5888,7 @@ local function btn(parent, str, x, y, w, h, key, tr, cb, pt)
 		tw(b, { BackgroundColor3 = c, BackgroundTransparency = math.max((b:GetAttribute("base") or 0) - (d2 and ST.fill.press or h2 and ST.fill.hover or 0), 0) }, 0.1)
 		if live ~= wasLive then wasLive = live; b.TextTransparency = live and 0 or 0.55 end
 		stroke.Enabled = v.edge == true
-		if v.edge then tw(stroke, { Color = v.on and S.accent or h2 and col("edge"):Lerp(S.accent, ST.hoverTint) or col("edge"), Transparency = (v.on or h2) and 0.35 or ST.ctrlEdge }, 0.1) end
+		if v.edge then tw(stroke, { Color = v.on and S.accent or h2 and col("edge"):Lerp(col("text"), ST.hoverTint) or col("edge"), Transparency = (v.on or h2) and 0.35 or ST.ctrlEdge }, 0.1) end
 		tw(sc, { Scale = d2 and ST.press or 1 }, 0.1)
 	end
 	S.btnSt[b] = st
@@ -5570,7 +5922,7 @@ local function input(parent, ph, x, y, w, h, pt, fillKey, tr, props)
 	local focused, hv = false, { f = false, o = false }
 	local function edge()
 		local hot = hv.f or hv.o
-		tw(stroke, { Color = focused and S.accent or hot and col("edge"):Lerp(S.accent, ST.hoverTint) or col("edge"), Thickness = focused and 2 or 1, Transparency = (focused or hot) and 0 or ST.ctrlEdge }, 0.1)
+		tw(stroke, { Color = focused and S.accent or hot and col("edge"):Lerp(col("text"), ST.hoverTint) or col("edge"), Thickness = focused and 2 or 1, Transparency = (focused or hot) and 0 or ST.ctrlEdge }, 0.1)
 		tw(glow, { BackgroundTransparency = focused and ST.glow.onIdle or hot and ST.glow.hover or ST.glow.idle }, 0.1)
 	end
 	o.Focused:Connect(function() focused = true; edge() end)
@@ -5650,14 +6002,14 @@ end
 function S.lit(f)
 	local st, cr = f:FindFirstChildOfClass("UIStroke"), f:FindFirstChildOfClass("UICorner")
 	local glow = new("Frame", { Name = "Glow", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0, ZIndex = 0, Interactable = false }, f) -- under the card's own content
-	paint(glow, "BackgroundColor3", "accent")
+	paint(glow, "BackgroundColor3", "text") -- a lit card is washed in the text colour, never the accent: accent on accent had no contrast
 	if cr then new("UICorner", { CornerRadius = cr.CornerRadius }, glow) end
 	new("UIGradient", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 1), NumberSequenceKeypoint.new(1, 0) }) }, glow)
 	local rest
 	S.hover(f, function(v)
 		if v then local k = st and themed[st] and themed[st].Color; rest = st and (k and col(k) or st.Color) end -- the painted colour, not one caught mid tween
 		tw(glow, { BackgroundTransparency = v and ST.glow.cardHover or ST.glow.idle }, 0.16)
-		if st and rest then tw(st, { Color = v and rest:Lerp(S.accent, ST.hoverTint) or rest }, 0.16) end
+		if st and rest then tw(st, { Color = v and rest:Lerp(col("text"), ST.hoverTint) or rest }, 0.16) end
 	end)
 end
 -- notched slider (iOS style): the knob follows the finger / mouse freely, the value snaps to the nearest notch and the knob settles into it on release. opts = { { label, value }, ... } in track order. Look = S.sliderParts
@@ -5836,12 +6188,14 @@ do
 	local lay = new("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, holder)
 	ui.actScale = new("UIScale", {}, holder)
 	local items, n = {}, 0
+	ui.actHolder, ui.actCorner = holder, CORNER -- the active effects feed below lives in the same stack
 	function ui.actLayout()
 		local c = CORNER[cfg.mod.actCorner] or CORNER.BL
 		holder.AnchorPoint = Vector2.new(c[1], c[2])
 		holder.Position = UDim2.new(c[1], c[1] == 0 and 16 or -16, c[2], c[2] == 0 and 16 or -16)
 		lay.HorizontalAlignment = c[1] == 0 and Enum.HorizontalAlignment.Left or Enum.HorizontalAlignment.Right
 		lay.VerticalAlignment = c[2] == 0 and Enum.VerticalAlignment.Top or Enum.VerticalAlignment.Bottom
+		if ui.actReorder then ui.actReorder() end
 	end
 	function ui.act(label, value)
 		if not cfg.mod.actOn then return end
@@ -5877,6 +6231,146 @@ do
 		end)
 	end
 	ui.actLayout()
+end
+
+-- active effects: one line per effect that is ON, kept in the corner stack until it is turned off. Read from state.active every 0.2 s, so every way an effect can end
+-- (command, death, jump, reset all, a script) removes its line. One-shot commands and "off" still pop up and fade (ui.act above). Look: the pop-up pill with an accent dot
+do
+	local H, CORNER = ui.actHolder, ui.actCorner
+	local pers, seq = {}, 0
+	local function order(e) -- active lines hug the corner: under the pop-ups in a bottom corner, above them in a top corner
+		local top = (CORNER[cfg.mod.actCorner] or CORNER.BL)[2] == 0
+		return top and (-1000000 + e.seq) or (1000000 + e.seq)
+	end
+	function ui.actReorder()
+		for _, e in pairs(pers) do
+			if e.l.Parent then e.l.LayoutOrder = order(e) end
+		end
+	end
+	local function textOf(k)
+		local d = (state.who and state.who[k]) or (state.val and state.val[k])
+		return ('<font color="%s">●</font>  <b>%s</b>%s'):format(hex(S.accent), esc(k), d and ("  " .. esc(tostring(d):sub(1, 26))) or "")
+	end
+	local function drop(k, e)
+		pers[k] = nil
+		tw(e.l, { BackgroundTransparency = 1, TextTransparency = 1 }, 0.15)
+		tw(e.st, { Transparency = 1 }, 0.15)
+		task.delay(dur(0.15) + 0.05, function() pcall(function() e.l:Destroy() end) end)
+	end
+	function ui.syncActive()
+		local want = cfg.mod.actOn and state.active or {}
+		for k, e in pairs(pers) do
+			if not want[k] or not e.l.Parent then drop(k, e) end
+		end
+		for k in pairs(want) do
+			local text, e = textOf(k), pers[k]
+			if not e then
+				seq = seq + 1
+				local l = new("TextLabel", { AutomaticSize = Enum.AutomaticSize.XY, Size = UDim2.fromOffset(0, 0), BackgroundTransparency = 1, TextTransparency = 1,
+					BorderSizePixel = 0, Font = FONT, TextSize = fs(10), RichText = true, Text = text, ZIndex = 40 }, H)
+				paint(l, "BackgroundColor3", "bar"); paint(l, "TextColor3", "text")
+				new("UICorner", { CornerRadius = UDim.new(0, 8) }, l)
+				new("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), PaddingTop = UDim.new(0, 5), PaddingBottom = UDim.new(0, 5) }, l)
+				local st = new("UIStroke", { Thickness = 1, Transparency = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, l)
+				paint(st, "Color", "accent")
+				e = { l = l, st = st, seq = seq, text = text }
+				l.LayoutOrder = order(e)
+				pers[k] = e
+				tw(l, { BackgroundTransparency = 0.1, TextTransparency = 0 }, 0.12)
+				tw(st, { Transparency = 0.3 }, 0.12)
+			elseif e.text ~= text then -- arguments changed (fly 80 > fly 120) or the accent colour did
+				e.text, e.l.Text = text, text
+			end
+		end
+	end
+	local acc = 0
+	conn(S.RunService.Heartbeat, function(dt)
+		acc = acc + dt
+		if acc < 0.2 then return end
+		acc = 0
+		pcall(ui.syncActive)
+	end)
+end
+
+-- world icons: a small icon above your character while ;ghost or ;blink is on (on the copy you walk around in; only you see it). Drawn from plain frames, no image assets, so it never fails to load.
+-- ghost = a ghost, blink = a running man with a slash (frozen / lagging for everyone else). White shape, dark outline, a small pop when it appears, a slow bob while it is on
+do
+	local D = 56 -- icon box, design pixels
+	local OUT, FILL, EYE, RED = Color3.fromRGB(18, 18, 22), Color3.new(1, 1, 1), Color3.fromRGB(28, 28, 34), Color3.fromRGB(255, 99, 88)
+	-- shapes: { "c", cx, cy, r } circle, { "r", x, y, w, h } rectangle, { "l", x1, y1, x2, y2, thickness } round ended line. pad grows each shape (that is how the outline under the fill is made)
+	local GHOST = { { "c", 28, 22, 18 }, { "r", 10, 22, 36, 22 }, { "c", 16, 44, 6 }, { "c", 28, 44, 6 }, { "c", 40, 44, 6 } }
+	local EYES = { { "c", 21, 26, 3 }, { "c", 35, 26, 3 } }
+	local RUN = {
+		{ "c", 33, 11, 6 },
+		{ "l", 30, 20, 24, 35, 5 }, -- body
+		{ "l", 30, 22, 39, 28, 4.5 }, { "l", 39, 28, 45, 21, 4.5 }, -- front arm
+		{ "l", 30, 22, 21, 26, 4.5 }, { "l", 21, 26, 14, 32, 4.5 }, -- back arm
+		{ "l", 24, 35, 35, 40, 5 }, { "l", 35, 40, 33, 51, 5 }, -- front leg
+		{ "l", 24, 35, 17, 44, 5 }, { "l", 17, 44, 8, 42, 5 }, -- back leg
+	}
+	local SLASH = { { "l", 6, 6, 50, 50, 5 } }
+	local function draw(parent, shapes, pad, color)
+		for _, p in ipairs(shapes) do
+			local f = new("Frame", { BorderSizePixel = 0, BackgroundColor3 = color }, parent)
+			if p[1] == "c" then
+				local r = p[4] + pad
+				f.AnchorPoint, f.Position, f.Size = Vector2.new(0.5, 0.5), UDim2.fromOffset(p[2], p[3]), UDim2.fromOffset(r * 2, r * 2)
+				new("UICorner", { CornerRadius = UDim.new(1, 0) }, f)
+			elseif p[1] == "r" then
+				f.Position, f.Size = UDim2.fromOffset(p[2] - pad, p[3] - pad), UDim2.fromOffset(p[4] + pad * 2, p[5] + pad * 2)
+			else
+				local dx, dy = p[4] - p[2], p[5] - p[3]
+				f.AnchorPoint = Vector2.new(0.5, 0.5)
+				f.Position = UDim2.fromOffset((p[2] + p[4]) / 2, (p[3] + p[5]) / 2)
+				f.Size = UDim2.fromOffset(math.sqrt(dx * dx + dy * dy) + p[6] + pad * 2, p[6] + pad * 2)
+				f.Rotation = math.deg(math.atan2(dy, dx))
+				new("UICorner", { CornerRadius = UDim.new(1, 0) }, f)
+			end
+		end
+	end
+	local function build(kind, fake, part)
+		local gui = new("BillboardGui", { Name = "_klStatusIcon", Size = UDim2.fromOffset(64, 64), AlwaysOnTop = true, LightInfluence = 0,
+			StudsOffset = Vector3.new(0, part.Name == "Head" and 2.4 or 4.4, 0), Adornee = part })
+		local root = new("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(D, D), BackgroundTransparency = 1, BorderSizePixel = 0 }, gui)
+		local sc = new("UIScale", { Scale = 0 }, root)
+		if kind == "ghost" then
+			draw(root, GHOST, 2, OUT); draw(root, GHOST, 0, FILL); draw(root, EYES, 0, EYE)
+		else
+			draw(root, RUN, 2, OUT); draw(root, RUN, 0, FILL)
+			draw(root, SLASH, 3.5, OUT); draw(root, SLASH, 0, RED) -- the dark edge cuts the slash cleanly out of the runner
+		end
+		gui.Parent = part
+		tw(sc, { Scale = 1.15 }, 0.1)
+		task.delay(dur(0.1), function() if sc.Parent then tw(sc, { Scale = 1 }, 0.1) end end)
+		if cfg.anim ~= 0 then
+			S.TweenService:Create(gui, TweenInfo.new(1.2 / cfg.anim, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { StudsOffset = gui.StudsOffset + Vector3.new(0, 0.4, 0) }):Play()
+		end
+		return { kind = kind, fake = fake, gui = gui, sc = sc }
+	end
+	local function drop(c)
+		pcall(function()
+			if cfg.anim == 0 or not c.gui.Parent then c.gui:Destroy() return end
+			tw(c.sc, { Scale = 0 }, 0.1)
+			task.delay(dur(0.1) + 0.05, function() pcall(function() c.gui:Destroy() end) end)
+		end)
+	end
+	local cur, acc, bad = nil, 0, nil
+	conn(S.RunService.Heartbeat, function(dt)
+		acc = acc + dt
+		if acc < 0.1 then return end
+		acc = 0
+		local b = state.blink
+		local kind = (b and b.fake and b.fake.Parent) and (b.ghost and "ghost" or "blink") or nil
+		if cur and (kind ~= cur.kind or b.fake ~= cur.fake or not cur.gui.Parent) then drop(cur); cur = nil end
+		if not kind then bad = nil end
+		if kind and not cur and b.fake ~= bad then
+			local part = b.fake:FindFirstChild("Head") or b.fake:FindFirstChild("HumanoidRootPart")
+			if part then
+				local ok, c = pcall(build, kind, b.fake, part) -- an icon problem never touches blink itself
+				if ok then cur = c else bad = b.fake end
+			end
+		end
+	end)
 end
 
 -- user notifier card (;notifyuser): themed like the toast, avatar + display name + username + status, accent ring pulse, 2 pings, stays 20 s, click closes. Shown even with Notifications off
@@ -6395,7 +6889,7 @@ end)
 	local function sugHighlight(still) -- still = hover: no scrolling, so rows don't slide under the mouse
 		for i, it in ipairs(S.sugItems or {}) do
 			local on = i == S.sugSel
-			paint(it.lbl, "BackgroundColor3", on and "accent" or "text")
+			paint(it.lbl, "BackgroundColor3", "text") -- the highlighted row is a neutral wash, not the accent
 			it.lbl.BackgroundTransparency = on and 0.85 or 1
 			if on and not still then -- keep the selected row inside its scroll window
 				local sf, y = it.sf or it.lbl.Parent, it.rowY or (it.lbl.LayoutOrder - 1) * ROW
