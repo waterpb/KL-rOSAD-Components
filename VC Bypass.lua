@@ -4,13 +4,13 @@
 -- [PORTS] rOSAD link: listen()/send(), env.KLOSAD.ctx.bus | listen, send, K_ctx | deps: BOOT | L67-79
 -- [LOOK] rOSAD palette, accent, opacity, animation speed, repaint | THEMES, col(), paint(), opx(), tw(), applyLook() | deps: PORTS | L81-167
 -- [KIT] rOSAD widgets: fr, txt, button, toast | fr(), txt(), mkBtn(), toast() | deps: LOOK | L169-258
--- [GUI_ROOT] gui container + old UI cleanup | guiRoot, attach() | deps: BOOT | L260-318
--- [PANEL] window, title bar, drag, content, placement | panel, execBtn, micBtn, chips, place() | deps: KIT, GUI_ROOT | L320-432
--- [STATE] mode/executed/muted + status text, push() | mode, executed, muted, setExec(), push() | deps: PANEL | L434-485
--- [MIC_HUD] V1 mic hud | ensureMicHud(), syncHud() | deps: STATE | L487-527
--- [BYPASS_ONE] V1 bypass | waitMicUnmuted(), runBypassV1() | deps: STATE | L529-585
--- [BYPASS_TWO] V2 bypass | runBypassV2() | deps: STATE | L587-745
--- [WIRING] buttons, ports commands, show/hide, kill, ENTRY | doCmd(), setOpen(), Kill() | deps: all | L747-869
+-- [GUI_ROOT] gui container + old UI cleanup | guiRoot, attach() | deps: BOOT | L260-320
+-- [PANEL] window, title bar, drag, content, placement | panel, execBtn, micBtn, chips, place() | deps: KIT, GUI_ROOT | L322-430
+-- [STATE] mode/executed/muted + status text, push() | mode, executed, muted, setExec(), push() | deps: PANEL | L432-483
+-- [MIC_HUD] V1 mic hud | ensureMicHud(), syncHud() | deps: STATE | L485-525
+-- [BYPASS_ONE] V1 bypass | waitMicUnmuted(), runBypassV1() | deps: STATE | L527-583
+-- [BYPASS_TWO] V2 bypass | runBypassV2() | deps: STATE | L585-743
+-- [WIRING] buttons, ports commands, show/hide, kill, ENTRY | doCmd(), setOpen(), Kill() | deps: all | L745-877
 --=====================================================================
 --  VC Bypasser (KL rOSAD component)
 --  Same bypass core as before (Bypass V1 / Bypass V2 + mic mute handling).
@@ -21,7 +21,7 @@
 --               "vcb:cmd"   open close toggle mute unmute togglemute v1 v2 run state kill
 --     sends     "vcb:state" { open, version, mode, executed, muted, busy }
 --  Without rOSAD it still works on its own (RightShift toggles the panel,
---  the little "VC" chip reopens it). Closing only minimizes the panel; re-running the
+--  a "VC Bypass" line at the bottom reopens it). Closing only minimizes the panel; re-running the
 --  script just reopens it and never rebuilds or disturbs a running bypass.
 --=====================================================================
 
@@ -292,15 +292,17 @@ end
 
 -- toasts: rOSAD's own toast when rOSAD is there (same look, same Toasts setting), a small copy of it otherwise
 local toastGui, toastStack, toastN = nil, nil, 0
+local function ensureToastGui()
+	if toastGui then return end
+	toastGui = new("ScreenGui", { Name = "VCBypass_Toasts", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 240, ZIndexBehavior = Enum.ZIndexBehavior.Sibling })
+	attach(toastGui)
+	toastStack = new("Frame", { AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -18), Size = UDim2.fromOffset(300, 0), BackgroundTransparency = 1 }, toastGui)
+	new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder, HorizontalAlignment = Enum.HorizontalAlignment.Center, VerticalAlignment = Enum.VerticalAlignment.Bottom }, toastStack)
+end
 local function toast(msg, secs)
 	msg, secs = tostring(msg or ""), tonumber(secs) or 3
 	if K_ctx and K_ctx.notify then return pcall(K_ctx.notify, msg, secs) end
-	if not toastGui then
-		toastGui = new("ScreenGui", { Name = "VCBypass_Toasts", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 240, ZIndexBehavior = Enum.ZIndexBehavior.Sibling })
-		attach(toastGui)
-		toastStack = new("Frame", { AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -18), Size = UDim2.fromOffset(300, 0), BackgroundTransparency = 1 }, toastGui)
-		new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder, HorizontalAlignment = Enum.HorizontalAlignment.Center, VerticalAlignment = Enum.VerticalAlignment.Bottom }, toastStack)
-	end
+	ensureToastGui()
 	toastN = toastN + 1
 	local card = fr(toastStack, 0, 0, 300, 34, "panel", 0.1, ST.rCtrl, "edge", 1, ST.cardEdge)
 	card.LayoutOrder = toastN
@@ -412,10 +414,6 @@ paint(micIcon, "ImageColor3", "text")
 local note = txt(inner, NOTES[1], 9, "sub", 14, 94, IW - 28, 16, { TextTruncate = Enum.TextTruncate.AtEnd })
 local statusDot = fr(inner, 14, 116, 6, 6, "accent", 0, 3)
 local status = txt(inner, "Idle", 9, "sub", 26, 111, IW - 40, 16, { TextTruncate = Enum.TextTruncate.AtEnd })
-
--- reopen chip: closing the panel only minimizes it to this chip (re-executing the script, ;vcb or Load scripts also bring it back)
-local reopen = mkBtn(panelGui, 0, 0, 46, 28, "VC", "secondary", function() end, ST.rCtrl)
-reopen.b.AnchorPoint, reopen.b.Position, reopen.b.Visible = Vector2.new(0.5, 0), UDim2.new(0.5, 0, 0, 46), false
 
 local function place()
 	local cam = workspace.CurrentCamera
@@ -789,9 +787,20 @@ chip2.b.MouseButton1Click:Connect(function() pickVersion(2) end)
 execBtn.b.MouseButton1Click:Connect(function() if execBtn.enabled then runBypass() end end)
 micBtn.b.MouseButton1Click:Connect(function() setMuted(nil) end)
 
-local function setOpen(open)
+local setOpen
+local pill -- standalone only: the minimized panel is a clickable line in this script's own toast stack. With rOSAD it is a line in rOSAD's notification feed instead (it reads "vcb:state")
+local function showPill(on)
+	if bus then return end
+	if on and not pill then
+		ensureToastGui()
+		pill = mkBtn(toastStack, 0, 0, 300, 30, "VC Bypass  ·  click to open", "secondary", function() setOpen(true) end)
+		pill.b.LayoutOrder = 0
+	end
+	if pill then pill.b.Visible = on end
+end
+function setOpen(open)
 	panel.Visible = open
-	reopen.b.Visible = not open
+	showPill(not open)
 	if open then
 		task.defer(place)
 		syncGlowBar()
@@ -801,7 +810,6 @@ local function setOpen(open)
 	push()
 end
 closeBtn.b.MouseButton1Click:Connect(function() setOpen(false) end)
-reopen.b.MouseButton1Click:Connect(function() setOpen(true) end)
 
 local function Kill()
 	if not alive then return end
