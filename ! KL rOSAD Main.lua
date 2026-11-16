@@ -1,26 +1,26 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py)
 -- [BOOT] version, env, wait for game, single-run guard, unload old runs | VERSION, DIR, env | deps: none | L24-46
--- [DATA] builtin slots, GitHub links, welcome/home/tip text | BUILTIN, GITHUB, WELCOME, TIPS | deps: BOOT | L48-169
--- [STATE] service cache, settings load/save, Module Cfg defaults | S, cfg, save(), MODDEF | deps: BOOT | L171-257
--- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L259-428
--- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L430-1092
--- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1094-1926
--- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools, autoexec, autostart, notifier, cleanup, update | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1928-5710
--- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L5712-6703
--- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L6705-7267
--- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7269-7639
--- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L7641-7930
--- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L7932-8484
--- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L8485-8891
--- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L8893-9009
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9011-9092
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9094-9125
--- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9127-9148
--- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9150-9273
--- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9275-9508
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow() | deps: PG_FLOW | L9510-9610
--- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L9612-9701
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L9703-9892
+-- [DATA] builtin slots, GitHub links, welcome/home/tip text | BUILTIN, GITHUB, WELCOME, TIPS | deps: BOOT | L48-170
+-- [STATE] service cache, settings load/save, Module Cfg defaults | S, cfg, save(), MODDEF | deps: BOOT | L172-258
+-- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L260-429
+-- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L431-1121
+-- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1123-1955
+-- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools, autoexec, autostart, notifier, cleanup, playernames, update, void/autovoid | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1957-6056
+-- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L6058-7079
+-- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L7081-7643
+-- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7645-8015
+-- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L8017-8306
+-- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L8308-8860
+-- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L8861-9267
+-- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L9269-9385
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9387-9468
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9470-9501
+-- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9503-9524
+-- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9526-9649
+-- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9651-9884
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow(), section search box | deps: PG_FLOW | L9886-10015
+-- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L10017-10106
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L10108-10305
 -- [BOOT]
 local VERSION = "1.2"
 local DIR = "KLOSAD"
@@ -39,7 +39,7 @@ for _, fn in ipairs(olds) do pcall(fn) end
 pcall(function() game:GetService("ContextActionService"):UnbindAction("KLOSAD_Shift") end)
 pcall(function() game:GetService("ContextActionService"):UnbindAction("KLOSAD_Block") end)
 -- a run that errored before the end, or lost env.KLOSAD, leaves its gui, blur and render steps behind; they stack with this run and eat fps
-for _, n in ipairs({ "KLSync", "KLSpiderCam", "KLOSAD_Mouse" }) do pcall(function() game:GetService("RunService"):UnbindFromRenderStep(n) end) end
+for _, n in ipairs({ "KLSync", "KLSpiderCam", "KLOSAD_Mouse", "KLVoid" }) do pcall(function() game:GetService("RunService"):UnbindFromRenderStep(n) end) end
 for _, get in ipairs({ function() return game:GetService("CoreGui") end, function() return game:GetService("Players").LocalPlayer.PlayerGui end, function() return game:GetService("Lighting") end }) do
 	pcall(function() for _, o in ipairs(get():GetChildren()) do if o.Name == "KLOSAD" or o.Name == "KLOSAD_Blur" then o:Destroy() end end end)
 end
@@ -97,6 +97,7 @@ local GITHUB = {
 	{ name = "Tetris", desc = "Tetris in a window", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/Tetris%20Localscript.lua" },
 	{ name = "WWA Phantom Forces (Workwell)", desc = "WorkWell aim assist for Phantom Forces", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/WWA%20Phantom%20Forces.lua" },
 	{ name = "Tool Properties Editor", desc = "Edits properties for tools (inventory)", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/Properties%20Editor.lua" },
+	{ name = "VC Bypasser", desc = "Voice chat bypass: prevents you from getting kicked from voice chat", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/refs/heads/main/VC%20Bypass.lua" },
 	{ name = "KL PF XP", desc = "Half-Life / GoldSrc style movement in Phantom Forces", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/KL%20PF%20XP.lua" },
 }
 
@@ -237,7 +238,7 @@ local MODDEF = {
 	afRadius = 15, afThreshold = 120, afRestore = 1.5, atpMin = 40, akMax = 80, aeThreshold = 500, aeDuration = 2,
 	afkInterval = 60, spamCount = 3, avHeight = 50, defNotify = true,
 	floatStep = 3, espCustom = false, espColor = "#FF3B3B", actOn = true, actCorner = "BL",
-	predOn = false, predMult = 1, srvShow = false, srvHide = 0.5,
+	predOn = false, predMult = 1, srvShow = false, srvHide = 0.5, attachWeld = "rep", -- attachWeld: "rep" / "weld" / "both" / "off" (on by default, see ;attachweld)
 	chStyle = "Cross", chLen = 6, chGap = 4, chThick = 2, chOutline = 1, chOutlineAlpha = 1, chColor = "#00FF00", chCursor = false,
 	headDist = 1.5, headHeight = 1.5, headSide = 0, headSweep = true, headSweepAmp = 0.5, headSweepSpeed = 10,
 	backDist = 1.2, backHeight = 0.5, backSide = 0, backSweep = true, backSweepAmp = 0.5, backSweepSpeed = 20, srvPingMult = 2,
@@ -440,6 +441,30 @@ local ctx = {
 }
 local lp, state = ctx.lp, ctx.state
 
+-- PORTS: a tiny event bus so loaded modules stay in sync with rOSAD without touching its locals.
+-- ctx.bus.on(name, fn, replay) listens (returns a function that stops listening; replay = also get the last payload right now), ctx.bus.fire(name, ...) sends.
+-- "look"      rOSAD -> modules  { theme, accent, accentText, opacity, glow, scale, anim }: fired by ui.apply, i.e. on every Look and feel change
+-- "unload"    rOSAD -> modules  rOSAD is closing
+-- "vcb:cmd"   rOSAD -> VC Bypasser  "open" "close" "toggle" "mute" "unmute" "togglemute" "v1" "v2" "run" "state" "kill"
+-- "vcb:state" VC Bypasser -> rOSAD  { open, version, mode, executed, muted, busy }  ({ closed = true } when the module is gone)
+ctx.bus = {}
+do
+	local subs, last = {}, {}
+	ctx.bus.last = last
+	function ctx.bus.on(name, fn, replay)
+		local l = subs[name]
+		if not l then l = {}; subs[name] = l end
+		l[#l + 1] = fn
+		if replay and last[name] then task.spawn(fn, table.unpack(last[name], 1, last[name].n)) end
+		return function() local i = table.find(l, fn); if i then table.remove(l, i) end end
+	end
+	function ctx.bus.fire(name, ...)
+		last[name] = table.pack(...)
+		local l = subs[name]
+		if not l then return end
+		for _, fn in ipairs(table.clone(l)) do task.spawn(fn, ...) end
+	end
+end
 function ctx.notify(msg, secs)
 	if ui.toast and cfg.toasts then ui.toast(tostring(msg), secs) end
 end
@@ -880,6 +905,8 @@ local TOGGLES = {
 }
 TOGGLES.spider, TOGGLES.serverpos = "unspider", "unserverpos"
 TOGGLES.antigameplaypaused = "unantigameplaypaused"
+TOGGLES.autovoid = "unautovoid"
+TOGGLES.playernames = "hidenames" -- also turned off by stopall / Reset all effects / exit
 TOGGLES.hideui = "unhideui" -- also turned off by stopall / Reset all effects / exit, so the interface always comes back
 -- commands that flip themselves on and off and keep state.active up to date on their own
 local SELF = { float = true, blink = true, ghost = true, hide = true }
@@ -1015,7 +1042,7 @@ local TAGS = {
 ctx.CAT_ORDER = { "Movement", "Defense", "Offense", "Players", "Voice", "Camera", "Visuals", "Character", "Privacy", "Server", "Tools", "rOSAD", "Other" }
 local CATS = {
 	Movement = "float unfloat cfly uncfly fly unfly jesus unjesus tpwalk untpwalk hheight follow unfollow sit unsit ragdoll unragdoll spin unspin look unlook speed jumppower goto tpto ptp mousetp freeze thaw infjump uninfjump noclip clip blink unblink ghost gravity clear",
-	Defense = "antifling unantifling antisit unantisit antivoid unantivoid antiteleport unantiteleport antiknockback unantiknockback antiattach unantiattach antiearrape unantiearrape antiblur unantiblur antiafk unantiafk antispam unantispam antifreeze unantifreeze",
+	Defense = "antiexploit antifling unantifling antisit unantisit antivoid unantivoid antiteleport unantiteleport antiknockback unantiknockback antiattach unantiattach antiearrape unantiearrape antiblur unantiblur antiafk unantiafk antispam unantispam antifreeze unantifreeze",
 	Offense = "backpack baby headsit heada backa unattach",
 	Players = "view unview userinfo copyid profile players friend unfriend block unblock hide unhide",
 	Voice = "mute unmute listen unlisten nostereo stereo refreshaudio arjvc",
@@ -1028,12 +1055,14 @@ local CATS = {
 	rOSAD = "ui exit cmds config keeposad unkeeposad alias unalias bind unbind loop unloop breakloop prefix fpscap gamedefault text stopall reload panel selftest",
 }
 CATS.Movement = CATS.Movement .. " spider unspider"
-CATS.Defense = CATS.Defense .. " antigameplaypaused unantigameplaypaused"
+CATS.Defense = CATS.Defense .. " antigameplaypaused unantigameplaypaused aer"
 CATS.Visuals = CATS.Visuals .. " serverpos unserverpos"
 CATS.Visuals = CATS.Visuals .. " hideui unhideui"
 CATS.Server = (CATS.Server or "") .. " region serverbrowser scanregions serverhop leave"
 CATS.Players = CATS.Players .. " report"
+CATS.Visuals = CATS.Visuals .. " playernames hidenames"
 CATS.Tools = CATS.Tools .. " update"
+CATS.Defense = CATS.Defense .. " void autovoid unautovoid"
 ctx.catOf = {}
 for cat, names in pairs(CATS) do
 	for w in names:gmatch("%S+") do ctx.catOf[w] = cat end
@@ -2303,8 +2332,59 @@ def({ "unserverpos", "unshowpos" }, "", "Hide the server position ghost", "serve
 end)
 if mod.predOn or mod.srvShow then task.defer(function() if mod.srvShow then ctx.srvApply(true) else syncBind(true) end end) end
 
+-- ATTACH WELD (experimental, ;attachweld): the attach loop below only moves YOUR root onto the target every frame, so the target's position reaches you (and everybody else) a little late.
+--   rep  = replicate your root RELATIVE to the target's root (hidden properties PhysicsRepRootPart / PhysicsRepRootRef, needs sethiddenproperty). This is the one that is meant to remove the lag
+--   weld = a local WeldConstraint between your root and the target's root, so on your own screen the two are one rigid body
+--   both = both of them. Everything is pcall'd and undone by detach(), so a missing executor function just does nothing. Prediction (predOn) is skipped while a weld mode is on
+local W = { weld = nil, rep = nil }
+local function weldClear()
+	if W.weld then pcall(function() W.weld:Destroy() end) end
+	W.weld = nil
+	local r = W.rep
+	W.rep = nil
+	if r and r.Parent and sethiddenproperty then
+		pcall(sethiddenproperty, r, "PhysicsRepRootPart", nil)
+		local IH = env.InstanceHandle
+		if IH and IH.new then pcall(function() sethiddenproperty(r, "PhysicsRepRootRef", IH.new(r)) end) end
+	end
+end
+local function weldPre() -- before the loop moves your root: a live weld would drag the target's assembly with it, so open it for that moment
+	if W.weld then W.weld.Enabled = false end
+end
+local function weldPost(r, tr, mode) -- after the loop moved your root onto the target
+	local rep, wl = mode == "rep" or mode == "both", mode == "weld" or mode == "both"
+	if wl then
+		if not (W.weld and W.weld.Parent) then
+			local w = Instance.new("WeldConstraint")
+			w.Name = "_KLAttachWeld"
+			w.Part0, w.Part1 = r, tr
+			w.Parent = r
+			W.weld = w
+			for _, p in ipairs(r.Parent:GetDescendants()) do
+				if p:IsA("BasePart") then p.CanCollide = false end
+			end
+		end
+		W.weld.Part1 = tr -- the target respawned: new root part
+		W.weld.Enabled = true -- re-captures the offset the loop just set (the offsets change live: sweep, Module Cfg)
+	elseif W.weld then
+		pcall(function() W.weld:Destroy() end)
+		W.weld = nil
+	end
+	if rep and sethiddenproperty then
+		pcall(sethiddenproperty, r, "PhysicsRepRootPart", tr)
+		local IH = env.InstanceHandle
+		if IH and IH.new then pcall(function() sethiddenproperty(r, "PhysicsRepRootRef", IH.new(tr)) end) end
+		W.rep = r
+	elseif W.rep then
+		local keep = W.weld
+		W.weld = nil
+		weldClear()
+		W.weld = keep
+	end
+end
 local function detach()
 	ctx.disconnect("attach"); ctx.disconnect("attachJump")
+	weldClear()
 	state.attach = nil
 	local h = ctx.hum()
 	if h then
@@ -2359,10 +2439,14 @@ local function attach(kind, q, off)
 			local head = tc:FindFirstChild("Head") or tt
 			cf = head.CFrame * CFrame.new(0, head.Size.Y / 2 + (tonumber(off) or 1.6), 0)
 		end
+		local wm = mod.attachWeld -- "rep" / "weld" / "both" (;attachweld); on by default
+		if wm == "off" then wm = nil end
+		if wm then weldPre() elseif W.weld or W.rep then weldClear() end
 		r.CFrame = cf
 		r.AssemblyLinearVelocity = Vector3.zero
 		ctx.markMove()
-		if mod.predOn then -- the target's velocity (from its positions) times your ping: where it will be when the server sees you
+		if wm then weldPost(r, tc:FindFirstChild("HumanoidRootPart") or tt, wm) end
+		if mod.predOn and not wm then -- the target's velocity (from its positions) times your ping: where it will be when the server sees you
 			local now, pp = os.clock(), tt.Position
 			if lastP and now > lastT then tvel = tvel:Lerp((pp - lastP) / (now - lastT), 0.35) end
 			lastP, lastT = pp, now
@@ -2378,7 +2462,80 @@ def({ "baby" }, "<player> [offset]", "Sit in front of a player like a baby (jump
 def({ "headsit" }, "<player>", "Sit on a player's head (jump to detach)", "attach head", function(q) attach("headsit", q) end)
 def({ "heada", "headattach" }, "<player> [distance]", "Attach in front of a player's head, facing them (jump to detach)", "attach head face", function(q, o) attach("heada", q, o) end)
 def({ "backa", "backattach" }, "<player> [distance]", "Attach behind a player's back (jump to detach)", "attach back carry", function(q, o) attach("backa", q, o) end)
+def({ "attachweld", "aweld" }, "[rep|weld|both|off]", "Welds the attach commands (backpack, baby, headsit, heada, backa) to the target for less lag. On by default (rep). rep = replicate your root relative to theirs (needs sethiddenproperty), weld = local weld, both, off. No argument toggles on / off", "attach backpack baby headsit heada backa lag latency weld replication", function(a)
+	a = (a or ""):lower()
+	if a == "" then a = (mod.attachWeld ~= "off") and "off" or "rep" end -- no argument toggles
+	if a == "on" then a = "rep" end
+	if a == "off" or a == "false" or a == "0" then
+		a = "off"
+	elseif a ~= "rep" and a ~= "weld" and a ~= "both" then
+		return ctx.notify("attachweld: rep, weld, both or off")
+	end
+	mod.attachWeld = a
+	save()
+	if (a == "rep" or a == "both") and not sethiddenproperty then
+		ctx.notify("Attach weld: " .. a .. " (this executor has no sethiddenproperty, so only the weld part can work)", 5)
+	else
+		ctx.notify(a ~= "off" and ("Attach weld: " .. a .. " (applies to the next attach, or right away if you are attached)") or "Attach weld off")
+	end
+end)
 def({ "unattach" }, "", "Detach from a player", "backpack baby headsit heada backa", detach)
+
+-- ===== VOID: ;void / ;autovoid =====
+-- Really moves your character straight down into the void, holds it there for a moment, then puts it back where it was (everyone sees it, you see it too).
+-- The spot is right under you and only a little above the destroy height (same margin as ;antivoid, so ;antivoid does not fire), so the server never kills you.
+-- Every frame the character is held there with zero velocity, so it does not fall. Anything copying your position (backpack, headsit, a follow loop) goes down with you and is left there.
+-- shortcut: the margin comes from Module Cfg "Anti void: height above destroy" + 15, a map with a lower destroy height than Roblox's own is not known, when to upgrade: read it from the map.
+do
+	local busy, back, tok
+	local function finish(ok)
+		busy = nil
+		ctx.disconnect("void"); state.voiding = nil
+		local r = ctx.root()
+		if ok and r and back then
+			ctx.markMove()
+			r.CFrame = back
+			r.AssemblyLinearVelocity, r.AssemblyAngularVelocity = Vector3.zero, Vector3.zero
+		end
+	end
+	local function void(secs, depth)
+		local r, h = ctx.root(), ctx.hum()
+		if not (r and h) or h.Health <= 0 then return end
+		if state.blink then return ctx.notify("Void: not while blink / ghost is on") end
+		if busy then return end
+		local T = math.clamp(tonumber(secs) or 0.4, 0.1, 3)
+		local fp = workspace.FallenPartsDestroyHeight
+		if fp < -1e5 then fp = -500 end
+		back = r.CFrame
+		local d = tonumber(depth) or 3.2 -- studs above the destroy height: the very edge of the void. Anything attached sits at an offset in YOUR space, so while you spin it swings under the line before you do. A big number (e.g. 65) = safe, nothing dies
+	local at = CFrame.new(back.X, math.min(back.Y, fp + d), back.Z)
+	local rot = back - back.Position
+	local SPIN = { CFrame.Angles(math.pi, 0, 0), CFrame.Angles(math.pi / 2, 0, 0), CFrame.Angles(-math.pi / 2, 0, 0), CFrame.Angles(0, 0, math.pi / 2), CFrame.Angles(0, 0, -math.pi / 2) } -- a different side of you points down every frame
+	local n = 0
+		local t0 = os.clock()
+		busy = true
+		state.voiding = true -- ;antivoid must not pull you out of it
+		ctx.connect("void", RS.PreSimulation, function()
+			local rr, hh = ctx.root(), ctx.hum()
+			if rr ~= r or not hh or hh.Health <= 0 or not S.alive then return finish(false) end -- died / respawned: stay where the game puts you
+			if os.clock() - t0 >= T then return finish(true) end
+			ctx.markMove()
+			n = n % #SPIN + 1
+			rr.CFrame = at * rot * SPIN[n]
+			rr.AssemblyLinearVelocity, rr.AssemblyAngularVelocity = Vector3.zero, Vector3.zero
+		end)
+	end
+	function ctx.voidStop() tok = nil; if busy then finish(true) end end
+	def({ "void" }, "[seconds] [studs above destroy height]", "Drop to the very edge of the void (default 3.2 studs above the destroy height), spin on every axis for a moment (default 0.4 s) and come back. Anything attached to you swings under the line and dies. A big number (65) = safe, nothing dies", "server position exploiter attached shake lose follow desync", void)
+	def({ "autovoid" }, "[seconds between] [studs above destroy height]", "Void again every second (or the interval you give) until ;unautovoid", "server position exploiter attached shake lose follow desync loop", function(iv, dp)
+		local every, my = math.max(tonumber(iv) or 1, 0.6), {}
+		tok = my
+		task.spawn(function()
+			while tok == my and S.alive do void(nil, dp); task.wait(every) end
+		end)
+	end)
+	def({ "unautovoid" }, "", "Stop the automatic void", "server position exploiter attached shake desync", function() tok = nil end)
+end
 def({ "config", "cfg" }, "", "Open Module Cfg in the panel", "module settings options values defaults", function() ctx.openTab("Module Cfg") end)
 
 -- stand up for real: Sit = false alone leaves the chair's weld on you, so you hang upright in the air ("float").
@@ -2787,8 +2944,14 @@ do
 		local a, an = t.Animation, lp.Character and lp.Character:FindFirstChild("Animate")
 		return not (a and an and a:IsDescendantOf(an) and a.Parent and LOCO[a.Parent.Name:lower()])
 	end
-	local function take(t)
-		if cur ~= t then cur, last = t, 0 end -- the same track coming back (our own replay fires AnimationPlayed too) keeps its position
+	local busyAt = 0 -- last time something was walking / jumping / falling / sitting you (the only things a kept animation has to survive)
+	local function take(t, quiet)
+		if cur ~= t then
+			local old = cur
+			cur, last = t, 0 -- the same track coming back (our own replay fires AnimationPlayed too) keeps its position
+			-- SWITCHING: the animation you were keeping has to stop, or it plays on under the new one for ever (an emote started mid air by playHere is not known to the Animate script, which therefore never stops it). That was the "stuck, cannot switch" bug
+			if old and not quiet and old.IsPlaying then pcall(function() old:Stop(0.1) end) end
+		end
 		pcall(function() t.Priority = Enum.AnimationPriority.Action4 end)
 	end
 	local function unhook()
@@ -2819,7 +2982,7 @@ do
 		if not an or lp.Character ~= c or my ~= gen then return end
 		animator = an
 		ctx.connect("kemotePlay", an.AnimationPlayed, function(t) if emoteLike(t) then take(t) end end)
-		for _, t in ipairs(an:GetPlayingAnimationTracks()) do if emoteLike(t) then take(t) end end
+		for _, t in ipairs(an:GetPlayingAnimationTracks()) do if emoteLike(t) then take(t, true) end end
 		-- after a respawn the Animate script has only just been cloned in: its PlayEmote function and the callback on it appear a moment later, so wait for them instead of giving up
 		local animate = c:WaitForChild("Animate", 10)
 		local bf = animate and animate:WaitForChild("PlayEmote", 10)
@@ -2856,9 +3019,12 @@ do
 			local t = cur
 			if not t then return end
 			if not h or h.Health <= 0 then cur = nil; return end
+			if h.MoveDirection.Magnitude > 0.05 or h.FloorMaterial == Enum.Material.Air or h.Sit then busyAt = now end
 			if t.IsPlaying then last = t.TimePosition; return end
 			local len = t.Length -- 0 until the animation has loaded: that is not "ended"
 			if len > 0 and not t.Looped and last >= len - 0.25 then cur = nil; return end -- a one-shot that ran to its end
+			-- it stopped while you stood still on the ground: nothing walked / jumped / sat you out of it, so you or the game ended it on purpose. Let it go (replaying it is what trapped you in it)
+			if now - busyAt > 0.4 then cur = nil; return end
 			local pos = last -- read before Play: Play can fire AnimationPlayed
 			pcall(function() t:Play(0.1); if pos > 0 then t.TimePosition = pos end end)
 		end)
@@ -2891,6 +3057,67 @@ def({ "goto", "tp" }, "<player>", "Teleport to a player", "teleport move", funct
 end)
 def({ "tpto" }, "<x> <y> <z>", "Teleport to coordinates", "teleport position", function(x, y, z)
 	if ctx.root() then ctx.markMove(); ctx.root().CFrame = CFrame.new(tonumber(x) or 0, tonumber(y) or 0, tonumber(z) or 0) end
+end)
+-- ;antiexploit: shakes off somebody who is attached to you (backpack, headsit... or any script that keeps copying your position).
+-- You fly away on a straight line, fast but smooth enough that their loop keeps following (a jump would just make them lose you at once), then snap back to where you were in one frame: they are left far away with a delay.
+-- Defaults: 100000 studs forward, 10000 up, 2 s out + 0.5 s hold = about 2.5 s in all. Every frame is marked as your own move (anti teleport), velocity stays zero so nothing builds up and you cannot take fall damage.
+def({ "antiexploit", "ae" }, "[distance] [height] [seconds]", "Shake off an exploiter who is attached to you: fly 100000 studs away and 10000 up (fast, but smooth enough that they follow), then snap back to where you were. About 2.5 seconds in all", "attach attached exploiter shake lose follow backpack headsit fling", function(dist, height, secs)
+	local reset = state.aeReset; state.aeReset = nil -- set by ;aer, read first so an early return never leaves it on
+	local r, h = ctx.root(), ctx.hum()
+	if not (r and h) or h.Health <= 0 then return end
+	if state.antiExploit then return ctx.notify("Anti exploit is already running") end
+	local D = math.clamp(tonumber(dist) or 100000, 1000, 1000000)
+	local Y = math.clamp(tonumber(height) or 10000, 0, 200000)
+	local T = math.clamp(tonumber(secs) or 2, 0.6, 6) -- the flight out
+	local HOLD = 0.5 -- time spent out there before snapping back
+	local origin = r.CFrame
+	local look = Vector3.new(origin.LookVector.X, 0, origin.LookVector.Z)
+	look = look.Magnitude > 0.01 and look.Unit or Vector3.new(1, 0, 0)
+	local rot = origin - origin.Position
+	local away = look * D + Vector3.new(0, Y, 0)
+	local t0 = os.clock()
+	state.antiExploit = true
+	ctx.notify("Anti exploit: moving away...", 1.5)
+	local function finish(back)
+		ctx.disconnect("antiexploit")
+		state.antiExploit = nil
+		if back == "reset" then -- ;aer: die out there, then put the next body back where you were
+			local h = ctx.hum()
+			local conn
+			conn = lp.CharacterAdded:Connect(function(c)
+				conn:Disconnect()
+				local r = c:WaitForChild("HumanoidRootPart", 10)
+				for _ = 1, 10 do -- a few frames, the game's spawn logic may move you after it
+					if not (r and r.Parent) then break end
+					ctx.markMove(); r.CFrame = origin
+					RS.Heartbeat:Wait()
+				end
+			end)
+			task.delay(15, function() conn:Disconnect() end) -- no respawn came
+			ctx.unpark(false)
+			if h then h.Health = 0 end
+			return
+		end
+		local rr = ctx.root()
+		if rr then
+			if back then ctx.markMove(); rr.CFrame = origin end
+			rr.AssemblyLinearVelocity, rr.AssemblyAngularVelocity = Vector3.zero, Vector3.zero
+		end
+		ctx.unpark(false)
+	end
+	ctx.connect("antiexploit", RS.PreSimulation, function()
+		local rr, hh = ctx.root(), ctx.hum()
+		if not (rr and hh) or hh.Health <= 0 or not S.alive then return finish(false) end -- died / respawned: stay where the game puts you
+		local t = os.clock() - t0
+		if t >= T + HOLD then return finish(reset and "reset" or true) end
+		ctx.markMove()
+		rr.CFrame = CFrame.new(origin.Position + away * math.min(t / T, 1)) * rot
+		rr.AssemblyLinearVelocity, rr.AssemblyAngularVelocity = Vector3.zero, Vector3.zero
+	end)
+end)
+def({ "aer", "antiexploitreset" }, "[distance] [height] [seconds]", "Anti exploit, but you reset at the far end and are teleported back to where you were once you respawn", "attach attached exploiter shake lose follow backpack headsit fling reset respawn", function(...)
+	state.aeReset = true
+	ctx.Commands.antiexploit(...)
 end)
 def({ "mousetp", "mtp" }, "", "Teleport to where your mouse points (bind it to a key)", "teleport cursor click", function()
 	local r, c, cam = ctx.root(), ctx.char(), workspace.CurrentCamera
@@ -3051,7 +3278,7 @@ def({ "antivoid" }, "[height]", "Catch you before the void and put you back on s
 		if h.FloorMaterial ~= Enum.Material.Air then safe = r.CFrame end
 		local fpdh = workspace.FallenPartsDestroyHeight
 		if fpdh < -1e5 then fpdh = -500 end
-		if safe and r.Position.Y < fpdh + margin then
+		if safe and not state.voiding and r.Position.Y < fpdh + margin then
 			ctx.markMove()
 			r.CFrame = safe + Vector3.new(0, 3, 0)
 			r.AssemblyLinearVelocity = Vector3.zero
@@ -3306,14 +3533,19 @@ do
 	end)
 end
 
--- ===== POSITION SPOOFING =====
--- How blink works: your real body stays where you activated it and is anchored on YOUR client only, so the server
--- stops receiving position updates and everyone keeps seeing you standing there. You walk around in a local copy of
--- your character instead, and the frozen real body is drawn at 50% so you can see where the server thinks you are.
---   blink: switching off teleports the real body to where the copy ended up
---   ghost: switching off just drops the copy, so you are "back" at the original spot
--- the Roblox menu's Reset button normally kills only the copy you walk around in. While blink is on it goes through this hook instead: the copy ends, the real body dies, you respawn.
--- resetHook(false) gives the menu its normal Reset back (blinkOff calls it, and the guard below does when blink ended some other way)
+-- ===== POSITION SPOOFING: ;blink / ;ghost =====
+-- One design, nothing patched on top of anything:
+--   * The REAL body (lp.Character) is never swapped, so no CharacterAdded fires and the game and every script keep seeing the same character. It is frozen where it is:
+--     anchored (the server gets no more position updates, everyone keeps seeing you standing there) and drawn at 50% for you.
+--   * The real body gets NO INPUT, of any kind, for as long as blink / ghost is on. The game's control script writes Humanoid.Jump and Humanoid:Move every frame, so:
+--     right before physics (PreSimulation and Stepped) Jump is forced to false and Move is forced to zero, after the control script has written them; and Jump is put back to
+--     false the instant anything sets it. On top of that every humanoid state except Dead is disabled (it cannot jump, fall, land, sit, climb), the Animate script is off and its
+--     playing animation tracks are frozen (no jump / walk animation reaches anyone). The locks only come off after the real body has been restored.
+--   * A client-only COPY of your character is what you walk around in. It is driven by the same movement input (PlayerModule move vector, Space, touch jump), the camera follows it,
+--     and ctx.char() hands it to every other command (fly, speed, noclip, goto ...) while it exists.
+--   * blink: switching off moves the real body to where the copy ended up. ghost: it just drops the copy, so you are back at the start.
+-- the Roblox menu's Reset button normally kills only the copy. While blink is on it goes through this hook instead: the copy ends, the real body dies, you respawn.
+-- resetHook(false) gives the menu its normal Reset back
 local function resetHook(on)
 	if state.blinkReset then pcall(function() state.blinkReset:Destroy() end); state.blinkReset = nil end
 	if not on then
@@ -3334,45 +3566,47 @@ local function resetHook(on)
 		ctx.StarterGui:SetCore("ResetButtonCallback", ev)
 	end)
 end
--- v2: lp.Character is NEVER swapped any more. Swapping it fired CharacterAdded, so the game and every script you run saw a respawn.
--- Now the real body (lp.Character) stays put and anchored, and a client-only copy is driven by your own input (PlayerModule move vector, Space).
-local BLINK_CONNS = { "blinkDeath", "blinkChar", "blinkNC", "blinkGuard", "blinkMove", "blinkJump" }
+
+local BLINK_CONNS = { "blinkDeath", "blinkChar", "blinkNC", "blinkGuard", "blinkMove", "blinkJump", "blinkAnim" } -- everything that drives the copy
+local BLINK_LOCKS = { "blinkLockPre", "blinkLockStep", "blinkLockJump" } -- everything that keeps input off the real body
+
 local function blinkOff()
 	local b = state.blink
 	if not b then return end
-	state.blink = nil
+	state.blink = nil -- from here ctx.char() is the real body again
 	for _, k in ipairs(BLINK_CONNS) do ctx.disconnect(k) end
 	local fr = b.fake and b.fake:FindFirstChild("HumanoidRootPart")
 	local landed = fr and fr.CFrame
 	resetHook(false)
-	-- hand the real body's input back
-	pcall(function() if b.controls and b.oldMove then b.controls.moveFunction = b.oldMove end end)
-
 	local cam = workspace.CurrentCamera
 	local rh
 	if b.real and b.real.Parent then
 		local rr = b.real:FindFirstChild("HumanoidRootPart")
 		rh = b.real:FindFirstChildOfClass("Humanoid")
+		if rh then rh.Jump = false; pcall(rh.Move, rh, Vector3.zero, false) end
+		if b.thaw then pcall(b.thaw) end -- states and animations back BEFORE it is moved / unanchored; the input locks are still on
 		if rr then
 			rr.AssemblyLinearVelocity = Vector3.zero
 			rr.AssemblyAngularVelocity = Vector3.zero
-			-- blink: the real body (and so the server) jumps to where the copy ended up. ghost: it stays at the start, you are simply back there
-			if landed and not b.ghost then ctx.markMove(); rr.CFrame = landed end
+			if landed and not b.ghost then ctx.markMove(); rr.CFrame = landed end -- blink: the real body (and so the server) jumps to where the copy ended up
 			rr.Anchored = state.selfFrozen and true or false
 		end
 		for part, t in pairs(b.alpha) do
 			if part.Parent then part.Transparency = t end
 		end
 	end
+	b.locked = false -- only now may input reach the real body again
+	for _, k in ipairs(BLINK_LOCKS) do ctx.disconnect(k) end
 	if b.fake then b.fake:Destroy() end
-	local h = (rh and rh.Health > 0 and rh) or ctx.hum() -- ctx.hum() is lp.Character's again now that state.blink is gone
+	local h = (rh and rh.Health > 0 and rh) or ctx.hum()
 	if h and cam and not state.viewing then cam.CameraSubject = h end
 	active("blink", nil); active("ghost", nil)
 end
+
 local function blinkOn(ghost)
 	local real, rr, rh = ctx.char(), ctx.root(), ctx.hum()
 	if not (real and rr and rh) then return ctx.notify("No character to blink with") end
-	-- Clone() skips anything with Archivable off, so turn it on for the copy and put it back
+	-- the copy. Clone() skips anything with Archivable off, so turn it on for the copy and put it back
 	local wasArch = {}
 	for _, d in ipairs(real:GetDescendants()) do
 		if d.Archivable == false then wasArch[#wasArch + 1] = d; pcall(function() d.Archivable = true end) end
@@ -3393,38 +3627,67 @@ local function blinkOn(ghost)
 		if d:IsA("BodyMover") or d:IsA("VectorForce") or d:IsA("LineForce") then pcall(function() d:Destroy() end) end
 		if d:IsA("LuaSourceContainer") then pcall(function() d.Disabled = true end) end -- the copy is not your Character, so its scripts must not run
 	end
-	-- the real body: frozen where it is (the server stops getting updates, everyone keeps seeing you there) and drawn at 50% (your own view of the server position)
-	local alpha = {}
+
+	-- THE REAL BODY: frozen, drawn at 50%, and cut off from every input
+	local b = { real = real, fake = fake, ghost = ghost, alpha = {}, locked = true }
 	for _, v in ipairs(real:GetDescendants()) do
 		if v:IsA("BasePart") or v:IsA("Decal") then
-			alpha[v] = v.Transparency
+			b.alpha[v] = v.Transparency
 			v.Transparency = math.max(v.Transparency, 0.5)
 		end
 	end
+	rh.Jump = false
+	pcall(rh.Move, rh, Vector3.zero, false)
 	rr.AssemblyLinearVelocity = Vector3.zero
 	rr.AssemblyAngularVelocity = Vector3.zero
 	rr.Anchored = true
-	-- the real body is left exactly as it was (animations, emotes, humanoid states): it just gets no input from you, see blinkMove / blinkNC
+	-- every humanoid state off except Dead, so jump / fall / land / sit / climb cannot start whatever any script does; Animate off; playing tracks frozen in place
+	local oldStates, oldSpeed, animate = {}, {}, real:FindFirstChild("Animate")
+	local oldAnimate = animate and animate:IsA("LuaSourceContainer") and animate.Disabled
+	for _, st in ipairs(Enum.HumanoidStateType:GetEnumItems()) do
+		if st ~= Enum.HumanoidStateType.Dead and st ~= Enum.HumanoidStateType.None then
+			local okS, was = pcall(rh.GetStateEnabled, rh, st)
+			if okS then oldStates[st] = was; pcall(rh.SetStateEnabled, rh, st, false) end
+		end
+	end
+	if oldAnimate ~= nil then animate.Disabled = true end
+	local ran = rh:FindFirstChildOfClass("Animator")
+	local function freeze(t) if oldSpeed[t] == nil then oldSpeed[t] = t.Speed end pcall(t.AdjustSpeed, t, 0) end
+	if ran then
+		for _, t in ipairs(ran:GetPlayingAnimationTracks()) do freeze(t) end
+		ctx.connect("blinkAnim", ran.AnimationPlayed, freeze)
+	end
+	function b.thaw()
+		for st, was in pairs(oldStates) do pcall(rh.SetStateEnabled, rh, st, was) end
+		for t, sp in pairs(oldSpeed) do pcall(t.AdjustSpeed, t, sp) end
+		if oldAnimate ~= nil and animate.Parent then animate.Disabled = oldAnimate end
+	end
+	-- the input locks: the control script writes Jump and Move every frame (render step), so they are overwritten right before physics runs, and Jump is undone the moment it is set
+	local function lock()
+		if b.locked and rh.Parent then
+			if rh.Jump then rh.Jump = false end
+			rh:Move(Vector3.zero, false)
+		end
+	end
+	ctx.connect("blinkLockPre", RS.PreSimulation, lock)
+	ctx.connect("blinkLockStep", RS.Stepped, lock)
+	ctx.connect("blinkLockJump", rh:GetPropertyChangedSignal("Jump"), function()
+		if b.locked and rh.Jump then rh.Jump = false end
+	end)
+
+	-- the copy goes live
 	fake.Name = real.Name
 	fake.Parent = workspace
 	local cam = workspace.CurrentCamera
 	if not state.viewing then cam.CameraSubject = fh end
-	state.blink = { real = real, fake = fake, ghost = ghost, alpha = alpha }
+	state.blink = b
 	active(ghost and "ghost" or "blink", true)
 
-
-	-- your input drives the copy
+	-- your input drives the copy only
 	local controls
 	pcall(function() controls = require(lp.PlayerScripts:WaitForChild("PlayerModule", 3)):GetControls() end)
-	-- the PlayerModule feeds your move input to lp.Character every frame: swap its move function for a no-op while blink is on (GetMoveVector still works for the copy)
-	pcall(function()
-		if controls and controls.moveFunction then
-			state.blink.controls, state.blink.oldMove = controls, controls.moveFunction
-			controls.moveFunction = function() end
-		end
-	end)
 	local function kd(k) return UIS:IsKeyDown(k) and not UIS:GetFocusedTextBox() end
-	-- animations: the copy's Animate script does not run (it is not your Character), so play the same animations ourselves
+	-- the copy's Animate script does not run (it is not your Character), so play the same animations ourselves
 	local tracks, cur = {}, nil
 	do
 		local an = fake:FindFirstChild("Animate")
@@ -3449,8 +3712,7 @@ local function blinkOn(ghost)
 	end
 	local HS = Enum.HumanoidStateType
 	ctx.connect("blinkMove", RS.RenderStepped, function()
-		local b = state.blink
-		if not (b and b.fake == fake and fake.Parent and fh.Parent) then return end
+		if not (state.blink == b and fake.Parent and fh.Parent) then return end
 		local mv
 		if controls then
 			local ok, v = pcall(controls.GetMoveVector, controls)
@@ -3460,10 +3722,8 @@ local function blinkOn(ghost)
 			mv = Vector3.new((kd(Enum.KeyCode.D) and 1 or 0) - (kd(Enum.KeyCode.A) and 1 or 0), 0, (kd(Enum.KeyCode.S) and 1 or 0) - (kd(Enum.KeyCode.W) and 1 or 0))
 		end
 		fh:Move(mv, true)
-		if rh.Parent then rh.Jump = false; rh:Move(Vector3.zero, false) end -- the real body gets no input
-
 		if kd(Enum.KeyCode.Space) then fh.Jump = true end
-		if not state.viewing and cam.CameraSubject ~= fh then cam.CameraSubject = fh end -- not while ;view is watching someone -- the camera script puts it back on your real humanoid now and then
+		if not state.viewing and cam.CameraSubject ~= fh then cam.CameraSubject = fh end -- the camera script puts it back on your real humanoid now and then (not while ;view watches someone)
 		local r = fake:FindFirstChild("HumanoidRootPart")
 		local st = fh:GetState()
 		local sp = r and Vector3.new(r.AssemblyLinearVelocity.X, 0, r.AssemblyLinearVelocity.Z).Magnitude or 0
@@ -3477,8 +3737,7 @@ local function blinkOn(ghost)
 	ctx.connect("blinkJump", UIS.JumpRequest, function() if fh.Parent then fh.Jump = true end end) -- touch jump button
 	-- the frozen body must not collide with the copy standing inside it
 	ctx.connect("blinkNC", RS.Stepped, function()
-		if rh.Parent then rh.Jump = false end -- last word before physics runs: the real body never jumps, so it plays nothing and tells the server nothing
-		for part in pairs(alpha) do
+		for part in pairs(b.alpha) do
 			if part.Parent and part:IsA("BasePart") then part.CanCollide = false end
 		end
 	end)
@@ -3488,20 +3747,19 @@ local function blinkOn(ghost)
 	end)
 	-- the game gave you a new character (it respawned you): drop the copy and hand the camera over
 	ctx.connect("blinkChar", lp.CharacterAdded, function(c)
-		local b = state.blink
-		if b and c ~= b.real then blinkOff() end
+		if state.blink == b and c ~= b.real then blinkOff() end
 	end)
 	-- safety net: if anything makes this inconsistent, blink ends by itself, says why, and you are never left stuck
 	ctx.connect("blinkGuard", RS.Heartbeat, function()
-		local b = state.blink
-		if not b then
-			if state.blinkReset then resetHook(false) end
+		if state.blink ~= b then
+			if state.blinkReset and not state.blink then resetHook(false) end
 			return
 		end
 		local why
 		if not (b.fake and b.fake.Parent) then why = "the copy was removed"
 		elseif not b.fake:FindFirstChildOfClass("Humanoid") then why = "the copy lost its humanoid"
-		elseif not (b.real and b.real.Parent) then why = "your real body is gone" end
+		elseif not (b.real and b.real.Parent) then why = "your real body is gone"
+		elseif not b.real:FindFirstChildOfClass("Humanoid") then why = "your real body lost its humanoid" end
 		if why then
 			blinkOff()
 			ctx.notify("Blink ended on its own: " .. why, 6)
@@ -3519,6 +3777,7 @@ def({ "unblink", "unghost" }, "", "Turn blink / ghost off (either name works for
 	if state.blink then return blinkOff() end
 	-- nothing to turn off: make sure a failed blink did not leave you frozen or looking at nothing
 	resetHook(false)
+	for _, k in ipairs(BLINK_LOCKS) do ctx.disconnect(k) end
 	local r, h = ctx.root(), ctx.hum()
 	if r and r.Anchored and not state.selfFrozen and not state.parked then r.Anchored = false end
 	if h then workspace.CurrentCamera.CameraSubject = h end
@@ -4817,6 +5076,70 @@ do
 	end
 end
 
+-- ===== PLAYER NAMES: ;playernames / ;hidenames =====
+-- Puts every other player's username above their head at any distance, through walls (AlwaysOnTop, no max distance), also when their avatar is hidden or invisible.
+-- It is its own tag (not Roblox's name tag), kept in a folder outside the characters, so ;hide, ;invisible, the game's name tag settings and blink / ghost do not
+-- touch it. The tag follows a player's head again after each respawn. ;hidenames removes them all.
+-- shortcut: a player whose character is not loaded (StreamingEnabled, far away) has no body to hang the tag on, so it shows when they stream in, when to upgrade:
+-- draw it on an anchored marker at their last seen position (state.seen).
+do
+	local N = { tags = {}, folder = nil }
+	local function holder() -- one folder, kept out of the characters
+		if N.folder and N.folder.Parent then return N.folder end
+		local f = Instance.new("Folder")
+		f.Name = "_klPlayerNames"
+		pcall(function() f.Parent = (gethui and gethui()) or S.CoreGui end)
+		if not f.Parent then f.Parent = lp:FindFirstChildOfClass("PlayerGui") end
+		N.folder = f
+		return f
+	end
+	local function sweep()
+		local here = {}
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p ~= lp then
+				here[p] = true
+				local c = p.Character
+				local part = c and (c:FindFirstChild("Head") or c:FindFirstChild("HumanoidRootPart"))
+				local t = N.tags[p]
+				if not (t and t.gui.Parent) then
+					local g = Instance.new("BillboardGui")
+					g.Name, g.Size, g.AlwaysOnTop, g.MaxDistance, g.LightInfluence, g.ResetOnSpawn = "_klName", UDim2.fromOffset(200, 20), true, math.huge, 0, false
+					local l = Instance.new("TextLabel")
+					l.Size, l.BackgroundTransparency, l.Text, l.Font, l.TextSize = UDim2.fromScale(1, 1), 1, p.Name, Enum.Font.GothamBold, 14
+					l.TextStrokeTransparency, l.TextStrokeColor3 = 0, Color3.new(0, 0, 0)
+					l.Parent = g
+					g.Parent = holder()
+					t = { gui = g, label = l }
+					N.tags[p] = t
+				end
+				if part ~= t.gui.Adornee then
+					t.gui.Adornee = part
+					t.gui.StudsOffset = Vector3.new(0, (part and part.Name == "Head") and 2.2 or 4.6, 0)
+				end
+				t.label.TextColor3 = p.Team and p.TeamColor.Color or Color3.new(1, 1, 1)
+			end
+		end
+		for p, t in pairs(N.tags) do -- a player who left takes the tag along
+			if not here[p] then pcall(function() t.gui:Destroy() end); N.tags[p] = nil end
+		end
+	end
+	def({ "playernames", "usernames", "shownames" }, "", "Show every player's username above them at any distance, through walls, even when their avatar is hidden (;hidenames turns it off)", "name username tag nametag overhead esp player distance far visible show", function()
+		sweep()
+		local acc = 0
+		ctx.connect("playerNames", RS.Heartbeat, function(dt)
+			acc = acc + dt
+			if acc < 0.25 then return end
+			acc = 0
+			pcall(sweep)
+		end)
+	end)
+	def({ "hidenames", "unplayernames", "unusernames" }, "", "Remove the username tags that ;playernames added", "name username tag nametag overhead hide remove off", function()
+		ctx.disconnect("playerNames")
+		for p, t in pairs(N.tags) do pcall(function() t.gui:Destroy() end); N.tags[p] = nil end
+		if N.folder then pcall(function() N.folder:Destroy() end); N.folder = nil end
+	end)
+end
+
 -- ===== REPORT: ;report <type> <player> <reason> [additional] =====
 -- Sends a real Roblox report through Players:ReportAbuse (the same thing the in-game report menu uses). One player at a time, never me / all / others / random.
 -- The command bar fills in the type, the player and the reason as you type (Tab accepts the highlighted one): see Meta.report.complete and ui.argSuggest.
@@ -5149,6 +5472,7 @@ local TOOLS = {
 	workwell = { title = "WorkWell", names = { "workwell" }, builtin = "WorkWell", github = "WorkWell" },
 	hlxp = { title = "KL HL XP", names = { "hlxp" }, builtin = "KL HL XP", github = "HLXP",
 		onKill = function() if env.__HLXP_SHUTDOWN then pcall(env.__HLXP_SHUTDOWN) end end },
+	vcb = { title = "VC Bypasser", names = { "vcb", "vcbypass" }, github = "VC Bypasser", onKill = function() ctx.bus.fire("vcb:cmd", "kill") end, onOpen = function() ctx.bus.fire("vcb:cmd", "open") end },
 	rspy = { title = "RSpy", names = { "rspy", "simplespy", "remotespy" }, github = "RSpy" },
 	alogger = { title = "ALogger", names = { "alogger", "audiologger" }, github = "ALogger" },
 	tetris = { title = "Tetris", names = { "tetris" }, github = "Tetris" },
@@ -5199,7 +5523,10 @@ local function openTool(key)
 				pcall(function() if g:IsA("ScreenGui") then g.Enabled = true end end)
 			end
 		end
-		if any then return ctx.notify(t.title .. " reopened") end
+		if any then
+				if t.onOpen then t.onOpen() end -- a tool that only minimizes (VC Bypasser) is told to come back
+				return ctx.notify(t.title .. " reopened")
+			end
 	end
 	local src, err = toolSource(t)
 	if not src then return ctx.notify(t.title .. ": " .. err, 5) end
@@ -5253,7 +5580,7 @@ ctx.openTool = openTool
 -- Load scripts rows use this, so a tool started from the panel is the same tool ;kill knows about
 ctx.toolKey = { ["Dex++"] = "dex", Dex = "dex", Cobalt = "cobalt", Kelsec = "kelsec", WorkWell = "workwell",
 	["Lighting Utility"] = "liu", LiU = "liu", HLXP = "hlxp", ["KL HL XP"] = "hlxp", RSpy = "rspy", ALogger = "alogger",
-	Tetris = "tetris", ["WWA Phantom Forces (Workwell)"] = "wwapf", ["Tool Properties Editor"] = "tooleditor", ["KL PF XP"] = "klpfxp" }
+	Tetris = "tetris", ["WWA Phantom Forces (Workwell)"] = "wwapf", ["Tool Properties Editor"] = "tooleditor", ["KL PF XP"] = "klpfxp", ["VC Bypasser"] = "vcb" }
 ctx.killTools = function()
 	for key in pairs(TOOLS) do
 		local a = killTool(key)
@@ -5273,6 +5600,25 @@ def({ "untetris" }, "", "Unload Tetris", "game close stop", function()
 	local a = killTool("tetris")
 	local b = killByName("tetris")
 	ctx.notify((a or b) and "Tetris closed" or "Tetris isn't loaded")
+end)
+-- ;vcb opens the VC Bypasser panel (loads the module once). ;vcb mute / unmute / v1 / v2 / run / close talk to it through the ports (ctx.bus), and it reports back its state
+ctx.bus.on("vcb:state", function(s) state.vcb = (s and not s.closed) and s or nil end)
+-- closing the VC Bypasser only minimizes it: its name then sits in the notification feed (bottom corner) as a line that lights up on hover / click and opens it again
+ui.actClick = ui.actClick or {}
+ui.actClick.vcbypass = function() ctx.bus.fire("vcb:cmd", "open") end
+function ui.vcbText() -- nothing after the name until a bypass is running
+	local s = state.vcb
+	if s and s.executed then return s.muted and "muted" or "bypassed" end
+end
+def({ "vcb", "vcbypass" }, "[mute|unmute|v1|v2|run|close]", "Opens the voice chat bypass module. Prevents you from getting kicked from voice chat (optional: mute, unmute, v1, v2, run or close)", "voice chat vc bypass kick mute", function(a)
+	local cmd = (a or ""):lower()
+	if cmd == "" then cmd = "toggle" end
+	if state.vcb then return ctx.bus.fire("vcb:cmd", cmd) end
+	openTool("vcb")
+	task.spawn(function()
+		for _ = 1, 40 do if state.vcb then break end task.wait(0.25) end
+		if state.vcb and cmd ~= "toggle" and cmd ~= "open" then ctx.bus.fire("vcb:cmd", cmd) end -- a fresh load opens its panel by itself
+	end)
 end)
 def({ "workwellpf", "wwapf" }, "", "Load WorkWell for Phantom Forces (;kill wwapf closes it)", "aim assist phantom forces pf", function() openTool("wwapf") end)
 def({ "properties", "tooleditor" }, "", "Load the Tool Properties Editor (;kill tooleditor closes it)", "tool properties edit inventory", function() openTool("tooleditor") end)
@@ -6248,8 +6594,8 @@ do
 		end
 	end
 	local function textOf(k)
-		local d = (state.who and state.who[k]) or (state.val and state.val[k])
-		return ('<font color="%s">●</font>  <b>%s</b>%s'):format(hex(S.accent), esc(k), d and ("  " .. esc(tostring(d):sub(1, 26))) or "")
+		local d = (k == "vcbypass" and ui.vcbText and ui.vcbText()) or (state.who and state.who[k]) or (state.val and state.val[k])
+		return ('<font color="%s">●</font>  <b>%s</b>%s'):format(hex(S.accent), esc(k == "vcbypass" and "VC Bypass" or k), d and ("  " .. esc(tostring(d):sub(1, 26))) or "")
 	end
 	local function drop(k, e)
 		pers[k] = nil
@@ -6259,6 +6605,12 @@ do
 	end
 	function ui.syncActive()
 		local want = cfg.mod.actOn and state.active or {}
+		if state.vcb and state.vcb.open == false then -- the minimized VC Bypasser: a line in this feed (also with active notices off, it is the way back)
+			local w = {}
+			for k in pairs(want) do w[k] = true end
+			w.vcbypass = true
+			want = w
+		end
 		for k, e in pairs(pers) do
 			if not want[k] or not e.l.Parent then drop(k, e) end
 		end
@@ -6274,6 +6626,26 @@ do
 				local st = new("UIStroke", { Thickness = 1, Transparency = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, l)
 				paint(st, "Color", "accent")
 				e = { l = l, st = st, seq = seq, text = text }
+				local go = ui.actClick and ui.actClick[k] -- a line with a click action (ui.actClick[name] = fn) is a button: it lights up on hover and press, like a rOSAD chip
+				if go then
+					l.Active = true
+					local sc = new("UIScale", {}, l)
+					local hot, down = false, false
+					local function lit()
+						local a = down and 0.34 or hot and 0.2 or 0 -- how far the fill drifts toward the accent
+						tw(l, { BackgroundColor3 = col("bar"):Lerp(S.accent, a), BackgroundTransparency = (down or hot) and 0.02 or 0.1 }, 0.1)
+						tw(st, { Transparency = down and 0 or hot and 0.05 or 0.3 }, 0.1)
+						tw(sc, { Scale = down and ST.press or 1 }, 0.08)
+					end
+					l.MouseEnter:Connect(function() hot = true; lit() end)
+					l.MouseLeave:Connect(function() hot, down = false, false; lit() end)
+					l.InputBegan:Connect(function(i)
+						if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then down = true; lit(); pcall(go) end
+					end)
+					l.InputEnded:Connect(function(i)
+						if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then down = false; lit() end
+					end)
+				end
 				l.LayoutOrder = order(e)
 				pers[k] = e
 				tw(l, { BackgroundTransparency = 0.1, TextTransparency = 0 }, 0.12)
@@ -6553,28 +6925,32 @@ function ui.matches(q)
 	return out
 end
 
--- ===== mouse: always free while the panel or bar is open, handed back to the game afterwards ==============
+-- ===== mouse: a LAYER over the game, never a replacement ==============
+-- While the panel, the bar or a profile is open the mouse is free: MouseBehavior is forced to Default and the cursor icon on, every frame, after the game has written them.
+-- Nothing is saved and put back. A saved MouseBehavior goes stale (it came back as "holding right click" or "locked" after the game had changed its mind while the UI was open,
+-- which is what made the camera spin by itself), so on close the layer simply lets go and the game's own camera script, which writes MouseBehavior every frame, is in charge again.
+-- The one thing handed back is a hidden cursor icon, if the game hid it. S.mouseFree stays what the other commands (crosshair, hidecursor, lockmouse) read.
 function ui.syncMouse()
 	local UIS = S.UserInputService
 	local need = S.panelOpen or S.barOpen or S.profOpen
 	if need and not S.mouseFree then
 		S.mouseFree = true
-		S.mouseSaved = { UIS.MouseBehavior, UIS.MouseIconEnabled }
+		local M = { icon = UIS.MouseIconEnabled } -- icon = whether the game wants the cursor shown, kept up to date by the step below
+		S.mouseL = M
 		pcall(function()
 			S.RunService:BindToRenderStep("KLOSAD_Mouse", Enum.RenderPriority.Last.Value + 10, function()
-				-- while the right mouse button is held the game is turning the camera: leave it alone
-				if UIS:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then return end
-				UIS.MouseBehavior = Enum.MouseBehavior.Default
-				UIS.MouseIconEnabled = true
+				-- right click held = the game is turning the camera (a plain drag, or shift lock, which only locks the camera while it is held): that press is the game's,
+				-- so MouseBehavior is left to the game until it is released, then the layer forces it free again
+				if not UIS:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) and UIS.MouseBehavior ~= Enum.MouseBehavior.Default then UIS.MouseBehavior = Enum.MouseBehavior.Default end
+				if not UIS.MouseIconEnabled then M.icon = false; UIS.MouseIconEnabled = true end -- anything off here was written by the game this frame (we set it on last frame)
 			end)
 		end)
 	elseif not need and S.mouseFree then
 		S.mouseFree = false
 		pcall(function() S.RunService:UnbindFromRenderStep("KLOSAD_Mouse") end)
-		if S.mouseSaved then
-			UIS.MouseBehavior = S.mouseSaved[1]
-			UIS.MouseIconEnabled = S.mouseSaved[2]
-		end
+		local M = S.mouseL
+		S.mouseL = nil
+		if M and M.icon == false then UIS.MouseIconEnabled = false end
 	end
 end
 -- ===== avatar value: what a player wears, priced through MarketplaceService (same method as the profile's Outfit tab) =====
@@ -6731,7 +7107,7 @@ local bar = new("Frame", { Name = "Bar", AnchorPoint = Vector2.new(0.5, 0), Size
 			end
 		end
 		local F = {}
-		function F.set(K) -- K = Look and feel > Glow Opacity / 80, called by ui.setGlow
+		function F.set(K) -- K = Look and feel > Glow Opacity: 75% = 50% opacity, 100% = a third more glow than that (0 to 0.667), called by ui.setGlow
 			K = K * k
 			clip.Visible = K > 0
 			for _, hd in ipairs(holds) do
@@ -6751,7 +7127,7 @@ local bar = new("Frame", { Name = "Bar", AnchorPoint = Vector2.new(0.5, 0), Size
 		function F.play() if live or cfg.anim == 0 then return end live, gen = true, gen + 1 for _, hd in ipairs(holds) do go(hd, gen) end end -- only while the bar is open
 		function F.stop() live, gen = false, gen + 1 for _, p in pairs(tws) do for _, t in ipairs(p) do t:Cancel() end end tws = {} end
 		F.clip = clip
-		F.set(math.clamp((tonumber(cfg.glow) or 80) / 80, 0, 1.25))
+		F.set(math.clamp((tonumber(cfg.glow) or 80) / 100, 0, 1) / 1.5)
 		S.glowFields[#S.glowFields + 1] = F
 		return F
 	end
@@ -7306,16 +7682,16 @@ do
 			if not g[1] then S.deco(hold) end -- the white glow is dark mode only; the accent glows show in both themes
 			local n = 18
 			hold:SetAttribute("peak", g[3])
-			local a = 1 - (1 - g[3] * math.clamp((tonumber(cfg.glow) or 80) / 80, 0, 1.25)) ^ (1 / n)
+			local a = 1 - (1 - g[3] * math.clamp((tonumber(cfg.glow) or 80) / 100, 0, 1) / 1.5) ^ (1 / n)
 			for i = 1, n do
 				local c = new("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(d * i / n, d * i / n), BorderSizePixel = 0, BackgroundTransparency = 1 - a }, hold)
 				if g[1] then paint(c, "BackgroundColor3", "accent") else c.BackgroundColor3 = Color3.new(1, 1, 1) end
 				new("UICorner", { CornerRadius = UDim.new(1, 0) }, c)
 			end
 		end
-		-- glow strength follows Look and feel > Glow Opacity (cfg.glow 30 / 60 / 80 / 100; 80 = the original look)
+		-- glow strength follows Look and feel > Glow Opacity (cfg.glow 0 / 25 / 50 / 75 / 100; 75 = 50 % opacity, 100 = the strongest the glow gets)
 		function ui.setGlow()
-			local K = math.clamp((tonumber(cfg.glow) or 80) / 80, 0, 1.25)
+			local K = math.clamp((tonumber(cfg.glow) or 80) / 100, 0, 1) / 1.5
 			for _, f in ipairs(S.glowFields) do f.set(K) end -- the command bar and its list
 			clip.Visible = K > 0 -- glow 0 = nothing to draw: 72 frames and 4 big canvases less
 			for _, h in ipairs(holds) do
@@ -9511,6 +9887,35 @@ end
 -- Module Cfg: default values and multipliers for commands. Typing a number commits on Enter / click away.
 ui.lazy("Module Cfg", function() -- built the first time the tab opens, a few rows per frame
 	local pg = flow("Module Cfg")
+	-- search: every header / row made below is recorded per section, so a match keeps the WHOLE section (header + all its rows), never a single row
+	local secs, cur = {}, nil
+	local baseH, baseR = fhdr, frow
+	local function fhdr(sc, str)
+		local h = baseH(sc, str)
+		cur = { key = str:lower(), objs = { h } }
+		secs[#secs + 1] = cur
+		return h
+	end
+	local function frow(sc, str, w)
+		local g = baseR(sc, str, w)
+		if cur then cur.objs[#cur.objs + 1] = g.Parent; cur.key = cur.key .. " " .. str:lower() end
+		return g
+	end
+	local srow = new("Frame", { Size = UDim2.new(1, 0, 0, 28), BackgroundTransparency = 1, LayoutOrder = nx() }, pg)
+	local sb = input(srow, "Search settings…", 0, 0, 0, 28, 11)
+	sb.Parent.Size = UDim2.new(1, 0, 1, 0)
+	sb:GetPropertyChangedSignal("Text"):Connect(function()
+		local words = {}
+		for w in sb.Text:lower():gmatch("%S+") do words[#words + 1] = w end
+		for _, s in ipairs(secs) do
+			local show = true
+			for _, w in ipairs(words) do
+				if not s.key:find(w, 1, true) then show = false; break end -- every word must hit somewhere in the section
+			end
+			for _, o in ipairs(s.objs) do o.Visible = show end
+		end
+		pg.CanvasPosition = Vector2.zero
+	end)
 	local M = cfg.mod
 	local function numRow(label, key)
 		local g = frow(pg, label, 96)
@@ -9759,6 +10164,7 @@ function ui.apply()
 	if S.barOpen then ui.search() end
 	-- rich-text colors are baked in when a list is built, so rebuild the visible tab after a theme / accent change
 	if S.panelOpen and onShow[ui.tab] then onShow[ui.tab]() end
+	ctx.bus.fire("look", { theme = cfg.theme, accent = S.accent, accentText = S.accentText, opacity = cfg.opacity, glow = cfg.glow, scale = cfg.scale, anim = cfg.anim })
 end
 
 conn(S.UserInputService.InputBegan, function(input)
@@ -9824,7 +10230,12 @@ do
 		if over ~= blocking then
 			blocking = over
 			if over then
-				pcall(CAS.BindActionAtPriority, CAS, "KLOSAD_Block", function() return Enum.ContextActionResult.Sink end, false, Enum.ContextActionPriority.High.Value,
+				pcall(CAS.BindActionAtPriority, CAS, "KLOSAD_Block", function(_, state)
+					-- only the START of a press (and wheel / move) over the UI is sunk. The END of a press always goes through: a right click that began on the game and was
+					-- released over the panel used to have its release eaten, so the camera script never saw it and kept rotating the camera as if right click was held
+					if state == Enum.UserInputState.End or state == Enum.UserInputState.Cancel then return Enum.ContextActionResult.Pass end
+					return Enum.ContextActionResult.Sink
+				end, false, Enum.ContextActionPriority.High.Value,
 					Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2, Enum.UserInputType.MouseButton3, Enum.UserInputType.MouseWheel, Enum.UserInputType.Touch)
 			else
 				pcall(CAS.UnbindAction, CAS, "KLOSAD_Block")
@@ -9835,6 +10246,7 @@ end
 
 function ui.unload()
 	S.alive = false
+	pcall(ctx.bus.fire, "unload")
 	pcall(ctx.resetAll)
 	pcall(function() -- ;nofog / ;time saved the original lighting too (resetAll only restores it for fullbright)
 		for k, v in pairs(state.saved.light or {}) do ctx.Lighting[k] = v end
@@ -9848,6 +10260,7 @@ function ui.unload()
 	pcall(ctx.noStereo, false)
 	pcall(ctx.crosshair, false)
 	pcall(ctx.syncStop)
+	pcall(ctx.voidStop)
 	pcall(ctx.SRV.cancelJoin, true) -- gives Roblox's prompt gui back if a join was still retrying
 	pcall(function() ui.borderTween:Cancel() end)
 	pcall(function() ui.glowTween:Cancel() end) -- endless tween: kept running after the gui was destroyed
