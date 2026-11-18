@@ -1,30 +1,36 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py)
--- [BOOT] version, env, wait for game, single-run guard, unload old runs | VERSION, DIR, env | deps: none | L24-46
--- [DATA] builtin slots, GitHub links, welcome/home/tip text | BUILTIN, GITHUB, WELCOME, TIPS | deps: BOOT | L48-170
--- [STATE] service cache, settings load/save, Module Cfg defaults | S, cfg, save(), MODDEF | deps: BOOT | L172-258
--- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L260-429
--- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L431-1128
--- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1130-1938
--- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools, autoexec, autostart, notifier, cleanup, playernames, update, void/autovoid | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1940-6173
--- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L6175-7180
--- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L7182-7744
--- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7746-8116
--- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L8118-8407
--- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L8409-8961
--- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L8962-9369
--- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L9371-9487
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9489-9570
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9572-9603
--- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9605-9626
--- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9628-9751
--- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9753-9986
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow(), section search box | deps: PG_FLOW | L9988-10122
--- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L10124-10213
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L10215-10412
+-- [BOOT] version, env, wait for game, single-run guard, unload old runs | VERSION, DIR, env | deps: none | L24-52
+-- [DATA] builtin slots, GitHub links, welcome/home/tip text | BUILTIN, GITHUB, WELCOME, TIPS | deps: BOOT | L54-176
+-- [STATE] service cache, settings load/save, Module Cfg defaults | S, cfg, save(), MODDEF | deps: BOOT | L178-264
+-- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L266-435
+-- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L437-1134
+-- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1136-1944
+-- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools, autoexec, autostart, notifier, cleanup, playernames, update, void/autovoid | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1946-6180
+-- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L6182-7188
+-- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L7190-7753
+-- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7755-8126
+-- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L8128-8417
+-- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L8419-8972
+-- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L8973-9381
+-- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L9383-9499
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9501-9582
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9584-9615
+-- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9617-9638
+-- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9640-9763
+-- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9765-9998
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow(), section search box | deps: PG_FLOW | L10000-10134
+-- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L10136-10225
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L10227-10427
 -- [BOOT]
 local VERSION = "1.2"
 local DIR = "KLOSAD"
 local env = (getgenv and getgenv()) or _G
+local PROF = { t0 = os.clock(), last = os.clock(), n = {} } -- load timing: run work per stage, printed once at the end (compile time is NOT in here: it happens before line 1)
+local function rest(name) -- one frame of rest per stage so executing never freezes the client
+	PROF.n[#PROF.n + 1] = name .. " " .. math.floor((os.clock() - PROF.last) * 1000) .. "ms"
+	task.wait()
+	PROF.last = os.clock()
+end
 -- the executor's autoexec folder and queue_on_teleport can both start a run after a rejoin / hop. The second run found no env.KLOSAD yet, so both stayed alive and exiting rOSAD only stopped one (lag). Only one run may boot.
 if env.KLOSAD_BOOT and os.time() - env.KLOSAD_BOOT < 30 then warn("[KLOSAD] a run is still starting (or one crashed while starting): try again in 30 s"); return end
 env.KLOSAD_BOOT = os.time()
@@ -1938,6 +1944,7 @@ for _, factory in ipairs(CMD) do ctx.register(factory) end
 -- [/CMD_BUILTIN]
 
 -- [CMD_EXTRA]
+rest("BOOT-CMD_BUILTIN")
 -- ===== commands from the notes ===============================================
 -- (follow, fly, speed, jumppower, goto, tpto, mousetp, sit, freeze, thaw, infjump, fpscap, cmds are redefined here)
 do
@@ -6173,6 +6180,7 @@ end)
 -- [/CMD_EXTRA]
 
 -- [UI_SHARED]
+rest("CMD_EXTRA")
 -- ===== UI: shared pieces ===================================================
 -- Everything below is laid out in the reference deck's own 1080p pixels (panel 685x443, bar 647x51).
 -- ui.rescale() zooms it to the real screen, so at 1080p / 100% it matches the reference 1:1.
@@ -7180,6 +7188,7 @@ end
 -- [/UI_SHARED]
 
 -- [UI_BAR]
+rest("UI_SHARED")
 -- ===== UI: command bar (slides 2-3: 647x51 pill at 318, list 593 wide right under it) ==============
 do
 	-- full screen CanvasGroup: fades the bar, list and popup as one (the list hangs outside the bar, so the bar itself can't be the group)
@@ -7744,6 +7753,7 @@ end
 -- [/UI_BAR]
 
 -- [UI_PANEL]
+rest("UI_BAR")
 -- ===== UI: panel frame (slide 4: 685x443, sidebar 141x36 tabs, inner 532x379 at 141,52) ===========
 local pages, tabs, onShow = {}, {}, {}
 local onHide, lazy, pending = {}, {}, {} -- onHide[tab]: frees the rows of a tab you left; lazy[tab]: builds a page the first time it opens; pending[tab]: it is building right now
@@ -8407,6 +8417,7 @@ end
 -- [/PG_HOME]
 
 -- [PG_PLAYERS]
+rest("UI_PANEL+HOME")
 -- ===== page: Players: search 299x32 at 9,10 + status text; cards 511 wide (80 tall, 64 for you) in a list with 6px gaps; group headers 20 tall =====
 do
 	local pg = pages["Players"]
@@ -8960,6 +8971,7 @@ do
 end
 -- [/PG_PLAYERS]
 -- [PROFILE]
+rest("PLAYERS+SERVERS")
 -- ===== player profile: ONE window over the page area, reused (never two). Opens from a Players card (avatar, or one click on the name), a friend tile or ;player <name>.
 -- Every open bumps P.gen: late answers (friends with you, friends list, outfit prices) for an older profile are dropped and its live refresh stops. Leaving Players closes it =====
 do
@@ -9370,7 +9382,7 @@ end
 
 -- [PG_LOOK]
 -- ===== page: Look and feel (slide 7, every control at the deck's position) ============================
-do
+ui.lazy("Look and feel", function() -- built on first open, not at execute
 	local pg = scroller(pages["Look and feel"], 0, 0, L.IW, L.IH)
 	pg.AutomaticCanvasSize, pg.CanvasSize = Enum.AutomaticSize.None, UDim2.fromOffset(0, 462) -- fixed height so the last row is never cut off
 	local X0 = L.IW - 252 -- left edge of the control column, its right edge sits 20 px from the page edge
@@ -9483,12 +9495,12 @@ do
 	seg(pg, 362, cols(4, 60), 52, { { "0x", 0 }, { "0.5x", 0.5 }, { "1.0x", 1 }, { "1.5x", 1.5 } }, "blur")
 	label("Position", 33, 402)
 	seg(pg, 400, cols(3, 80), 72, { { "Bottom", "Bottom" }, { "Center", "Center" }, { "Top", "Top" } }, "pos")
-end
+end)
 -- [/PG_LOOK]
 
 -- [PG_SCRIPTS]
 -- ===== page: Load scripts (slide 8: rows 76px flush, 11pt title, 8pt description, 94x23 button) ===========
-do
+ui.lazy("Load scripts", function() -- built on first open, not at execute
 	local pg = pages["Load scripts"]
 	local sbox = input(pg, "Search scripts…", 9, 10, 299, 32, 11)
 	local list = scroller(pg, 0, 56, L.IW, L.IH - 56)
@@ -9566,12 +9578,12 @@ do
 	sbox:GetPropertyChangedSignal("Text"):Connect(render)
 	onShow["Load scripts"] = render
 	onHide["Load scripts"] = function() clear(list) end
-end
+end)
 -- [/PG_SCRIPTS]
 
 -- [PG_CMDS]
 -- ===== page: Commands (every command with its function, arguments and modifier) ======================
-do
+ui.lazy("Commands", function() -- built on first open, not at execute
 	local pg = pages["Commands"]
 	local sbox = input(pg, "Search commands, or what they do…", 9, 10, 299, 32, 11)
 	local list = scroller(pg, 0, 56, L.IW, L.IH - 56)
@@ -9599,7 +9611,7 @@ do
 	sbox:GetPropertyChangedSignal("Text"):Connect(render)
 	onShow["Commands"] = render
 	onHide["Commands"] = function() clear(list) end -- gen was an undefined global: the error stopped clear(list) from ever running
-end
+end)
 -- [/PG_CMDS]
 
 -- [PG_FLOW]
@@ -9627,7 +9639,7 @@ end
 
 -- [PG_AUTOSTART]
 -- Autostart: scripts that start when rOSAD runs (master switch) and, per script, again after every respawn
-do
+ui.lazy("Autostart", function() -- built on first open, not at execute
 	local pg = flow("Autostart")
 	fhdr(pg, "Autostart")
 	seg(frow(pg, "Start these when rOSAD runs", 102), 0, { 0, 55 }, 47, { { "On", true }, { "Off", false } }, "onExec", function() end, cfg.autostart)
@@ -9747,11 +9759,11 @@ do
 	end
 	onShow["Autostart"] = render
 	onHide["Autostart"] = function() clear(list) end
-end
+end)
 -- [/PG_AUTOSTART]
 
 -- [PG_KEYS]
-do
+ui.lazy("Keybinds", function() -- built on first open, not at execute
 	local pg = flow("Keybinds")
 	-- two tiles side by side: caption + keycap (click the keycap, then press the new key)
 	local function keyTile(row, x, cap, key)
@@ -9982,7 +9994,7 @@ do
 		S.capture = nil -- the keycap text resets on the next visit (onShow = ui.refreshKeys)
 		setFill(barBtn, "ctrlOff", BTN_OFF); setFill(panelBtn, "ctrlOff", BTN_OFF)
 	end
-end
+end)
 -- [/PG_KEYS]
 
 -- [PG_MODCFG]
@@ -10213,6 +10225,7 @@ end)
 -- [/PG_PREFS]
 
 -- [ENTRY]
+rest("PROFILE+PAGES")
 -- ===== apply settings, wire input, start ===================================
 -- 1080p is the design size only: the UI keeps the same pixel size at every resolution, the UI Scaling setting is the only zoom.
 function ui.curScale() return cfg.scale end
@@ -10314,12 +10327,13 @@ end)
 -- while the mouse is over the panel / bar / list: move its cursor light and sink mouse + wheel input for the game's own ContextActionService handlers
 -- (the Active surfaces already stop Roblox's camera and tools). shortcut: a game that reads clicks straight from UserInputService without checking gameProcessed still sees them; nothing client side can hide input from that
 do
-	local CAS, blocking = S.ContextActionService, false
+	local CAS, blocking, idle = S.ContextActionService, false, false
 	-- GetMouseLocation includes the topbar inset; this gui's AbsolutePosition does not, so the light sat one inset (36-58 px) too low. Change to 0 if it ever lands too high
 	S.spotDY = 0
 	pcall(function() S.spotDY = S.GuiService:GetGuiInset().Y end)
 	conn(S.RunService.RenderStepped, function()
 		local m = (S.panelOpen or S.barOpen or S.profOpen) and S.UserInputService:GetMouseLocation() or nil
+		if not m then if idle then return end; idle = true else idle = false end -- UI closed: one pass hides the lights, then no per-frame work
 		local over = false
 		for _, sp in ipairs(S.spots) do
 			local inside = false
@@ -10409,4 +10423,5 @@ if not (HAS_FS and HAS_LOAD) then ctx.notify("Limited mode: this executor has no
 ui.welcome()
 if cfg.startBar then task.defer(function() ui.openBar() end) end
 if cfg.autostart.onExec then task.delay(2, function() ctx.runAutostart("exec") end) end
+warn("[KLOSAD] load run-work: " .. table.concat(PROF.n, ", ") .. ", ENTRY " .. math.floor((os.clock() - PROF.last) * 1000) .. "ms | wall " .. math.floor((os.clock() - PROF.t0) * 1000) .. "ms")
 -- [/ENTRY]
