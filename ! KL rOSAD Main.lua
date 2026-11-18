@@ -1,30 +1,38 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py)
--- [BOOT] version, env, wait for game, single-run guard, unload old runs | VERSION, DIR, env | deps: none | L24-46
--- [DATA] builtin slots, GitHub links, welcome/home/tip text | BUILTIN, GITHUB, WELCOME, TIPS | deps: BOOT | L48-170
--- [STATE] service cache, settings load/save, Module Cfg defaults | S, cfg, save(), MODDEF | deps: BOOT | L172-258
--- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L260-429
--- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L431-1121
--- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1123-1955
--- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools, autoexec, autostart, notifier, cleanup, playernames, update, void/autovoid | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1957-6056
--- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L6058-7079
--- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L7081-7643
--- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7645-8015
--- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L8017-8306
--- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L8308-8860
--- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L8861-9267
--- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L9269-9385
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9387-9468
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9470-9501
--- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9503-9524
--- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9526-9649
--- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9651-9884
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow(), section search box | deps: PG_FLOW | L9886-10015
--- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L10017-10106
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L10108-10305
+-- [BOOT] version, env, wait for game, single-run guard, unload old runs | VERSION, DIR, env | deps: none | L24-54
+-- [DATA] builtin slots, GitHub links, welcome/home/tip text | BUILTIN, GITHUB, WELCOME, TIPS | deps: BOOT | L56-178
+-- [STATE] service cache, settings load/save, Module Cfg defaults | S, cfg, save(), MODDEF | deps: BOOT | L180-266
+-- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L268-437
+-- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L439-1136
+-- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1138-1946
+-- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools, autoexec, autostart, notifier, cleanup, playernames, update, void/autovoid | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1948-6147
+-- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L6149-7155
+-- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L7157-7720
+-- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7722-8097
+-- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L8099-8388
+-- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L8390-8943
+-- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L8944-9352
+-- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L9354-9470
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9472-9553
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9555-9586
+-- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9588-9609
+-- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9611-9734
+-- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9736-9969
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow(), section search box | deps: PG_FLOW | L9971-10105
+-- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L10107-10196
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L10198-10398
 -- [BOOT]
 local VERSION = "1.2"
 local DIR = "KLOSAD"
 local env = (getgenv and getgenv()) or _G
+local OPT = env.KLOSAD_OPT == true -- set only by a loader that runs us through loadstring(HttpGet(..)); a pasted / file run stays unoptimized
+env.KLOSAD_OPT = nil -- used once: a later plain run never inherits it
+local PROF = { t0 = os.clock(), last = os.clock(), n = {} } -- load timing: run work per stage, printed once at the end (compile time is NOT in here: it happens before line 1)
+local function rest(name) -- one frame of rest per stage so executing never freezes the client
+	PROF.n[#PROF.n + 1] = name .. " " .. math.floor((os.clock() - PROF.last) * 1000) .. "ms"
+	if OPT then task.wait() end
+	PROF.last = os.clock()
+end
 -- the executor's autoexec folder and queue_on_teleport can both start a run after a rejoin / hop. The second run found no env.KLOSAD yet, so both stayed alive and exiting rOSAD only stopped one (lag). Only one run may boot.
 if env.KLOSAD_BOOT and os.time() - env.KLOSAD_BOOT < 30 then warn("[KLOSAD] a run is still starting (or one crashed while starting): try again in 30 s"); return end
 env.KLOSAD_BOOT = os.time()
@@ -238,11 +246,11 @@ local MODDEF = {
 	afRadius = 15, afThreshold = 120, afRestore = 1.5, atpMin = 40, akMax = 80, aeThreshold = 500, aeDuration = 2,
 	afkInterval = 60, spamCount = 3, avHeight = 50, defNotify = true,
 	floatStep = 3, espCustom = false, espColor = "#FF3B3B", actOn = true, actCorner = "BL",
-	predOn = false, predMult = 1, srvShow = false, srvHide = 0.5, attachWeld = "rep", -- attachWeld: "rep" / "weld" / "both" / "off" (on by default, see ;attachweld)
+	predOn = false, predMult = 1, srvShow = false, srvHide = 0.5, attachVel = true, attachLead = 0, attachRoot = false, attachWeld = "rep", -- attachWeld: "rep" / "weld" / "both" / "off" (on by default, see ;attachweld)
 	chStyle = "Cross", chLen = 6, chGap = 4, chThick = 2, chOutline = 1, chOutlineAlpha = 1, chColor = "#00FF00", chCursor = false,
 	headDist = 1.5, headHeight = 1.5, headSide = 0, headSweep = true, headSweepAmp = 0.5, headSweepSpeed = 10,
 	backDist = 1.2, backHeight = 0.5, backSide = 0, backSweep = true, backSweepAmp = 0.5, backSweepSpeed = 20, srvPingMult = 2,
-	ph1Mult = 1, spWall = 3,
+	ph1Mult = 1, spWall = 3, fcDef = 50, fcSens = 1,
 }
 for k, v in pairs(MODDEF) do
 	if type(cfg.mod[k]) ~= type(v) then cfg.mod[k] = v end
@@ -552,10 +560,15 @@ do -- last seen position of every player, once a second (for ctx.reach)
 	end)
 end
 
+-- antispyblacklist: user IDs that no command can target. ;view, ;goto, ;heada, all / others / random ... skip them, so they fail with the normal "No player matches" notice, with nothing else said. Add user IDs here, separated by commas. A listed player running this script can still use "me".
+local antispyblacklist = { 668486568 }
 -- me, all, others, random, exact name, or partial name / display name
 function ctx.findPlayers(q)
 	q = (q or "me"):lower()
-	local all, out = S.Players:GetPlayers(), {}
+	local all, out = {}, {}
+	for _, p in ipairs(S.Players:GetPlayers()) do
+		if p == lp or not table.find(antispyblacklist, p.UserId) then all[#all + 1] = p end
+	end
 	if q == "me" then return { lp } end
 	if q == "all" then return all end
 	if q == "others" then
@@ -889,7 +902,7 @@ function ctx.setBarKey(s)
 	save()
 	ui.apply()
 end
-function ctx.showCommands() ui.openBar("", true) end
+
 function ctx.openTab(name) ui.setPanel(true); ui.selectTab(name) end
 
 -- toggle commands and the command that turns each off (drives "Active effects" + Reset all)
@@ -906,6 +919,8 @@ local TOGGLES = {
 TOGGLES.spider, TOGGLES.serverpos = "unspider", "unserverpos"
 TOGGLES.antigameplaypaused = "unantigameplaypaused"
 TOGGLES.autovoid = "unautovoid"
+
+TOGGLES.freecam = "unfreecam" -- also turned off by stopall / Reset all effects / exit, so the camera always comes back
 TOGGLES.playernames = "hidenames" -- also turned off by stopall / Reset all effects / exit
 TOGGLES.hideui = "unhideui" -- also turned off by stopall / Reset all effects / exit, so the interface always comes back
 -- commands that flip themselves on and off and keep state.active up to date on their own
@@ -1160,19 +1175,7 @@ return function(ctx)
 	}
 end
 end)()
-CMD[#CMD + 1] = (function()
--- unfollow.lua  |  aliases: unfollow  |  args: none
-return function(ctx)
-	local disconnect = ctx.disconnect
 
-	return {
-		names = { "unfollow" },
-		run = function()
-			disconnect("follow")
-		end,
-	}
-end
-end)()
 CMD[#CMD + 1] = (function()
 -- unview.lua  |  aliases: unview, unspectate  |  args: none
 return function(ctx)
@@ -1561,19 +1564,7 @@ return function(ctx)
 	}
 end
 end)()
-CMD[#CMD + 1] = (function()
--- unsit.lua  |  aliases: unsit  |  args: none
-return function(ctx)
-	local hum = ctx.hum
 
-	return {
-		names = { "unsit" },
-		run = function()
-			if hum() then hum().Sit = false end
-		end,
-	}
-end
-end)()
 CMD[#CMD + 1] = (function()
 -- anim.lua  |  aliases: anim  |  args: none
 return function(ctx)
@@ -1955,6 +1946,7 @@ for _, factory in ipairs(CMD) do ctx.register(factory) end
 -- [/CMD_BUILTIN]
 
 -- [CMD_EXTRA]
+rest("BOOT-CMD_BUILTIN")
 -- ===== commands from the notes ===============================================
 -- (follow, fly, speed, jumppower, goto, tpto, mousetp, sit, freeze, thaw, infjump, fpscap, cmds are redefined here)
 do
@@ -2037,6 +2029,11 @@ end)
 local function unfloat()
 	ctx.disconnect("float")
 	if state.floatPart then state.floatPart:Destroy(); state.floatPart = nil end
+	if state.floatNoJump then -- stopped while E / Q was held: give the jump back
+		state.floatNoJump = nil
+		local h = ctx.hum()
+		if h then pcall(h.SetStateEnabled, h, Enum.HumanoidStateType.Jumping, true) end
+	end
 	state.floatY = nil
 	active("float", nil)
 end
@@ -2056,16 +2053,27 @@ def({ "float" }, "", "Float over drops deeper than the stair height (E up, Q dow
 		p.Parent = workspace
 		state.floatPart = p
 	end
+	local lastPos
 	ctx.connect("float", RS.Heartbeat, function(dt)
 		local r, h, p = ctx.root(), ctx.hum(), state.floatPart
 		if not (r and h and p and p.Parent) then return end
 		local curF = feetY()
+		-- a teleport (;goto, a game tp ...): the old level means nothing at the new spot, so start over from your feet, like running float again
+		if lastPos and (r.Position - lastPos).Magnitude > 30 then state.floatY, state.eLift = curF or state.floatY, nil end
+		lastPos = r.Position
 		if down(Enum.KeyCode.E) then -- E lifts you off the ground too: the platform starts right under your feet
 			state.eLift = true
 			if curF then state.floatY = math.max(state.floatY, curF) end
-			state.floatY = state.floatY + 24 * dt
+			state.floatY = state.floatY + 36 * dt
 		end
-		if down(Enum.KeyCode.Q) then state.floatY = state.floatY - 24 * dt end
+		if down(Enum.KeyCode.Q) then state.floatY = state.floatY - 36 * dt end
+		-- jumping while the platform moves under you flings you: no jump while E / Q is held, and no stored up-speed while rising
+		local lifting = down(Enum.KeyCode.E) or down(Enum.KeyCode.Q)
+		if lifting ~= (state.floatNoJump or false) then
+			state.floatNoJump = lifting
+			pcall(h.SetStateEnabled, h, Enum.HumanoidStateType.Jumping, not lifting)
+		end
+		if down(Enum.KeyCode.E) then local v = r.AssemblyLinearVelocity; r.AssemblyLinearVelocity = Vector3.new(v.X, 0, v.Z) end
 		local params = RaycastParams.new()
 		params.FilterType, params.RespectCanCollide = Enum.RaycastFilterType.Exclude, true -- solid things only; other players are not ground
 		local ex = { ctx.char(), p }
@@ -2079,6 +2087,8 @@ def({ "float" }, "", "Float over drops deeper than the stair height (E up, Q dow
 		-- standing on real ground (a stair you dropped onto, a hill): that is the new level
 		if state.eLift and state.floatY <= groundY + 0.1 then state.eLift = nil end -- back down on the ground: normal float again
 		if hit and cur and h.FloorMaterial ~= Enum.Material.Air and math.abs(cur - groundY) < 1.5 and not state.eLift then state.floatY = groundY end
+		-- you are on the real floor (not lifting): reset, so an old lift never leaves a stale platform
+		if hit and cur and h.FloorMaterial ~= Enum.Material.Air and math.abs(cur - groundY) < 1 and not down(Enum.KeyCode.E) then state.floatY, state.eLift = groundY, nil end
 		p.CFrame = CFrame.new(r.Position.X, state.floatY - 0.5, r.Position.Z)
 		p.CanCollide = state.eLift or (state.floatY - groundY) > mod.floatStep
 	end)
@@ -2108,6 +2118,53 @@ end)
 def({ "uncfly" }, "", "Stop CFrame flying", "flight air cframe", function()
 	ctx.disconnect("cfly")
 	if ctx.hum() then ctx.hum().PlatformStand = false end
+end)
+
+-- ===== FREECAM: ;freecam / ;fc [speed] =====
+-- The camera leaves your character: WASD flies it where it looks, E up, Q down, Shift = 3x speed, hold the right mouse button to look around. The keys are sunk while it is on, so your character stays put.
+-- shortcut: no collision for the camera, and a game that forces CameraType back every frame fights it (it is set again each frame). when to upgrade: only if a game breaks it.
+def({ "freecam", "fc" }, "[speed]", "Free camera: WASD move, E up, Q down, Shift faster, hold right mouse to look (;unfreecam to stop)", "camera spectate detach cam fly", function(spd)
+	local cam = workspace.CurrentCamera
+	if not cam then return end
+	local speed = tonumber(spd) -- nil = the Module Cfg default, read live every frame
+	local pos = cam.CFrame.Position
+	local pitch, yaw = cam.CFrame:ToOrientation()
+	cam.CameraType = Enum.CameraType.Scriptable
+	local CAS = S.ContextActionService
+	pcall(CAS.BindActionAtPriority, CAS, "KLOSAD_FC", function() return Enum.ContextActionResult.Sink end, false, Enum.ContextActionPriority.High.Value,
+		Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D, Enum.KeyCode.Q, Enum.KeyCode.E, Enum.KeyCode.Space)
+	ctx.connect("freecam", RS.RenderStepped, function(dt)
+		local c = workspace.CurrentCamera
+		if c.CameraType ~= Enum.CameraType.Scriptable then c.CameraType = Enum.CameraType.Scriptable end
+		if UIS:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
+			UIS.MouseBehavior = Enum.MouseBehavior.LockCurrentPosition
+			local d, sens = UIS:GetMouseDelta(), 0.004 * (tonumber(mod.fcSens) or 1)
+			yaw = yaw - d.X * sens
+			pitch = math.clamp(pitch - d.Y * sens, -1.55, 1.55)
+		elseif UIS.MouseBehavior == Enum.MouseBehavior.LockCurrentPosition then
+			UIS.MouseBehavior = Enum.MouseBehavior.Default
+		end
+		local rot = CFrame.fromOrientation(pitch, yaw, 0)
+		local m = Vector3.zero
+		if down(Enum.KeyCode.W) then m = m + rot.LookVector end
+		if down(Enum.KeyCode.S) then m = m - rot.LookVector end
+		if down(Enum.KeyCode.D) then m = m + rot.RightVector end
+		if down(Enum.KeyCode.A) then m = m - rot.RightVector end
+		if down(Enum.KeyCode.E) then m = m + Vector3.yAxis end -- elevation: E up, Q down
+		if down(Enum.KeyCode.Q) then m = m - Vector3.yAxis end
+		if m.Magnitude > 0 then pos = pos + m.Unit * (speed or tonumber(mod.fcDef) or 50) * (down(Enum.KeyCode.LeftShift) and 3 or 1) * dt end
+		c.CFrame = CFrame.new(pos) * rot
+	end)
+end)
+def({ "unfreecam", "unfc" }, "", "Leave the free camera", "camera spectate detach cam", function()
+	ctx.disconnect("freecam")
+	pcall(function() S.ContextActionService:UnbindAction("KLOSAD_FC") end)
+	if UIS.MouseBehavior == Enum.MouseBehavior.LockCurrentPosition then UIS.MouseBehavior = Enum.MouseBehavior.Default end
+	local c, h = workspace.CurrentCamera, ctx.hum()
+	if c then
+		c.CameraType = Enum.CameraType.Custom
+		if h and not state.viewing then c.CameraSubject = h end
+	end
 end)
 
 def({ "fly" }, "[speed]", "Fly with WASD, E up and Q down", "flight air", function(spd)
@@ -2410,16 +2467,27 @@ local function attach(kind, q, off)
 		if ps then h.PlatformStand = true else h.Sit = true end
 	end
 	local lastP, lastT, tvel = nil, 0, Vector3.zero
+	local prevV, prevT, acc = nil, 0, Vector3.zero
+	-- Module Cfg "Attach: follow the target's root part": the torso and head are moved by the target's animations (lean, bob, the change from idle to run), the root part is not, and speed changes are exactly when those animations change. So the torso / head position is taken as a fixed offset from the root part, measured once
+	local curHrp
+	local rest = {}
+	local function cfOf(part)
+		if not mod.attachRoot or not (curHrp and curHrp.Parent) or part == curHrp then return part.CFrame end
+		local rs = rest[part]
+		if not rs then rs = curHrp.CFrame:ToObjectSpace(part.CFrame); rest[part] = rs end
+		return curHrp.CFrame * rs
+	end
 	ctx.connect("attach", ps and RS.PreSimulation or RS.Heartbeat, function()
 		if not p.Parent then return ctx.Run("unattach") end -- the target left: let go (it kept anti sit / anti knockback off and you in PlatformStand)
 		local r, tc = ctx.root(), p.Character
 		local tt = tc and (tc:FindFirstChild("UpperTorso") or tc:FindFirstChild("Torso") or tc:FindFirstChild("HumanoidRootPart"))
 		if not (r and tt) then return end
+		curHrp = tc:FindFirstChild("HumanoidRootPart")
 		local cf
 		if kind == "backpack" then
-			cf = tt.CFrame * CFrame.new(0, mod.bpHeight, tonumber(off) or mod.bpDist) * CFrame.Angles(0, math.pi, 0)
+			cf = cfOf(tt) * CFrame.new(0, mod.bpHeight, tonumber(off) or mod.bpDist) * CFrame.Angles(0, math.pi, 0)
 		elseif kind == "baby" then
-			cf = tt.CFrame * CFrame.new(0, mod.babyHeight, -(tonumber(off) or mod.babyDist)) * CFrame.Angles(0, math.rad(180 + mod.babyRot), 0) * CFrame.Angles(math.rad(tonumber(mod.babyLean) or 0), 0, 0)
+			cf = cfOf(tt) * CFrame.new(0, mod.babyHeight, -(tonumber(off) or mod.babyDist)) * CFrame.Angles(0, math.rad(180 + mod.babyRot), 0) * CFrame.Angles(math.rad(tonumber(mod.babyLean) or 0), 0, 0)
 		elseif ps then -- heada / backa: offsets + sweep come from Module Cfg (headXxx / backXxx), read every frame so edits apply live
 			local pre = kind == "heada" and "head" or "back"
 			local d = tonumber(off) or mod[pre .. "Dist"]
@@ -2432,18 +2500,39 @@ local function attach(kind, q, off)
 			if kind == "heada" then -- in front of the face, turned to look at it
 				cf = (tc:FindFirstChild("Head") or tt).CFrame * CFrame.new(mod.headSide, mod.headHeight, -d) * CFrame.Angles(0, math.pi, 0)
 			else -- behind the back, looking the same way as the target
-				cf = tt.CFrame * CFrame.new(mod.backSide, mod.backHeight, d)
+				cf = cfOf(tt) * CFrame.new(mod.backSide, mod.backHeight, d)
 			end
 			r.AssemblyAngularVelocity = Vector3.zero
 		else
 			local head = tc:FindFirstChild("Head") or tt
-			cf = head.CFrame * CFrame.new(0, head.Size.Y / 2 + (tonumber(off) or 1.6), 0)
+			cf = cfOf(head) * CFrame.new(0, head.Size.Y / 2 + (tonumber(off) or 1.6), 0)
 		end
 		local wm = mod.attachWeld -- "rep" / "weld" / "both" (;attachweld); on by default
 		if wm == "off" then wm = nil end
 		if wm then weldPre() elseif W.weld or W.rep then weldClear() end
 		r.CFrame = cf
-		r.AssemblyLinearVelocity = Vector3.zero
+		-- your velocity is sent with your position and other clients extrapolate from it between network updates, so zero made you trail a moving target on their screens. Match the target's instead (capped; Module Cfg "Attach: match the target's speed" switches it off)
+		local tv, tw = Vector3.zero, nil
+		if mod.attachVel ~= false then
+			tw = tt.AssemblyAngularVelocity
+			if tw.Magnitude > 30 then tw = tw.Unit * 30 end
+			tv = tt.AssemblyLinearVelocity + tw:Cross(cf.Position - tt.Position) -- turning swings you round the target: its speed plus the swing speed at your offset (0 when it goes straight)
+			if tv.Magnitude > 100 then tv = tv.Unit * 100 end
+		end
+		-- experimental, off by default (Module Cfg "Attach: acceleration lead"): when the target speeds up or slows down, send a velocity that is already a little ahead, so others do not guess from the old speed
+		local lead = tonumber(mod.attachLead) or 0
+		if lead > 0 and tw then
+			local t2 = os.clock()
+			if prevV and t2 > prevT then
+				acc = acc:Lerp((tv - prevV) / (t2 - prevT), 0.3)
+				if acc.Magnitude > 200 then acc = acc.Unit * 200 end
+			end
+			prevV, prevT = tv, t2
+			tv = tv + acc * math.min(lead, 0.5)
+			if tv.Magnitude > 100 then tv = tv.Unit * 100 end
+		end
+		r.AssemblyLinearVelocity = tv
+		if tw then r.AssemblyAngularVelocity = tw end -- other clients extrapolate your turn from this too
 		ctx.markMove()
 		if wm then weldPost(r, tc:FindFirstChild("HumanoidRootPart") or tt, wm) end
 		if mod.predOn and not wm then -- the target's velocity (from its positions) times your ping: where it will be when the server sees you
@@ -2481,53 +2570,49 @@ def({ "attachweld", "aweld" }, "[rep|weld|both|off]", "Welds the attach commands
 end)
 def({ "unattach" }, "", "Detach from a player", "backpack baby headsit heada backa", detach)
 
--- ===== VOID: ;void / ;autovoid =====
--- Really moves your character straight down into the void, holds it there for a moment, then puts it back where it was (everyone sees it, you see it too).
--- The spot is right under you and only a little above the destroy height (same margin as ;antivoid, so ;antivoid does not fire), so the server never kills you.
--- Every frame the character is held there with zero velocity, so it does not fall. Anything copying your position (backpack, headsit, a follow loop) goes down with you and is left there.
--- shortcut: the margin comes from Module Cfg "Anti void: height above destroy" + 15, a map with a lower destroy height than Roblox's own is not known, when to upgrade: read it from the map.
+-- ===== VOID: ;void / ;fakeout / ;autovoid =====
+-- Switches the destroy height off (NaN, so nothing counts as under it), drops you 25 studs under the real destroy height, waits (default 1 s), puts you back and turns the destroy height on again.
+-- ;antivoid is paused while it runs (state.voiding). Ends early if you die or respawn, and ;stopall / exit restores the destroy height.
+-- shortcut: it goes to X 0 / Z 0 like Infinite Yield's fakeout, not straight under you. when to upgrade: if the map streams around you.
 do
-	local busy, back, tok
+	local busy, back, rootR, tok
 	local function finish(ok)
-		busy = nil
-		ctx.disconnect("void"); state.voiding = nil
+		if not busy then return end
+		busy = nil; state.voiding = nil
+		if S.orgDestroyH then workspace.FallenPartsDestroyHeight = S.orgDestroyH end
 		local r = ctx.root()
-		if ok and r and back then
+		if ok and r and r == rootR and back then -- a respawned character stays where the game puts it
 			ctx.markMove()
 			r.CFrame = back
 			r.AssemblyLinearVelocity, r.AssemblyAngularVelocity = Vector3.zero, Vector3.zero
 		end
 	end
-	local function void(secs, depth)
+	local function void(secs)
 		local r, h = ctx.root(), ctx.hum()
 		if not (r and h) or h.Health <= 0 then return end
 		if state.blink then return ctx.notify("Void: not while blink / ghost is on") end
 		if busy then return end
-		local T = math.clamp(tonumber(secs) or 0.4, 0.1, 3)
-		local fp = workspace.FallenPartsDestroyHeight
-		if fp < -1e5 then fp = -500 end
-		back = r.CFrame
-		local d = tonumber(depth) or 3.2 -- studs above the destroy height: the very edge of the void. Anything attached sits at an offset in YOUR space, so while you spin it swings under the line before you do. A big number (e.g. 65) = safe, nothing dies
-	local at = CFrame.new(back.X, math.min(back.Y, fp + d), back.Z)
-	local rot = back - back.Position
-	local SPIN = { CFrame.Angles(math.pi, 0, 0), CFrame.Angles(math.pi / 2, 0, 0), CFrame.Angles(-math.pi / 2, 0, 0), CFrame.Angles(0, 0, math.pi / 2), CFrame.Angles(0, 0, -math.pi / 2) } -- a different side of you points down every frame
-	local n = 0
-		local t0 = os.clock()
-		busy = true
+		local T = math.clamp(tonumber(secs) or 1, 0.1, 5)
+		local cur = workspace.FallenPartsDestroyHeight
+		if cur == cur then S.orgDestroyH = cur end -- keep the real height (a NaN left by an earlier run is not it)
+		local base = S.orgDestroyH
+		if not base or base < -1e5 then base = -500 end
+		back, rootR = r.CFrame, r
+		local my = {}
+		busy = my
 		state.voiding = true -- ;antivoid must not pull you out of it
-		ctx.connect("void", RS.PreSimulation, function()
+		workspace.FallenPartsDestroyHeight = 0 / 0
+		ctx.markMove()
+		r.CFrame = CFrame.new(0, base - 25, 0)
+		task.delay(T, function()
+			if busy ~= my then return end
 			local rr, hh = ctx.root(), ctx.hum()
-			if rr ~= r or not hh or hh.Health <= 0 or not S.alive then return finish(false) end -- died / respawned: stay where the game puts you
-			if os.clock() - t0 >= T then return finish(true) end
-			ctx.markMove()
-			n = n % #SPIN + 1
-			rr.CFrame = at * rot * SPIN[n]
-			rr.AssemblyLinearVelocity, rr.AssemblyAngularVelocity = Vector3.zero, Vector3.zero
+			finish(S.alive and rr == r and hh and hh.Health > 0) -- died / respawned: only restore the height
 		end)
 	end
-	function ctx.voidStop() tok = nil; if busy then finish(true) end end
-	def({ "void" }, "[seconds] [studs above destroy height]", "Drop to the very edge of the void (default 3.2 studs above the destroy height), spin on every axis for a moment (default 0.4 s) and come back. Anything attached to you swings under the line and dies. A big number (65) = safe, nothing dies", "server position exploiter attached shake lose follow desync", void)
-	def({ "autovoid" }, "[seconds between] [studs above destroy height]", "Void again every second (or the interval you give) until ;unautovoid", "server position exploiter attached shake lose follow desync loop", function(iv, dp)
+	function ctx.voidStop() tok = nil; finish(true) end
+	def({ "void", "fakeout" }, "[seconds]", "Fake out the server: switch the destroy height off, drop 25 studs under it for a second (default 1 s), then come back and switch it on again", "server position exploiter desync fake fakeout", void)
+	def({ "autovoid" }, "[seconds between]", "Void again every second (or the interval you give) until ;unautovoid", "server position exploiter attached shake lose follow desync loop", function(iv, dp)
 		local every, my = math.max(tonumber(iv) or 1, 0.6), {}
 		tok = my
 		task.spawn(function()
@@ -4353,6 +4438,8 @@ def({ "unlisten" }, "[player]", "Stop listening to a player's voice chat (no nam
 	ctx.notify("Stopped listening to " .. p.Name)
 end)
 
+
+
 -- nostereo: every Wire AudioListener -> AudioDeviceOutput gets a Mono -> Stereo mixer pair in between, so the sound is
 -- downmixed to one channel (centered) while the emitter distance volume stays. ;stereo points the wires back.
 do
@@ -4825,7 +4912,8 @@ do
 			ctx.disconnect("chFollow")
 			if CH.gui then pcall(function() CH.gui:Destroy() end) end
 			CH.gui, CH.root = nil, nil
-			if CH.prevIcon ~= nil then UIS.MouseIconEnabled = CH.prevIcon; CH.prevIcon = nil end
+			CH.prevIcon = nil
+			if not ctx.cursorOff then UIS.MouseIconEnabled = true end -- the cursor is back once the crosshair is gone, also in first person (;hidecursor still keeps it hidden)
 			return
 		end
 		if not CH.gui then
@@ -5679,7 +5767,7 @@ local function loaderLine()
 	if cfg.selfPath ~= "" then paths[#paths + 1] = ("%q"):format(cfg.selfPath) end
 	paths[#paths + 1] = ("%q"):format(DIR .. "/KL_rOSAD.lua")
 	-- link first (the GitHub file is the newest), then the saved copies; a failure is shown as a notification, not only in the console
-	return ('local g = (getgenv and getgenv()) or _G if g.KLOSAD_LD and os.time() - g.KLOSAD_LD < 30 then return end g.KLOSAD_LD = os.time() if not game:IsLoaded() then game.Loaded:Wait() end task.wait(1) local ok, e = pcall(function() if "%s" ~= "" then local okh, src = pcall(game.HttpGet, game, "%s") local fn = okh and type(src) == "string" and loadstring(src) if fn then fn() return end end for _, p in ipairs({%s}) do if isfile and isfile(p) then loadstring(readfile(p))() return end end error("no copy of KL_rOSAD.lua found (and the link did not load)") end) if not ok then warn("[KLOSAD autoexec] " .. tostring(e)) pcall(function() game:GetService("StarterGui"):SetCore("SendNotification", { Title = "KL rOSAD autoexec", Text = tostring(e):sub(1, 180), Duration = 12 }) end) end'):format(SELF_URL, SELF_URL, table.concat(paths, ", "))
+	return ('local g = (getgenv and getgenv()) or _G if g.KLOSAD_LD and os.time() - g.KLOSAD_LD < 30 then return end g.KLOSAD_LD = os.time() if not game:IsLoaded() then game.Loaded:Wait() end task.wait(1) local ok, e = pcall(function() if "%s" ~= "" then local okh, src = pcall(game.HttpGet, game, "%s") local fn = okh and type(src) == "string" and loadstring(src) if fn then g.KLOSAD_OPT = true fn() return end end for _, p in ipairs({%s}) do if isfile and isfile(p) then loadstring(readfile(p))() return end end error("no copy of KL_rOSAD.lua found (and the link did not load)") end) if not ok then warn("[KLOSAD autoexec] " .. tostring(e)) pcall(function() game:GetService("StarterGui"):SetCore("SendNotification", { Title = "KL rOSAD autoexec", Text = tostring(e):sub(1, 180), Duration = 12 }) end) end'):format(SELF_URL, SELF_URL, table.concat(paths, ", "))
 end
 local function isSelf(body)
 	return type(body) == "string" and body:find("KL rOSAD v", 1, true) and body:find("open-source admin/dev panel", 1, true) and body:find("local BUILTIN", 1, true) and true or false
@@ -5775,48 +5863,51 @@ def({ "keeposad" }, "", "Run rOSAD automatically when you join a game or hop ser
 def({ "unkeeposad" }, "", "Stop running rOSAD automatically", "auto execute autoexec startup", function() ctx.setAutoExec(false) end)
 
 local avcTimer
+-- the ban hooks are always on, so the countdown shows with auto rejoin off too. cfg.avc only decides whether it rejoins when the countdown ends (read at that moment, so switching it mid-countdown works)
+local function banned()
+	if avcTimer then return end
+	local my = os.clock()
+	avcTimer, state.vcban = my, my + 300
+	ctx.notify(cfg.avc and "Voice chat ban detected. Rejoining in 5 minutes" or "Voice chat ban detected", 6)
+	task.delay(300, function()
+		if avcTimer ~= my then return end
+		avcTimer, state.vcban = nil, nil
+		if cfg.avc and S.alive then ctx.Run("rejoin") end
+	end)
+end
+function ctx.vcbanText() -- the countdown line in the corner feed
+	local left = math.max(0, math.ceil((state.vcban or 0) - os.clock()))
+	return (cfg.avc and "rejoin in " or "") .. ("%d:%02d"):format(left // 60, left % 60)
+end
+local avcHow
 function ctx.setAvc(on, quiet)
 	cfg.avc = on and true or false
 	save()
-	ctx.disconnect("avc")
-	if not on then
-		avcTimer = nil
-		if not quiet then ctx.notify("Auto rejoin on VC ban off") end
-		return
-	end
-	local function banned()
-		if avcTimer then return end
-		avcTimer = os.clock()
-		local my = avcTimer
-		ctx.notify("Voice chat ban detected. Rejoining in 5 minutes", 6)
-		task.delay(300, function()
-			if avcTimer == my and cfg.avc and S.alive then avcTimer = nil; ctx.Run("rejoin") end
+	if not avcHow then
+		-- 1) the engine event (blocked on some executors, so it is only tried)
+		pcall(function()
+			local vc = game:GetService("VoiceChatInternal")
+			ctx.connect("avc", vc.PlayerModerated, function(uid)
+				if uid == lp.UserId then banned() end
+			end)
+			avcHow = "event"
 		end)
-	end
-	local how
-	-- 1) the engine event (blocked on some executors, so it is only tried)
-	pcall(function()
-		local vc = game:GetService("VoiceChatInternal")
-		ctx.connect("avc", vc.PlayerModerated, function(uid)
-			if uid == lp.UserId then banned() end
-		end)
-		how = "event"
-	end)
-	-- 2) also watch CoreGui for Roblox's own "voice chat suspended" message (chat messages are ignored); runs next to the event because the event can connect and still never fire. banned() is guarded by avcTimer, so a double hit is harmless
-	do
+		-- 2) also watch CoreGui for Roblox's own "voice chat suspended" message (chat messages are ignored); runs next to the event because the event can connect and still never fire. banned() is guarded by avcTimer, so a double hit is harmless
 		pcall(function()
 			local cg = game:GetService("CoreGui")
 			local function look(o)
 				if not (o:IsA("TextLabel") or o:IsA("TextButton")) or not o.Parent then return end
 				if o:FindFirstAncestor("KLOSAD") or o:FindFirstAncestor("ExperienceChat") or o:FindFirstAncestor("Chat") then return end
-				local t = o.Text:lower()
-				if t:find("voice chat", 1, true) and (t:find("suspend", 1, true) or t:find("banned", 1, true)) then banned() end
+				local s = o.Text:lower()
+				if s:find("voice chat", 1, true) and (s:find("suspend", 1, true) or s:find("banned", 1, true)) then banned() end
 			end
 			ctx.connect("avc", cg.DescendantAdded, function(o) task.delay(0.3, look, o) end)
-			how = how and (how .. " + UI watch") or "UI watch"
+			avcHow = avcHow and (avcHow .. " + UI watch") or "UI watch"
 		end)
 	end
-	if not quiet then ctx.notify(how and ("Auto rejoin on VC ban on (" .. how .. ")") or "Couldn't hook VC ban detection in this executor", 5) end
+	if quiet then return end
+	if not on then return ctx.notify("Auto rejoin on VC ban off") end
+	ctx.notify(avcHow and ("Auto rejoin on VC ban on (" .. avcHow .. ")") or "Couldn't hook VC ban detection in this executor", 5)
 end
 def({ "arjvc", "avc", "arvc", "autorejoinvc" }, "[on|off]", "Toggle: rejoin 5 minutes after a voice chat ban (on / off sets it)", "voice vc ban rejoin auto", function(a)
 	local on = not cfg.avc
@@ -5872,7 +5963,7 @@ ctx.connect("autoRespawn", lp.CharacterAdded, function(c)
 	ctx.runAutostart("respawn")
 end)
 if cfg.autoExec then task.defer(function() ctx.setAutoExec(true, true) end) end
-if cfg.avc then task.defer(function() ctx.setAvc(true, true) end) end
+task.defer(function() ctx.setAvc(cfg.avc, true) end) -- hooks the ban watch even with auto rejoin off (the countdown)
 
 -- ;cleanup [game|scripts]: frees what a client script can free. Roblox gives scripts no way to force the engine's own garbage collection, so this is best effort.
 do
@@ -6056,6 +6147,7 @@ end)
 -- [/CMD_EXTRA]
 
 -- [UI_SHARED]
+rest("CMD_EXTRA")
 -- ===== UI: shared pieces ===================================================
 -- Everything below is laid out in the reference deck's own 1080p pixels (panel 685x443, bar 647x51).
 -- ui.rescale() zooms it to the real screen, so at 1080p / 100% it matches the reference 1:1.
@@ -6105,16 +6197,7 @@ local function fr(parent, x, y, w, h, fillKey, tr, r, strokeKey, st, str)
 	end
 	return f
 end
--- soft wash for depth: black fading out from the top (bottom = false) or white fading in toward the bottom; tr = its strongest transparency
-local function wash(parent, x, y, w, h, bottom, tr, r)
-	local f = fr(parent, x, y, w, h, nil)
-	f.BackgroundColor3, f.BackgroundTransparency = bottom and Color3.new(1, 1, 1) or Color3.new(0, 0, 0), S.opx(0)
-	f:SetAttribute("raw", 0)
-	if r then new("UICorner", { CornerRadius = UDim.new(0, r) }, f) end
-	S.deco(f)
-	new("UIGradient", { Rotation = 90, Transparency = bottom and NumberSequence.new(1, tr) or NumberSequence.new(tr, 1) }, f)
-	return f
-end
+
 -- text box of the reference: zero insets, top aligned
 local function txt(parent, str, pt, key, x, y, w, h, props)
 	local o = new("TextLabel", mix({ BackgroundTransparency = 1, BorderSizePixel = 0, Text = str, TextSize = fs(pt), Font = FONT,
@@ -6159,20 +6242,7 @@ local function setFill(b, key, tr)
 	end
 end
 -- reference button: 1px edge, 8px corners, text 9pt, label centred. Hover and press are animated.
--- click ripple in the accent color, grows from where the mouse is
-local function ripple(b)
-	local sx = b.Size.X.Offset
-	if cfg.anim == 0 or sx <= 0 then return end
-	pcall(function()
-		local p = (S.UserInputService:GetMouseLocation() - b.AbsolutePosition) / (b.AbsoluteSize.X / sx)
-		local d = sx * 1.7
-		local c = new("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(p.X, p.Y), Size = UDim2.fromOffset(0, 0),
-			BackgroundColor3 = S.accent, BackgroundTransparency = 0.7, BorderSizePixel = 0 }, b)
-		new("UICorner", { CornerRadius = UDim.new(1, 0) }, c)
-		tw(c, { Size = UDim2.fromOffset(d, d), BackgroundTransparency = 1 }, 0.3)
-		task.delay(dur(0.3) + 0.05, function() c:Destroy() end)
-	end)
-end
+
 -- ONE hover rule for the whole UI. Enter turns it on, and it stays on until the mouse is really outside the object's rectangle (checked every frame while hovered).
 -- Roblox fires MouseLeave when a glow / sheen / child appears over the object, which made hover flicker off and never stay lit. fn(true) / fn(false)
 function S.hover(o, fn)
@@ -6594,8 +6664,8 @@ do
 		end
 	end
 	local function textOf(k)
-		local d = (k == "vcbypass" and ui.vcbText and ui.vcbText()) or (state.who and state.who[k]) or (state.val and state.val[k])
-		return ('<font color="%s">●</font>  <b>%s</b>%s'):format(hex(S.accent), esc(k == "vcbypass" and "VC Bypass" or k), d and ("  " .. esc(tostring(d):sub(1, 26))) or "")
+		local d = (k == "vcbypass" and ui.vcbText and ui.vcbText()) or (k == "vcban" and ctx.vcbanText()) or (state.who and state.who[k]) or (state.val and state.val[k])
+		return ('<font color="%s">●</font>  <b>%s</b>%s'):format(hex(S.accent), esc(k == "vcbypass" and "VC Bypass" or k == "vcban" and "VC ban" or k), d and ("  " .. esc(tostring(d):sub(1, 26))) or "")
 	end
 	local function drop(k, e)
 		pers[k] = nil
@@ -6609,6 +6679,12 @@ do
 			local w = {}
 			for k in pairs(want) do w[k] = true end
 			w.vcbypass = true
+			want = w
+		end
+		if state.vcban then -- the VC ban countdown: always in the feed, also with active notices off
+			local w = {}
+			for k in pairs(want) do w[k] = true end
+			w.vcban = true
 			want = w
 		end
 		for k, e in pairs(pers) do
@@ -7079,6 +7155,7 @@ end
 -- [/UI_SHARED]
 
 -- [UI_BAR]
+rest("UI_SHARED")
 -- ===== UI: command bar (slides 2-3: 647x51 pill at 318, list 593 wide right under it) ==============
 do
 	-- full screen CanvasGroup: fades the bar, list and popup as one (the list hangs outside the bar, so the bar itself can't be the group)
@@ -7643,6 +7720,7 @@ end
 -- [/UI_BAR]
 
 -- [UI_PANEL]
+rest("UI_BAR")
 -- ===== UI: panel frame (slide 4: 685x443, sidebar 141x36 tabs, inner 532x379 at 141,52) ===========
 local pages, tabs, onShow = {}, {}, {}
 local onHide, lazy, pending = {}, {}, {} -- onHide[tab]: frees the rows of a tab you left; lazy[tab]: builds a page the first time it opens; pending[tab]: it is building right now
@@ -7878,7 +7956,11 @@ do
 		end
 	end
 	-- pages that are built the first time they open: ui.lazy(name, builder). The builder runs in its own thread and yields every few rows (ui.tick), so the panel never stalls
-	function ui.lazy(name, fn) lazy[name] = fn end
+	function ui.lazy(name, fn)
+		if OPT then lazy[name] = fn; return end
+		local ok, err = pcall(fn) -- not optimized: build now, like before
+		if not ok then warn("[KLOSAD] " .. name .. " page failed: " .. tostring(err)) end
+	end
 	ui.building = {}
 	function ui.tick()
 		local th = coroutine.running()
@@ -8306,6 +8388,7 @@ end
 -- [/PG_HOME]
 
 -- [PG_PLAYERS]
+rest("UI_PANEL+HOME")
 -- ===== page: Players: search 299x32 at 9,10 + status text; cards 511 wide (80 tall, 64 for you) in a list with 6px gaps; group headers 20 tall =====
 do
 	local pg = pages["Players"]
@@ -8859,6 +8942,7 @@ do
 end
 -- [/PG_PLAYERS]
 -- [PROFILE]
+rest("PLAYERS+SERVERS")
 -- ===== player profile: ONE window over the page area, reused (never two). Opens from a Players card (avatar, or one click on the name), a friend tile or ;player <name>.
 -- Every open bumps P.gen: late answers (friends with you, friends list, outfit prices) for an older profile are dropped and its live refresh stops. Leaving Players closes it =====
 do
@@ -9163,6 +9247,7 @@ do
 						ctx.notify(why, 5)
 					end
 				end },
+			
 			{ label = function() return "Go to" end, run = function() run("goto") end },
 			{ label = function() return P.friend[uid] and "Friends" or "Add friend" end, en = function() return not P.friend[uid] end, run = function() run("friend") end },
 			{ label = function() return state.muted[uid] and "Unmute" or "Mute" end, on = function() return state.muted[uid] ~= nil end,
@@ -9268,7 +9353,7 @@ end
 
 -- [PG_LOOK]
 -- ===== page: Look and feel (slide 7, every control at the deck's position) ============================
-do
+ui.lazy("Look and feel", function() -- built on first open, not at execute
 	local pg = scroller(pages["Look and feel"], 0, 0, L.IW, L.IH)
 	pg.AutomaticCanvasSize, pg.CanvasSize = Enum.AutomaticSize.None, UDim2.fromOffset(0, 462) -- fixed height so the last row is never cut off
 	local X0 = L.IW - 252 -- left edge of the control column, its right edge sits 20 px from the page edge
@@ -9381,12 +9466,12 @@ do
 	seg(pg, 362, cols(4, 60), 52, { { "0x", 0 }, { "0.5x", 0.5 }, { "1.0x", 1 }, { "1.5x", 1.5 } }, "blur")
 	label("Position", 33, 402)
 	seg(pg, 400, cols(3, 80), 72, { { "Bottom", "Bottom" }, { "Center", "Center" }, { "Top", "Top" } }, "pos")
-end
+end)
 -- [/PG_LOOK]
 
 -- [PG_SCRIPTS]
 -- ===== page: Load scripts (slide 8: rows 76px flush, 11pt title, 8pt description, 94x23 button) ===========
-do
+ui.lazy("Load scripts", function() -- built on first open, not at execute
 	local pg = pages["Load scripts"]
 	local sbox = input(pg, "Search scripts…", 9, 10, 299, 32, 11)
 	local list = scroller(pg, 0, 56, L.IW, L.IH - 56)
@@ -9464,12 +9549,12 @@ do
 	sbox:GetPropertyChangedSignal("Text"):Connect(render)
 	onShow["Load scripts"] = render
 	onHide["Load scripts"] = function() clear(list) end
-end
+end)
 -- [/PG_SCRIPTS]
 
 -- [PG_CMDS]
 -- ===== page: Commands (every command with its function, arguments and modifier) ======================
-do
+ui.lazy("Commands", function() -- built on first open, not at execute
 	local pg = pages["Commands"]
 	local sbox = input(pg, "Search commands, or what they do…", 9, 10, 299, 32, 11)
 	local list = scroller(pg, 0, 56, L.IW, L.IH - 56)
@@ -9497,7 +9582,7 @@ do
 	sbox:GetPropertyChangedSignal("Text"):Connect(render)
 	onShow["Commands"] = render
 	onHide["Commands"] = function() clear(list) end -- gen was an undefined global: the error stopped clear(list) from ever running
-end
+end)
 -- [/PG_CMDS]
 
 -- [PG_FLOW]
@@ -9525,7 +9610,7 @@ end
 
 -- [PG_AUTOSTART]
 -- Autostart: scripts that start when rOSAD runs (master switch) and, per script, again after every respawn
-do
+ui.lazy("Autostart", function() -- built on first open, not at execute
 	local pg = flow("Autostart")
 	fhdr(pg, "Autostart")
 	seg(frow(pg, "Start these when rOSAD runs", 102), 0, { 0, 55 }, 47, { { "On", true }, { "Off", false } }, "onExec", function() end, cfg.autostart)
@@ -9645,11 +9730,11 @@ do
 	end
 	onShow["Autostart"] = render
 	onHide["Autostart"] = function() clear(list) end
-end
+end)
 -- [/PG_AUTOSTART]
 
 -- [PG_KEYS]
-do
+ui.lazy("Keybinds", function() -- built on first open, not at execute
 	local pg = flow("Keybinds")
 	-- two tiles side by side: caption + keycap (click the keycap, then press the new key)
 	local function keyTile(row, x, cap, key)
@@ -9880,7 +9965,7 @@ do
 		S.capture = nil -- the keycap text resets on the next visit (onShow = ui.refreshKeys)
 		setFill(barBtn, "ctrlOff", BTN_OFF); setFill(panelBtn, "ctrlOff", BTN_OFF)
 	end
-end
+end)
 -- [/PG_KEYS]
 
 -- [PG_MODCFG]
@@ -9960,6 +10045,8 @@ ui.lazy("Module Cfg", function() -- built the first time the tab opens, a few ro
 	numRow("Jump power: default", "jpDef"); numRow("Jump power: multiplier", "jpMult")
 	numRow("Spin: default (rotations/s)", "spinDef"); numRow("Spin: multiplier", "spinMult")
 	numRow("Float: stair height (studs)", "floatStep")
+	fhdr(pg, "Freecam (;freecam / ;fc)")
+	numRow("Fly: default speed", "fcDef"); numRow("Look sensitivity (multiplier, 1 = normal)", "fcSens")
 	fhdr(pg, "Spider (;spider)")
 	
 	numRow("Wall height (studs, hook only taller walls, 0 = any)", "spWall")
@@ -9968,6 +10055,9 @@ ui.lazy("Module Cfg", function() -- built the first time the tab opens, a few ro
 	numRow("Default amount", "tpDef"); numRow("Maximum (cap)", "tpCap")
 	fhdr(pg, "Follow, backpack, baby")
 	numRow("Follow: default radius (studs)", "followRadius")
+	togRow("Attach: match the target's speed", "attachVel")
+	numRow("Attach: acceleration lead (seconds, 0 = off, try 0.05 to 0.15)", "attachLead")
+	togRow("Attach: follow the target's root part (steadier when they speed up / stop)", "attachRoot")
 	numRow("Backpack: distance", "bpDist"); numRow("Backpack: height", "bpHeight")
 	numRow("Baby: distance", "babyDist"); numRow("Baby: height", "babyHeight"); numRow("Baby: rotation (degrees)", "babyRot"); numRow("Baby: lean back (degrees)", "babyLean")
 	fhdr(pg, "Head attach (;heada / ;headattach)")
@@ -10106,6 +10196,7 @@ end)
 -- [/PG_PREFS]
 
 -- [ENTRY]
+rest("PROFILE+PAGES")
 -- ===== apply settings, wire input, start ===================================
 -- 1080p is the design size only: the UI keeps the same pixel size at every resolution, the UI Scaling setting is the only zoom.
 function ui.curScale() return cfg.scale end
@@ -10207,12 +10298,13 @@ end)
 -- while the mouse is over the panel / bar / list: move its cursor light and sink mouse + wheel input for the game's own ContextActionService handlers
 -- (the Active surfaces already stop Roblox's camera and tools). shortcut: a game that reads clicks straight from UserInputService without checking gameProcessed still sees them; nothing client side can hide input from that
 do
-	local CAS, blocking = S.ContextActionService, false
+	local CAS, blocking, idle = S.ContextActionService, false, false
 	-- GetMouseLocation includes the topbar inset; this gui's AbsolutePosition does not, so the light sat one inset (36-58 px) too low. Change to 0 if it ever lands too high
 	S.spotDY = 0
 	pcall(function() S.spotDY = S.GuiService:GetGuiInset().Y end)
 	conn(S.RunService.RenderStepped, function()
 		local m = (S.panelOpen or S.barOpen or S.profOpen) and S.UserInputService:GetMouseLocation() or nil
+		if not m then if OPT and idle then return end; idle = true else idle = false end -- UI closed: one pass hides the lights, then no per-frame work
 		local over = false
 		for _, sp in ipairs(S.spots) do
 			local inside = false
@@ -10302,4 +10394,5 @@ if not (HAS_FS and HAS_LOAD) then ctx.notify("Limited mode: this executor has no
 ui.welcome()
 if cfg.startBar then task.defer(function() ui.openBar() end) end
 if cfg.autostart.onExec then task.delay(2, function() ctx.runAutostart("exec") end) end
+warn("[KLOSAD] load run-work: " .. table.concat(PROF.n, ", ") .. ", ENTRY " .. math.floor((os.clock() - PROF.last) * 1000) .. "ms | wall " .. math.floor((os.clock() - PROF.t0) * 1000) .. "ms")
 -- [/ENTRY]
