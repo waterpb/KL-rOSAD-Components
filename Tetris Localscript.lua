@@ -2,16 +2,16 @@
 -- [DATA] constants, piece shapes, kick tables, scoring (PTS, PCX), fmt/clock | SHAPE, KJ, KI, K180, PTS, PCX, fmt() | deps: none | L29-77
 -- [GAME] pure rules, no Roblox APIs | newGame(): press/release/update/ghost/reset/waiting/goal, lock, spinKind, modes, perfect clear | deps: DATA | L79-379
 -- [SELFTEST] load-time logic asserts | selfTest() | deps: DATA, GAME | L381-423
--- [STATE] services, cfg, keys, best (records), lb (local top 10 per mode), save/load, game instance | cfg, keys, LIM, best, lb, save(), addScore(), tet | deps: GAME | L425-510
--- [WINDOW] themes (colours + block look; Textured = blocks.png), window, playfield (gradient, starfield, flash), panels, layout | THEMES, TEX, loadBlocks(), applyTheme(), blockLook(), look(), layout(), setMini() | deps: STATE | L512-730
--- [BUBBLE] minimized draggable logo | bubble | deps: WINDOW | L732-741
--- [DRAG] mouse release, drag, resize | reason(), dragger(), grip | deps: WINDOW | L743-810
--- [OPTIONS] options panel shell + Scores tab | settings, list, lbP, showLb(), setOptions(open, scores) | deps: WINDOW, STATE | L812-848
--- [INPUT] CAS key sink, focus, toggle | onKey(), bindSink(), setFocus(), toggle() | deps: OPTIONS | L850-906
--- [OPTROWS] collapsible options sections, rows, dropdowns, On/Off toggles, key capture | section(), hint(), row(), opt(), drop(), numRows(), finishCapture() | deps: INPUT, STATE | L908-1051
--- [FOCUS] click focus model | pointOf(), inside() | deps: INPUT | L1053-1074
--- [RENDER] paint cells, stats, records + leaderboard insert, overlay, frame loop | render(), paint(), stat(), RenderStepped | deps: STATE, WINDOW | L1076-1182
--- [LIFE] cleanup and startup | cleanup(), layout(), restore() | deps: all | L1184-1200
+-- [STATE] services, cfg, keys, best (records), lb (local top 10 per mode), save/load, game instance | cfg, keys, LIM, best, lb, save(), addScore(), refreshNames(), tet | deps: GAME | L425-536
+-- [WINDOW] themes (colours + block look; Textured = blocks.png), window, playfield (gradient, starfield, flash), panels, layout | THEMES, TEX, loadBlocks(), applyTheme(), blockLook(), look(), layout(), setMini() | deps: STATE | L538-761
+-- [BUBBLE] minimized draggable logo | bubble | deps: WINDOW | L763-772
+-- [DRAG] mouse release, drag, resize | reason(), dragger(), grip | deps: WINDOW | L774-841
+-- [OPTIONS] options panel shell + Scores tab | settings, list, lbP, showLb(), setOptions(open, scores) | deps: WINDOW, STATE | L843-914
+-- [INPUT] CAS key sink, focus, toggle | onKey(), bindSink(), setFocus(), toggle() | deps: OPTIONS | L916-972
+-- [OPTROWS] collapsible options sections, rows, dropdowns, On/Off toggles, key capture | section(), hint(), row(), opt(), drop(), numRows(), finishCapture() | deps: INPUT, STATE | L974-1117
+-- [FOCUS] click focus model | pointOf(), inside() | deps: INPUT | L1119-1140
+-- [RENDER] paint cells, stats, records + leaderboard insert, overlay, frame loop | render(), paint(), stat(), RenderStepped | deps: STATE, WINDOW | L1142-1248
+-- [LIFE] cleanup and startup | cleanup(), layout(), restore() | deps: all | L1250-1266
 
 --[[
 	TETRIS for Roblox - one self-contained client LocalScript (no modules, no assets, no server code).
@@ -448,7 +448,7 @@ local LIM = {das = {0, 500}, arr = {0, 200}, sdr = {0, 500}, lock = {0, 3000}, c
 local HttpService, SAVE = game:GetService("HttpService"), "TetrisSettings.json"
 local canFile = type(writefile) == "function" and type(readfile) == "function" and type(isfile) == "function"
 local best = {} -- records: m1 Marathon score, m2 Sprint time, m3 Ultra score, m4 Cheese time
-local lb = {m1 = {}, m2 = {}, m3 = {}, m4 = {}} -- local top 10 per mode, best first: {v = score|time, s = score, l = lines, t = os.time()}
+local lb = {m1 = {}, m2 = {}, m3 = {}, m4 = {}} -- local top 10 per mode, best first: {v = score|time, s = score, l = lines, t = os.time(), u = userId, n = username}
 local function save()
 	if not canFile then return end
 	local k = {}
@@ -478,7 +478,8 @@ if canFile then -- load + validate (the file is user-editable): bad values keep 
 			for _, e in ipairs(type(src) == "table" and src or {}) do
 				local v, l = type(e) == "table" and tonumber(e.v), type(e) == "table" and tonumber(e.l)
 				if v and l and v > 0 and #out < 10 then
-					out[#out + 1] = {v = v, l = l, s = tonumber(e.s) or 0, t = math.clamp(tonumber(e.t) or 0, 0, 4e9)}
+					out[#out + 1] = {v = v, l = l, s = tonumber(e.s) or 0, t = math.clamp(tonumber(e.t) or 0, 0, 4e9),
+						u = math.floor(tonumber(e.u) or 0), n = type(e.n) == "string" and e.n:sub(1, 40) or "?"}
 				end
 			end
 			lb["m" .. m] = out
@@ -503,10 +504,35 @@ local function addScore(m, v, timed) -- file one finished run into that mode's t
 	end
 	at = at or #list + 1
 	if at > 10 then return end
-	table.insert(list, at, {v = v, s = tet.score, l = tet.lines, t = os.time()})
+	table.insert(list, at, {v = v, s = tet.score, l = tet.lines, t = os.time(), u = Players.LocalPlayer.UserId, n = Players.LocalPlayer.Name})
 	list[11] = nil
 	save()
 end
+local nameCache = {} -- userId -> current username (false = lookup failed; one try per session)
+local function refreshNames(done) -- accounts can rename: replace stored names with the current ones, then call done() if any changed
+	local lp = Players.LocalPlayer
+	task.spawn(function()
+		local changed = false
+		for _, rows in pairs(lb) do
+			for _, e in ipairs(rows) do
+				if e.u > 0 then
+					local nm = e.u == lp.UserId and lp.Name or nameCache[e.u]
+					if nm == nil then
+						local ok, r = pcall(Players.GetNameFromUserIdAsync, Players, e.u)
+						nameCache[e.u] = ok and r or false
+						nm = nameCache[e.u]
+					end
+					if nm and nm ~= e.n then e.n, changed = nm, true end
+				end
+			end
+		end
+		if changed then
+			save()
+			if done then done() end
+		end
+	end)
+end
+refreshNames()
 -- [/STATE]
 
 -- [WINDOW]
@@ -587,19 +613,22 @@ local accentLine = mk("Frame", {Name = "Accent", Size = UDim2.new(1, 0, 0, 2), P
 local bar = mk("Frame", {Name = "TitleBar", Size = UDim2.new(1, 0, 0, TITLE), BackgroundColor3 = Color3.new(0, 0, 0),
 	BackgroundTransparency = 0.55, BorderSizePixel = 0, Active = true, ZIndex = 10}, win)
 mk("UIGradient", {Color = ColorSequence.new(Color3.fromRGB(44, 50, 82), Color3.fromRGB(14, 16, 26))}, bar)
-txt("TextLabel", {Text = "TETRIS", Font = Enum.Font.GothamBold, TextSize = 15, TextXAlignment = LEFT,
+txt("TextLabel", {RichText = true, Text = '<font color="#f54040">T</font><font color="#ff9830">E</font><font color="#ffd500">T</font><font color="#50e064">R</font><font color="#00e5ff">I</font><font color="#b04cf0">S</font>', Font = Enum.Font.GothamBold, TextSize = 15, TextXAlignment = LEFT,
 	Position = UDim2.fromOffset(14, 0), Size = UDim2.new(1, -200, 1, 0), ZIndex = 11}, bar)
-local function barBtn(text, x, w, cb)
-	local b = txt("TextButton", {Text = text, BackgroundColor3 = Color3.fromRGB(70, 78, 110), BackgroundTransparency = 0.35,
-		Position = UDim2.new(1, -x, 0.5, -12), Size = UDim2.fromOffset(w, 24), ZIndex = 11}, bar)
-	round(b, 6)
+local function barBtn(text, x, w, cb, hot) -- hot = hover colour
+	local base = Color3.fromRGB(58, 66, 98)
+	local b = txt("TextButton", {Text = text, Font = Enum.Font.GothamBold, TextSize = 12, AutoButtonColor = false, BackgroundColor3 = base,
+		BackgroundTransparency = 0.25, Position = UDim2.new(1, -x, 0.5, -12), Size = UDim2.fromOffset(w, 24), ZIndex = 11}, bar)
+	round(b, 6, true)
+	on(b.MouseEnter, function() b.BackgroundColor3, b.BackgroundTransparency = hot or Color3.fromRGB(92, 106, 158), 0.05 end)
+	on(b.MouseLeave, function() b.BackgroundColor3, b.BackgroundTransparency = base, 0.25 end)
 	on(b.Activated, cb)
 	return b
 end
 local optBtn
 optBtn = barBtn("Options", 152, 76, function() setOptions(not optBtn.Text:find("Back")) end)
 barBtn("-", 68, 28, function() minimize() end)
-barBtn("x", 34, 28, function() cleanup() end)
+barBtn("x", 34, 28, function() cleanup() end, Color3.fromRGB(200, 64, 72))
 
 local field = mk("Frame", {Name = "Playfield", BackgroundColor3 = Color3.fromRGB(7, 9, 15), BackgroundTransparency = 0.1,
 	BorderSizePixel = 0, ClipsDescendants = true, ZIndex = 2}, win)
@@ -659,7 +688,9 @@ local overlay = txt("TextLabel", {Font = Enum.Font.GothamBold, Text = "", RichTe
 	BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.35, Size = UDim2.fromScale(1, 1), ZIndex = 8}, field)
 
 local function panel()
-	local f = mk("Frame", {BackgroundTransparency = 1, ZIndex = 2}, win)
+	local f = mk("Frame", {BackgroundColor3 = Color3.fromRGB(8, 10, 18), BackgroundTransparency = 0.5, BorderSizePixel = 0, ZIndex = 2}, win)
+	round(f, 8, true)
+	mk("UIPadding", {PaddingLeft = UDim.new(0, 6), PaddingTop = UDim.new(0, 6)}, f)
 	mk("UIListLayout", {Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder}, f)
 	return f
 end
@@ -819,20 +850,55 @@ local list = mk("ScrollingFrame", {Size = UDim2.fromScale(1, 1), BackgroundTrans
 mk("UIListLayout", {Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder}, list)
 mk("UIPadding", {PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14), PaddingTop = UDim.new(0, 10), PaddingBottom = UDim.new(0, 40)}, list)
 local lbP = mk("Frame", {Size = UDim2.fromScale(1, 1), Visible = false, BackgroundTransparency = 1, ZIndex = 21}, settings) -- Scores tab
-local lbMode, lbTabs = 1, {}
-local tabRow = mk("Frame", {Position = UDim2.fromOffset(14, 10), Size = UDim2.new(1, -28, 0, 28), BackgroundTransparency = 1, ZIndex = 22}, lbP)
-local lbText = txt("TextLabel", {Font = Enum.Font.Code, TextSize = 14, TextXAlignment = LEFT, TextYAlignment = Enum.TextYAlignment.Top,
-	Position = UDim2.fromOffset(14, 50), Size = UDim2.new(1, -28, 1, -60), ZIndex = 22}, lbP)
-local function showLb()
-	local timed, r = lbMode == 2 or lbMode == 4, {}
-	for i, e in ipairs(lb["m" .. lbMode]) do
-		r[i] = string.format("%2d. %-10s %3d lines  %s", i, timed and clock(e.v) or fmt(e.v), e.l, os.date("%Y-%m-%d", e.t))
+local lbMode, lbTabs, lbRows = 1, {}, {}
+local RANKCOL = {Color3.fromRGB(255, 205, 64), Color3.fromRGB(205, 212, 228), Color3.fromRGB(218, 144, 84)} -- gold, silver, bronze
+local CENTER, RIGHT = Enum.TextXAlignment.Center, Enum.TextXAlignment.Right
+local LBC = {{0, 0.09, CENTER}, {0.09, 0.40, LEFT}, {0.49, 0.25, RIGHT}, {0.74, 0.11, RIGHT}, {0.85, 0.15, RIGHT}} -- column x, width, align
+txt("TextLabel", {Text = "LEADERBOARD", Font = Enum.Font.GothamBold, TextSize = 18, TextXAlignment = LEFT,
+	Position = UDim2.fromOffset(14, 8), Size = UDim2.new(1, -28, 0, 22), ZIndex = 22}, lbP)
+txt("TextLabel", {Text = "Local top 10 per mode - names follow account renames", TextSize = 11, TextColor3 = DIM, TextXAlignment = LEFT,
+	Position = UDim2.fromOffset(14, 30), Size = UDim2.new(1, -28, 0, 14), ZIndex = 22}, lbP)
+local tabRow = mk("Frame", {Position = UDim2.fromOffset(14, 52), Size = UDim2.new(1, -28, 0, 28), BackgroundTransparency = 1, ZIndex = 22}, lbP)
+local function lbRow(y, h) -- one table row: 5 text cells at fixed column positions
+	local f = mk("Frame", {Position = UDim2.new(0, 14, 0, y), Size = UDim2.new(1, -28, 0, h), BackgroundTransparency = 1, BorderSizePixel = 0, ZIndex = 22}, lbP)
+	local c = {f = f}
+	for i, d in ipairs(LBC) do
+		c[i] = txt("TextLabel", {TextSize = 13, TextXAlignment = d[3], TextTruncate = Enum.TextTruncate.AtEnd,
+			Position = UDim2.new(d[1], i == 2 and 4 or 0, 0, 0), Size = UDim2.new(d[2], -6, 1, 0), ZIndex = 23}, f)
 	end
-	lbText.Text = #r > 0 and table.concat(r, "\n") or "No runs yet."
-	for m, b in ipairs(lbTabs) do b.BackgroundColor3 = m == lbMode and Color3.fromRGB(88, 104, 160) or Color3.fromRGB(50, 56, 80) end
+	return c
+end
+local lbHead = lbRow(88, 18)
+for i, t in ipairs({"#", "PLAYER", "SCORE", "LINES", "DATE"}) do lbHead[i].Text, lbHead[i].TextSize, lbHead[i].TextColor3 = t, 11, DIM end
+for i = 1, 10 do
+	local r = lbRow(108 + (i - 1) * 28, 26)
+	round(r.f, 6)
+	r[1].Font, r[3].Font, r[4].TextColor3, r[5].TextColor3 = Enum.Font.GothamBold, Enum.Font.GothamBold, DIM, DIM
+	lbRows[i] = r
+end
+local lbEmpty = txt("TextLabel", {Text = "No runs yet - finish a game to get on the board.", TextColor3 = DIM, TextSize = 13,
+	Position = UDim2.fromOffset(14, 116), Size = UDim2.new(1, -28, 0, 24), ZIndex = 22}, lbP)
+local function showLb()
+	local timed, me, data = lbMode == 2 or lbMode == 4, Players.LocalPlayer.UserId, lb["m" .. lbMode]
+	lbHead[3].Text, lbEmpty.Visible = timed and "TIME" or "SCORE", #data == 0
+	for i, r in ipairs(lbRows) do
+		local e = data[i]
+		r.f.Visible = e ~= nil
+		if e then
+			local mine, tc = e.u == me, RANKCOL[i] or TEXT
+			r.f.BackgroundColor3 = mine and Color3.fromRGB(70, 90, 150) or Color3.fromRGB(34, 38, 58) -- your own runs stand out
+			r.f.BackgroundTransparency = mine and 0.3 or (i % 2 == 0 and 0.75 or 0.6)
+			r[1].Text, r[1].TextColor3, r[2].Text, r[2].TextColor3 = tostring(i), tc, e.n, tc
+			r[3].Text, r[4].Text, r[5].Text = timed and clock(e.v) or fmt(e.v), tostring(e.l), os.date("%y-%m-%d", e.t)
+		end
+	end
+	for m, b in ipairs(lbTabs) do
+		local sel = m == lbMode
+		b.BackgroundColor3, b.TextColor3 = sel and COL[1]:Lerp(BLACK, 0.45) or Color3.fromRGB(40, 46, 70), sel and WHITE or DIM
+	end
 end
 for m, n in ipairs({"Marathon", "Sprint 40L", "Ultra 2:00", "Cheese 10"}) do
-	local b = txt("TextButton", {Text = n, TextSize = 12, BackgroundColor3 = Color3.fromRGB(50, 56, 80), BackgroundTransparency = 0.2,
+	local b = txt("TextButton", {Text = n, Font = Enum.Font.GothamBold, TextSize = 12, AutoButtonColor = false, BackgroundTransparency = 0.2,
 		Position = UDim2.new((m - 1) / 4, 0, 0, 0), Size = UDim2.new(0.25, -4, 1, 0), ZIndex = 23}, tabRow)
 	round(b, 6)
 	lbTabs[m] = b
@@ -842,7 +908,7 @@ barBtn("Scores", 236, 68, function() setOptions(not lbP.Visible, true) end)
 function setOptions(open, scores) -- scores = true shows the leaderboard instead of the option rows
 	settings.Visible, list.Visible, lbP.Visible = open, not scores, open and scores == true
 	optBtn.Text = open and "Back" or "Options"
-	if open and scores then lbMode = tet.mode; showLb() end
+	if open and scores then lbMode = tet.mode; showLb(); refreshNames(showLb) end
 	if open then for a in pairs(down) do tet.release(a) end down = {} end -- no key may stay "held" while paused
 end
 -- [/OPTIONS]
@@ -1143,7 +1209,7 @@ local function render(dt)
 		statT = 0.1
 		local gl, gv = tet.goal()
 		local timed, bv = tet.mode == 2 or tet.mode == 4, best["m" .. tet.mode]
-		local r = {string.format(LBL, "SCORE") .. "\n" .. fmt(tet.score), stat("TIME", clock(tet.time)), stat("LINES", tet.lines),
+		local r = {string.format(LBL, "SCORE") .. '\n<font size="18" color="#ffffff"><b>' .. fmt(tet.score) .. "</b></font>", stat("TIME", clock(tet.time)), stat("LINES", tet.lines),
 			stat("LEVEL", tet.level)}
 		if gl then r[#r + 1] = stat(gl, gv) end
 		r[#r + 1] = stat("BEST", bv and (timed and clock(bv) or fmt(bv)) or "-")
