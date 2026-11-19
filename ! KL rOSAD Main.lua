@@ -3,24 +3,24 @@
 -- [DATA] builtin slots, GitHub links, welcome/home/tip text | BUILTIN, GITHUB, WELCOME, TIPS | deps: BOOT | L54-176
 -- [STATE] service cache, settings load/save, Module Cfg defaults | S, cfg, save(), MODDEF | deps: BOOT | L178-264
 -- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L266-435
--- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L437-1136
--- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1138-1906
--- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools, autoexec, autostart, notifier, cleanup, playernames, update, void/autovoid | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1908-6164
--- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L6166-7172
--- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L7174-7737
--- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7739-8110
--- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L8112-8401
--- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L8403-8956
--- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L8957-9365
--- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L9367-9483
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9485-9566
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9568-9599
--- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9601-9622
--- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9624-9747
--- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9749-9982
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow(), section search box | deps: PG_FLOW | L9984-10118
--- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L10120-10209
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L10211-10411
+-- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L437-1135
+-- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1137-1905
+-- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools, autoexec, autostart, notifier, cleanup, playernames, update, void/autovoid | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1907-6167
+-- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L6169-7175
+-- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L7177-7740
+-- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7742-8113
+-- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L8115-8404
+-- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L8406-8959
+-- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L8960-9368
+-- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L9370-9486
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9488-9569
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9571-9602
+-- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9604-9625
+-- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9627-9750
+-- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9752-9985
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow(), section search box | deps: PG_FLOW | L9987-10122
+-- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L10124-10213
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L10215-10415
 -- [BOOT]
 local VERSION = "1.2"
 local DIR = "KLOSAD"
@@ -243,7 +243,7 @@ local MODDEF = {
 	bpDist = 1.5, bpHeight = 0.5, babyDist = 2.2, babyHeight = 0.5, babyRot = 35, babyLean = 0,
 	afRadius = 15, afThreshold = 120, afRestore = 1.5, atpMin = 40, akMax = 80, aeThreshold = 500, aeDuration = 2,
 	afkInterval = 60, spamCount = 3, avHeight = 50, defNotify = true,
-	floatStep = 3, espCustom = false, espColor = "#FF3B3B", actOn = true, actCorner = "BL",
+	floatStep = 3, iyFloat = false, espCustom = false, espColor = "#FF3B3B", actOn = true, actCorner = "BL",
 	predOn = false, predMult = 1, srvShow = false, srvHide = 0.5, attachVel = true, attachLead = 0, attachRoot = false, attachWeld = "rep", -- attachWeld: "rep" / "weld" / "both" / "off" (on by default, see ;attachweld)
 	chStyle = "Cross", chLen = 6, chGap = 4, chThick = 2, chOutline = 1, chOutlineAlpha = 1, chColor = "#00FF00", chCursor = false,
 	headDist = 1.5, headHeight = 1.5, headSide = 0, headSweep = true, headSweepAmp = 0.5, headSweepSpeed = 10,
@@ -916,7 +916,6 @@ local TOGGLES = {
 }
 TOGGLES.spider, TOGGLES.serverpos = "unspider", "unserverpos"
 TOGGLES.antigameplaypaused = "unantigameplaypaused"
-TOGGLES.iyfloat = "iyunfloat"
 TOGGLES.autovoid = "unautovoid"
 
 TOGGLES.freecam = "unfreecam" -- also turned off by stopall / Reset all effects / exit, so the camera always comes back
@@ -1076,7 +1075,7 @@ CATS.Server = (CATS.Server or "") .. " region serverbrowser scanregions serverho
 CATS.Players = CATS.Players .. " report"
 CATS.Visuals = CATS.Visuals .. " playernames hidenames"
 CATS.Tools = CATS.Tools .. " update"
-CATS.Movement = CATS.Movement .. " togglenoclip iyfloat iyunfloat"
+CATS.Movement = CATS.Movement .. " togglenoclip"
 CATS.Defense = CATS.Defense .. " void autovoid unautovoid"
 ctx.catOf = {}
 for cat, names in pairs(CATS) do
@@ -1987,6 +1986,7 @@ end)
 -- (stairs, small ledges); anything deeper is caught by the platform, which keeps your level. E / Q move it, running float
 -- again re-centres it under you, unfloat removes it.
 local function unfloat()
+	ctx.iyUnfloat() -- also removes the Infinite Yield style pad
 	ctx.disconnect("float")
 	if state.floatPart then state.floatPart:Destroy(); state.floatPart = nil end
 	if state.floatNoJump then -- stopped while E / Q was held: give the jump back
@@ -2003,7 +2003,9 @@ local function feetY()
 	local off = h.RigType == Enum.HumanoidRigType.R6 and 3 or (h.HipHeight + r.Size.Y / 2)
 	return r.Position.Y - off
 end
-def({ "float" }, "", "Float over drops deeper than the stair height (E up, Q down, run again to reset)", "hover levitate air step platform", function()
+def({ "float" }, "", "Float over drops deeper than the stair height (E up, Q down, run again to reset). Module Cfg can switch it to the Infinite Yield style pad", "hover levitate air step platform iy infinite yield", function()
+	if mod.iyFloat then unfloat(); return ctx.iyFloatOn() end
+	ctx.iyUnfloat()
 	local fy = feetY()
 	if not fy then return end
 	state.floatY, state.eLift = fy, nil
@@ -2056,13 +2058,13 @@ def({ "float" }, "", "Float over drops deeper than the stair height (E up, Q dow
 end)
 def({ "unfloat" }, "", "Remove the float platform", "hover levitate air step platform", unfloat)
 
--- ;iyfloat: Infinite Yield's float. A transparent 2 x 0.2 x 1.5 pad sits 3.1 studs under your root, inside your character (hold E: 1.5 up, hold Q: 0.5 down). It goes when the pad or your root is gone.
+-- Float, Infinite Yield style (Module Cfg > "Float: Infinite Yield style pad"): ;float puts a transparent 2 x 0.2 x 1.5 pad 3.1 studs under your root, inside your character (hold E: 1.5 up, hold Q: 0.5 down). ;unfloat removes it; it also goes when the pad or your root is gone.
 -- shortcut: the pad follows your root's rotation like IY's does (it tilts if you do), when to upgrade: build the CFrame from the root position only
 function ctx.iyUnfloat() -- a function on ctx, not a local: the main chunk is close to Luau's 200 local limit
 	ctx.disconnect("iyfloat")
 	if state.iyFloat then state.iyFloat:Destroy(); state.iyFloat = nil end
 end
-def({ "iyfloat", "iyplatform" }, "", "Infinite Yield's float: a pad under your feet (hold E for up, Q for down)", "platform hover levitate air iy infinite yield", function()
+function ctx.iyFloatOn()
 	local c = ctx.char()
 	if not (c and ctx.root()) then return end
 	ctx.iyUnfloat()
@@ -2072,11 +2074,11 @@ def({ "iyfloat", "iyplatform" }, "", "Infinite Yield's float: a pad under your f
 	state.iyFloat = pad
 	ctx.connect("iyfloat", RS.Heartbeat, function()
 		local r = ctx.root()
-		if not (pad.Parent and r) then return ctx.iyUnfloat() end
+		if not (pad.Parent and r) then ctx.iyUnfloat(); active("float", nil); return end
 		pad.CFrame = r.CFrame * CFrame.new(0, -3.1 + (down(Enum.KeyCode.E) and 1.5 or 0) - (down(Enum.KeyCode.Q) and 0.5 or 0), 0)
 	end)
-end)
-def({ "iyunfloat" }, "", "Remove the ;iyfloat pad", "platform hover levitate air iy", ctx.iyUnfloat)
+	active("float", true)
+end
 
 def({ "cfly" }, "[speed]", "CFrame fly (WASD, E up, Q down)", "flight air cframe", function(spd)
 	local r, h = ctx.root(), ctx.hum()
@@ -2603,7 +2605,7 @@ do
 	end)
 	def({ "unautovoid" }, "", "Stop the automatic void", "server position exploiter attached shake desync", function() tok = nil end)
 end
-def({ "config", "cfg" }, "", "Open Module Cfg in the panel", "module settings options values defaults", function() ctx.openTab("Module Cfg") end)
+def({ "config", "cfg", "conf" }, "", "Open Module Cfg in the panel", "module settings options values defaults", function() ctx.openTab("Module Cfg") end)
 
 -- stand up for real: Sit = false alone leaves the chair's weld on you, so you hang upright in the air ("float").
 -- Remove any weld between you and something that is not you (in the seat, or in your root part for custom clickable chairs), then jump once.
@@ -4915,6 +4917,7 @@ do
 		if key:match("^esp") and ctx.espRefresh then ctx.espRefresh() end
 		if (key:match("^srv") or key:match("^pred")) and ctx.srvRefresh then ctx.srvRefresh() end
 		if key == "actCorner" and ui.actLayout then ui.actLayout() end
+		if key == "iyFloat" and state.active.float then ctx.Run("float") end -- switch style right away if float is on
 	end
 end
 def({ "crosshair", "xhair" }, "", "Show a static CS style crosshair (mode, length, gap, thickness, outline, colour in Module Cfg)", "aim reticle cs dot", function()
@@ -10058,6 +10061,7 @@ ui.lazy("Module Cfg", function() -- built the first time the tab opens, a few ro
 	numRow("Jump power: default", "jpDef"); numRow("Jump power: multiplier", "jpMult")
 	numRow("Spin: default (rotations/s)", "spinDef"); numRow("Spin: multiplier", "spinMult")
 	numRow("Float: stair height (studs)", "floatStep")
+	togRow("Float: Infinite Yield style pad (a pad under your feet instead of the stair platform)", "iyFloat")
 	fhdr(pg, "Freecam (;freecam / ;fc)")
 	numRow("Fly: default speed", "fcDef"); numRow("Look sensitivity (multiplier, 1 = normal)", "fcSens")
 	fhdr(pg, "Spider (;spider)")
