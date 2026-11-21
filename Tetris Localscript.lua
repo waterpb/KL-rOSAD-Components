@@ -1,17 +1,17 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py)
 -- [DATA] constants, piece shapes, kick tables, scoring (PTS, PCX), fmt/clock | SHAPE, KJ, KI, K180, PTS, PCX, fmt() | deps: none | L29-77
--- [GAME] pure rules, no Roblox APIs | newGame(): press/release/update/ghost/reset/waiting/goal, lock, spinKind, modes, perfect clear | deps: DATA | L79-379
--- [SELFTEST] load-time logic asserts | selfTest() | deps: DATA, GAME | L381-423
--- [STATE] services, cfg, keys, best (records), lb (local top 10 per mode), save/load, game instance | cfg, keys, LIM, best, lb, save(), addScore(), refreshNames(), tet | deps: GAME | L425-536
--- [WINDOW] themes (colours + block look; Textured = blocks.png), window, playfield (gradient, starfield, flash), panels, layout | THEMES, TEX, loadBlocks(), applyTheme(), blockLook(), look(), layout(), setMini() | deps: STATE | L538-761
--- [BUBBLE] minimized draggable logo | bubble | deps: WINDOW | L763-772
--- [DRAG] mouse release, drag, resize | reason(), dragger(), grip | deps: WINDOW | L774-841
--- [OPTIONS] options panel shell + Scores tab | settings, list, lbP, showLb(), setOptions(open, scores) | deps: WINDOW, STATE | L843-914
--- [INPUT] CAS key sink, focus, toggle | onKey(), bindSink(), setFocus(), toggle() | deps: OPTIONS | L916-972
--- [OPTROWS] collapsible options sections, rows, dropdowns, On/Off toggles, key capture | section(), hint(), row(), opt(), drop(), numRows(), finishCapture() | deps: INPUT, STATE | L974-1117
--- [FOCUS] click focus model | pointOf(), inside() | deps: INPUT | L1119-1140
--- [RENDER] paint cells, stats, records + leaderboard insert, overlay, frame loop | render(), paint(), stat(), RenderStepped | deps: STATE, WINDOW | L1142-1248
--- [LIFE] cleanup and startup | cleanup(), layout(), restore() | deps: all | L1250-1266
+-- [GAME] pure rules, no Roblox APIs | newGame(): press/release/update/ghost/reset/waiting/goal/progress, lock, spinKind, modes, perfect clear | deps: DATA | L79-385
+-- [SELFTEST] load-time logic asserts | selfTest() | deps: DATA, GAME | L387-429
+-- [STATE] services, cfg, keys, best (records), lb (local top 10 per mode), save/load, game instance | cfg, keys, LIM, best, lb, save(), addScore(), refreshNames(), tet | deps: GAME | L431-542
+-- [WINDOW] themes (colours + block look; Textured = blocks.png), window, playfield (gradient, starfield, flash), panels, layout | THEMES, TEX, loadBlocks(), applyTheme(), blockLook(), look(), layout(), setMini() | deps: STATE | L544-773
+-- [BUBBLE] minimized draggable logo | bubble | deps: WINDOW | L775-784
+-- [DRAG] mouse release, drag, resize | reason(), dragger(), grip | deps: WINDOW | L786-853
+-- [OPTIONS] options panel shell + Scores tab | settings, list, lbP, showLb(), setOptions(open, scores) | deps: WINDOW, STATE | L855-926
+-- [INPUT] CAS key sink, focus, toggle | onKey(), bindSink(), setFocus(), toggle() | deps: OPTIONS | L928-984
+-- [OPTROWS] collapsible options sections, rows, dropdowns, On/Off toggles, key capture | section(), hint(), row(), opt(), drop(), numRows(), finishCapture() | deps: INPUT, STATE | L986-1129
+-- [FOCUS] click focus model | pointOf(), inside() | deps: INPUT | L1131-1152
+-- [RENDER] paint cells, stats, records + leaderboard insert, overlay, frame loop | render(), paint(), stat(), RenderStepped | deps: STATE, WINDOW | L1154-1270
+-- [LIFE] cleanup and startup | cleanup(), layout(), restore() | deps: all | L1272-1288
 
 --[[
 	TETRIS for Roblox - one self-contained client LocalScript (no modules, no assets, no server code).
@@ -356,6 +356,12 @@ local function newGame(cfg, rnd)
 		elseif g.mode == 3 then return "LEFT", clock(math.max(0, 120 - g.time))
 		elseif g.mode == 4 then return "GARBAGE", g.garb end
 	end
+	function g.progress() -- 0..1 toward the mode's finish (Marathon: toward the next level)
+		if g.mode == 2 then return g.lines / 40
+		elseif g.mode == 3 then return g.time / 120
+		elseif g.mode == 4 then return 1 - g.garb / 10 end
+		return (g.lines % 10) / 10
+	end
 	function g.reset()
 		g.board, g.queue, g.hold, g.cur, g.rows = {}, {}, nil, nil, nil
 		for r = 1, H do g.board[r] = emptyRow() end
@@ -633,6 +639,11 @@ barBtn("x", 34, 28, function() cleanup() end, Color3.fromRGB(200, 64, 72))
 local field = mk("Frame", {Name = "Playfield", BackgroundColor3 = Color3.fromRGB(7, 9, 15), BackgroundTransparency = 0.1,
 	BorderSizePixel = 0, ClipsDescendants = true, ZIndex = 2}, win)
 local fieldStroke = round(field, 6, true)
+local barTrack = mk("Frame", {BackgroundColor3 = Color3.fromRGB(8, 10, 18), BackgroundTransparency = 0.3, BorderSizePixel = 0, ZIndex = 2}, win) -- progress bar beside the board
+round(barTrack, 2)
+local barFill = mk("Frame", {AnchorPoint = Vector2.new(0, 1), Position = UDim2.fromScale(0, 1), Size = UDim2.fromScale(1, 0),
+	BackgroundColor3 = WHITE, BorderSizePixel = 0, ZIndex = 3}, barTrack)
+round(barFill, 2)
 local fieldBg = mk("Frame", {Size = UDim2.fromScale(1, 1), BackgroundColor3 = WHITE, BorderSizePixel = 0, ZIndex = 1}, field)
 local fbg = mk("UIGradient", {Rotation = 90}, fieldBg) -- colours come from applyTheme
 local stars = mk("Frame", {Name = "Stars", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ClipsDescendants = true,
@@ -741,6 +752,7 @@ function layout() -- sizes scale with the window; cells use scale positions so o
 	leftP.Position, leftP.Size = UDim2.fromOffset(x0, y0), UDim2.fromOffset(pw, fh)
 	fxX, fxY = x0 + pw + gap, y0 -- the shake needs the home position to put the board back
 	field.Position, field.Size = UDim2.fromOffset(fxX, fxY), UDim2.fromOffset(fw, fh)
+	barTrack.Position, barTrack.Size = UDim2.fromOffset(fxX - 7, fxY), UDim2.fromOffset(5, fh)
 	rightP.Position, rightP.Size = UDim2.fromOffset(x0 + pw + fw + 2 * gap, y0), UDim2.fromOffset(pw, fh)
 	for _, m in ipairs(minis) do m.frame.Size = UDim2.fromOffset(pw - 8, (pw - 8) / 2) end
 	stats.TextSize = math.clamp(math.floor(s * 0.55), 10, 20)
@@ -1151,6 +1163,9 @@ local function paint(cell, code)
 	else look(cell, COL[code], 0, code) end
 end
 local LBL = '<font color="#8f98b3">%s</font>'
+local MODEN = {"MARATHON", "40 LINES", "ULTRA 2:00", "CHEESE 10"}
+local MODEC = {Color3.fromRGB(176, 76, 240), Color3.fromRGB(0, 229, 255), Color3.fromRGB(255, 213, 0), Color3.fromRGB(255, 152, 48)}
+local barV = 0 -- displayed progress, eased toward tet.progress()
 local function stat(n, v) return string.format(LBL, n) .. "  " .. tostring(v) end
 local function render(dt)
 	local base, p = H - VIS, tet.cur
@@ -1201,17 +1216,24 @@ local function render(dt)
 	field.Position = UDim2.fromOffset(fxX + jx, fxY + jy)
 	for i = 1, 5 do setMini(nextMinis[i], i <= cfg.nexts and tet.queue[i] or nil) end
 	setMini(holdMini, tet.hold, not tet.canHold)
+	barV = barV + (tet.progress() - barV) * math.min(1, dt * 10) -- eased, so a clear reads as motion
+	barFill.Size, barFill.BackgroundColor3 = UDim2.fromScale(1, math.clamp(barV, 0, 1)), MODEC[tet.mode]
 	if tet.msgT > 0 then msgLabel.Text, msgLabel.TextTransparency = tet.msg, math.clamp(1 - tet.msgT, 0, 1)
 	elseif tet.waiting() then msgLabel.Text, msgLabel.TextTransparency = "PRESS A KEY", 0
 	elseif msgLabel.Text ~= "" then msgLabel.Text = "" end
 	statT = statT - dt
 	if statT <= 0 then -- stats text refreshes at 10 Hz
 		statT = 0.1
-		local gl, gv = tet.goal()
-		local timed, bv = tet.mode == 2 or tet.mode == 4, best["m" .. tet.mode]
-		local r = {string.format(LBL, "SCORE") .. '\n<font size="18" color="#ffffff"><b>' .. fmt(tet.score) .. "</b></font>", stat("TIME", clock(tet.time)), stat("LINES", tet.lines),
-			stat("LEVEL", tet.level)}
-		if gl then r[#r + 1] = stat(gl, gv) end
+		local timed, bv, m = tet.mode == 2 or tet.mode == 4, best["m" .. tet.mode], tet.mode
+		local bl, bg = "SCORE", fmt(tet.score) -- headline = the mode's objective, TETR.IO style
+		if m == 2 then bl, bg = "LINES", tet.lines .. " / 40"
+		elseif m == 3 then bl, bg = "TIME LEFT", clock(math.max(0, 120 - tet.time))
+		elseif m == 4 then bl, bg = "GARBAGE LEFT", tostring(tet.garb) end
+		local r = {'<font color="#' .. MODEC[m]:ToHex() .. '"><b>' .. MODEN[m] .. "</b></font>",
+			string.format(LBL, bl) .. '\n<font size="18" color="#ffffff"><b>' .. bg .. "</b></font>", stat("TIME", clock(tet.time))}
+		if m ~= 1 then r[#r + 1] = stat("SCORE", fmt(tet.score)) end
+		if m ~= 2 then r[#r + 1] = stat("LINES", tet.lines) end
+		r[#r + 1] = stat("LEVEL", tet.level)
 		r[#r + 1] = stat("BEST", bv and (timed and clock(bv) or fmt(bv)) or "-")
 		r[#r + 1] = stat("PIECES", tet.pieces - tet.p0)
 		r[#r + 1] = stat("APM*", string.format("%.1f", tet.apm()))
