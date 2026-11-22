@@ -1,23 +1,23 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py). Markers use "--" (Lua), not "//".
--- [BOOT] scale, services, single-instance guard, bind/px/new/tween | S, bind(), px(), new(), tween() | deps: none | L27-74
--- [THEME] colors, fonts, panel/inner/outline tokens | WHITE, ACCENT, PANEL, INNER, OUTLINE, F_* | deps: BOOT | L76-96
--- [SETTINGS] settings file load/save | settings, save(), box, fullText | deps: BOOT | L100-123
--- [GUIROOT] ScreenGui root, screenSize, zTop, overFrame | gui, screenSize(), front(), overFrame() | deps: SETTINGS | L125-146
--- [PANELS] panel frame, pop/fade, drag | newPanel(), setTL(), popOpen(), fadeClose(), makeDrag() | deps: GUIROOT | L148-249
--- [WIDGETS] box2, label, icon, inner, window buttons, scrollbar | box2(), label(), inner(), xButton(), minButton(), scrollbar() | deps: PANELS | L251-381
--- [HIGHLIGHT] Lua syntax highlighter | highlight() | deps: none | L383-447
--- [LOGSTATE] log queue, unread dot | emit(), updateDot(), stamp() | deps: WIDGETS | L449-480
--- [KEEP] keep executor after teleport, auto re-join, server hop | queueSelf(), findServer() | deps: LOGSTATE, SETTINGS | L482-547
--- [EXEC_PANEL] executor panel, title morph, header, window buttons | ex, titleMorph(), minBtn, closeBtn | deps: PANELS, WIDGETS | L549-597
--- [WINMODEL] script model: head lines + window + tail lines, unit tested | newDoc(), lineStart(), cut() | deps: none | L599-709
--- [EDITOR] windowed + culled code editor, whole-script selection (Ctrl+A, drag, shift+click, Ctrl+Home/End) | box, doc, sf, setWindow(), renderSlice(), onEdited(), syncNative() | deps: EXEC_PANEL, HIGHLIGHT, WINMODEL | L711-1142
--- [EXEC_BTNS] bottom row buttons settings / logs / run | gearBtn, logsBtn, runBtn, dot | deps: EXEC_PANEL | L1144-1151
--- [LOGS] logs panel, log list, LogService hook | logsP, pushLine() | deps: WIDGETS, LOGSTATE | L1153-1225
--- [SETTINGS_UI] settings panel with its toggles | setP | deps: WIDGETS, SETTINGS | L1227-1267
--- [PLACE] open / place panels | place(), toggleLogs(), toggleSettings() | deps: LOGS, SETTINGS_UI | L1269-1293
--- [RUN] run the script | run() | deps: EDITOR | L1295-1313
--- [WINDOW] minimize / restore / close, header drag | minimize(), restore(), closeExecutor(), api | deps: all | L1315-1385
--- [ENTRY] startup | popOpen(ex) | deps: all | L1387-1391
+-- [BOOT] scale, services, single-instance guard, bind/px/new/tween | S, bind(), px(), new(), tween() | deps: none | L27-82
+-- [THEME] colors, fonts, panel/inner/outline tokens | WHITE, ACCENT, PANEL, INNER, OUTLINE, F_* | deps: BOOT | L84-104
+-- [SETTINGS] settings file load/save | settings, save(), box, fullText | deps: BOOT | L108-131
+-- [GUIROOT] ScreenGui root, screenSize, zTop, overFrame | gui, screenSize(), front(), overFrame() | deps: SETTINGS | L133-154
+-- [PANELS] panel frame, pop/fade, drag | newPanel(), setTL(), popOpen(), fadeClose(), makeDrag() | deps: GUIROOT | L156-257
+-- [WIDGETS] box2, label, icon, inner, window buttons, scrollbar | box2(), label(), inner(), xButton(), minButton(), scrollbar() | deps: PANELS | L259-389
+-- [HIGHLIGHT] Lua syntax highlighter | highlight() | deps: none | L391-455
+-- [LOGSTATE] log queue, unread dot | emit(), updateDot(), stamp() | deps: WIDGETS | L457-488
+-- [KEEP] keep executor after teleport, auto re-join, server hop | queueSelf(), findServer() | deps: LOGSTATE, SETTINGS | L490-555
+-- [EXEC_PANEL] executor panel, title morph, header, window buttons | ex, titleMorph(), minBtn, closeBtn | deps: PANELS, WIDGETS | L557-609
+-- [WINMODEL] script model: head lines + window + tail lines, unit tested | newDoc(), lineStart(), cut() | deps: none | L611-721
+-- [EDITOR] windowed + culled code editor, whole-script selection (Ctrl+A, drag, shift+click, Ctrl+Home/End) | box, doc, sf, setWindow(), renderSlice(), onEdited(), syncNative() | deps: EXEC_PANEL, HIGHLIGHT, WINMODEL | L723-1156
+-- [EXEC_BTNS] bottom row buttons settings / logs / run | gearBtn, logsBtn, runBtn, dot | deps: EXEC_PANEL | L1158-1165
+-- [LOGS] logs panel, log list, LogService hook | logsP, pushLine() | deps: WIDGETS, LOGSTATE | L1167-1255
+-- [SETTINGS_UI] settings panel with its toggles | setP | deps: WIDGETS, SETTINGS | L1257-1297
+-- [PLACE] open / place panels | place(), toggleLogs(), toggleSettings() | deps: LOGS, SETTINGS_UI | L1299-1324
+-- [RUN] run the script | run() | deps: EDITOR | L1326-1344
+-- [WINDOW] minimize / restore / close, header drag | minimize(), restore(), closeExecutor(), api | deps: all | L1346-1416
+-- [ENTRY] startup | popOpen(ex) | deps: all | L1418-1422
 
 --// >kelsec v1.0.0 : LocalScript executor
 --// All sizes are the deck's 1080p pixels (1 slide inch = 144 px).
@@ -25,7 +25,14 @@
 --// "Keep executor between sessions" to work (it re-loads that file after a teleport).
 
 -- [BOOT]
-local S = 1 -- UI scale. 1 = exact deck size on a 1080p screen
+-- UI scale: 1 = the deck's size on a 1080p screen. It follows the screen height (laptop, 1440p, 4K and phone get the same relative size), never below 0.8.
+-- Text has its own floor (tpx below), so a small screen shrinks the windows but not the letters. Read once at start.
+local S = 1
+do
+	local cam = workspace.CurrentCamera
+	local vp = cam and cam.ViewportSize
+	if vp and vp.Y > 100 then S = math.clamp(vp.Y / 1080, 0.8, 2) end
+end
 
 
 
@@ -54,6 +61,7 @@ local function bind(sig, fn)
 end
 
 local function px(n) return math.floor(n * S + 0.5) end
+local function tpx(n) return math.max(px(n), 14) end -- text size: never under 14 real pixels, whatever the scale
 local function V2(x, y) return Vector2.new(x, y) end
 
 local function new(class, props, parent)
@@ -261,7 +269,7 @@ end
 local function label(parent, text, x, y, w, h, font, size, color, align)
 	return new("TextLabel", {
 		Text = text, Position = UDim2.fromOffset(px(x), px(y)), Size = UDim2.fromOffset(px(w), px(h)),
-		BackgroundTransparency = 1, Font = font, TextSize = px(size), TextColor3 = color or WHITE,
+		BackgroundTransparency = 1, Font = font, TextSize = tpx(size), TextColor3 = color or WHITE,
 		TextXAlignment = align or Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Center, ZIndex = 5,
 	}, parent)
 end
@@ -278,7 +286,7 @@ end
 -- rOSAD button: 3px corners, 1px edge, fades lighter on hover and press. fill nil = the normal button look
 local function btn(parent, str, x, y, w, h, fill, tr, cb, pt)
 	local b = new("TextButton", {
-		Text = str, Font = F_UI, TextSize = px(fs(pt or 9)), TextColor3 = WHITE, AutoButtonColor = false, BorderSizePixel = 0,
+		Text = str, Font = F_UI, TextSize = tpx(fs(pt or 10.5)), TextColor3 = WHITE, AutoButtonColor = false, BorderSizePixel = 0,
 		BackgroundColor3 = fill or BTN_FILL, BackgroundTransparency = tr or BTN_OFF,
 		Position = UDim2.fromOffset(px(x), px(y)), Size = UDim2.fromOffset(px(w), px(h)), ZIndex = 10,
 	}, parent)
@@ -552,6 +560,10 @@ end)
 ex = newPanel("Executor", 648, 312, 9)
 ex.state, ex.busy = "open", false
 ex.tl = V2(px(311), px(244))
+do -- on a small screen the start position keeps the whole window in view
+	local sz = screenSize()
+	ex.tl = V2(math.clamp(ex.tl.X, 0, math.max(sz.X - ex.W - px(12), 0)), math.clamp(ex.tl.Y, 0, math.max(sz.Y - ex.H - px(12), 0)))
+end
 applyPos(ex)
 local EW, EH = ex.W, ex.H
 local BW, BH = px(52), px(52) -- minimized bubble, same top-left corner as the panel
@@ -711,13 +723,15 @@ end
 -- [EDITOR]
 do local function buildEditor() -- its own function = its own 200-local budget, so the editor's ~70 locals don't count against the main chunk
 local ebox = inner(content, 12, 40, 624, 228)
-local GUT = px(31)
+local fsC = tpx(15) -- editor text (was 13)
+-- the line-number gutter is as wide as 4 digits of the editor font, so it still fits at the bigger text and scale
+local GUT = math.ceil(TextService:GetTextSize("0000", fsC, F_MONO, V2(100000, 100000)).X) + px(10)
 local VW, VH = px(624) - GUT - 1, px(228) -- visible text area
 local gclip = new("Frame", { Size = UDim2.new(0, GUT, 1, 0), BackgroundTransparency = 1, ClipsDescendants = true }, ebox)
-local fsC = px(13)
+-- (fsC is defined with GUT above)
 local TX, TY = px(10), px(6) -- text origin inside the window frame
 local gutter = new("TextLabel", {
-	Position = UDim2.fromOffset(0, TY), Size = UDim2.new(0, px(25), 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+	Position = UDim2.fromOffset(0, TY), Size = UDim2.new(0, GUT - px(6), 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
 	BackgroundTransparency = 1, Font = F_MONO, TextSize = fsC, TextColor3 = Color3.fromRGB(0x78, 0x78, 0x80),
 	TextXAlignment = Enum.TextXAlignment.Right, TextYAlignment = Enum.TextYAlignment.Top, Text = "1",
 }, gclip)
@@ -1155,9 +1169,23 @@ local runBtn = btn(content, "Run", 564, 278, 72, 26, CTRL_ON, BTN_ON)
 logsP = newPanel("Logs", 471, 557, 9)
 do
 	local c = logsP.content
-	local lh = box2(c, 0, 0, 365, 40, { BackgroundTransparency = 1 })
+	local lh = box2(c, 0, 0, 305, 40, { BackgroundTransparency = 1 }) -- drag handle, ends before the copy button
 	label(c, "logs", 14, 11, 100, 18, F_CODE, 16)
 	local clear = btn(c, "clear", 371, 9, 52, 22)
+	local copyAll = btn(c, "copy", 309, 9, 56, 22)
+	bind(copyAll.MouseButton1Click, function() -- every log line as plain text (single lines can also be selected and copied with Ctrl+C)
+		local rows = {}
+		for _, ch in ipairs(logSF:GetChildren()) do if ch:IsA("TextBox") then rows[#rows + 1] = ch end end
+		table.sort(rows, function(a, b) return a.LayoutOrder < b.LayoutOrder end)
+		for i, r in ipairs(rows) do rows[i] = r.Text end
+		local clip = setclipboard or toclipboard
+		if clip and #rows > 0 then
+			pcall(clip, table.concat(rows, "\n"))
+			emit("Copied " .. #rows .. " log lines", nil, true, true)
+		else
+			emit(#rows == 0 and "Nothing to copy" or "setclipboard is unavailable: select a line and press Ctrl+C", LOG_WARN, true, true)
+		end
+	end)
 	local lclose = xButton(c, 445, 20)
 
 	local area = inner(c, 12, 40, 447, 505)
@@ -1170,7 +1198,7 @@ do
 	scrollbar(logSF, true, new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 5 }, area))
 
 	local function wipe()
-		for _, ch in ipairs(logSF:GetChildren()) do if ch:IsA("TextLabel") then ch:Destroy() end end
+		for _, ch in ipairs(logSF:GetChildren()) do if ch:IsA("TextBox") then ch:Destroy() end end
 		logCount = 0
 	end
 	bind(clear.MouseButton1Click, wipe)
@@ -1180,15 +1208,17 @@ end
 
 local function pushLine(line, color)
 	logOrder += 1
-	new("TextLabel", {
+	local row = new("TextBox", {
 		LayoutOrder = logOrder, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1,
 		TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top,
-		Font = F_MONO, TextSize = px(11), TextColor3 = color, Text = line,
+		Font = F_MONO, TextSize = tpx(14), TextColor3 = color, Text = line,
+		TextEditable = false, ClearTextOnFocus = false, MultiLine = true, -- read-only TextBox: drag to select, Ctrl+C to copy
 	}, logSF)
+	pcall(function() row.ShowNativeInput = false end) -- no on-screen keyboard on touch
 	logCount += 1
 	if logCount > 400 then
 		for _, ch in ipairs(logSF:GetChildren()) do
-			if ch:IsA("TextLabel") then ch:Destroy() logCount -= 1 break end
+			if ch:IsA("TextBox") then ch:Destroy() logCount -= 1 break end
 		end
 	end
 end
@@ -1271,7 +1301,8 @@ end
 local function place(p, dx, dy)
 	if p.placed then return end
 	p.placed = true
-	setTL(p, ex.tl + V2(px(dx), px(dy)))
+	local sz, v = screenSize(), ex.tl + V2(px(dx), px(dy))
+	setTL(p, V2(math.clamp(v.X, 0, math.max(sz.X - p.W, 0)), math.clamp(v.Y, 0, math.max(sz.Y - p.H, 0)))) -- keep the panel on screen
 end
 
 local function toggleLogs()
