@@ -3,24 +3,24 @@
 -- [DATA] builtin slots, GitHub links, welcome/home/tip text | BUILTIN, GITHUB, WELCOME, TIPS | deps: BOOT | L54-178
 -- [STATE] service cache, settings load/save, Module Cfg defaults | S, cfg, save(), MODDEF | deps: BOOT | L180-266
 -- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L268-437
--- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L439-1137
--- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1139-1905
--- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools (also the ;avatars and ;grass launchers), autoexec, autostart, notifier, cleanup, playernames, update, void/autovoid | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1907-6230
--- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L6232-7238
--- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L7240-7803
--- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7805-8177
--- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L8179-8468
--- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L8470-9027
--- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L9028-9437
--- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L9439-9555
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9557-9638
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9640-9671
--- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9673-9694
--- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9696-9819
--- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9821-10054
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow(), section search box | deps: PG_FLOW | L10056-10192
--- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L10194-10283
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L10285-10502
+-- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L439-1138
+-- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1140-1906
+-- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools (also the ;avatars and ;grass launchers), autoexec, autostart, notifier, cleanup, playernames, update, void/autovoid | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1908-6311
+-- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L6313-7319
+-- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L7321-7890
+-- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7892-8264
+-- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L8266-8555
+-- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L8557-9114
+-- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L9115-9524
+-- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L9526-9642
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9644-9725
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9727-9758
+-- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9760-9781
+-- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9783-9906
+-- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9908-10141
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow(), section search box | deps: PG_FLOW | L10143-10279
+-- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L10281-10370
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L10372-10589
 -- [BOOT]
 local VERSION = "1.3"
 local DIR = "KLOSAD"
@@ -105,8 +105,8 @@ local GITHUB = {
 	{ name = "Tool Properties Editor", desc = "Edits properties for tools (inventory)", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/Properties%20Editor.lua" },
 	{ name = "VC Bypasser", desc = "Voice chat bypass: prevents you from getting kicked from voice chat", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/refs/heads/main/VC%20Bypass.lua" },
 	{ name = "KL PF XP", desc = "Half-Life / GoldSrc style movement in Phantom Forces", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/KL%20PF%20XP.lua" },
-	{ name = "Avatar Discovery", desc = "Player discovery: filter by worn items and skin brightness, 3D avatar preview (;avatars)", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/Avatar%20Discovery.lua" },
-	{ name = "Mic Up Grass", desc = "Mic Up only: client-side terrain grass on the baseplates (;grass)", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/Mic%20Up%20Grass.lua" },
+	{ name = "Avatar Discovery", desc = "Player discovery: filter by worn items and skin brightness, 3D avatar preview (;avatars)", url = "https://github.com/waterpb/KL-rOSAD-Components/raw/refs/heads/main/Avatar_Discovery.lua" },
+	{ name = "Mic Up Grass", desc = "Mic Up only: client-side terrain grass on the baseplates (;grass)", url = "https://github.com/waterpb/KL-rOSAD-Components/raw/refs/heads/main/MIC%20UP%20Grass" },
 }
 
 local WELCOME = {
@@ -1091,6 +1091,7 @@ function ctx.register(factory)
 		warn("[KLOSAD] bad command module: " .. tostring(mod))
 		return
 	end
+	if ctx.owned and ctx.owned[mod.names[1]] then return mod end -- a loaded module must not replace rOSAD's launcher: after ;kill its handler is dead
 	ctx.add(mod.names, mod.run)
 	local m = META[mod.names[1]] or {}
 	ctx.Meta[mod.names[1]] = { desc = mod.desc or m[2] or "", args = mod.args or m[1] or "", tags = mod.tags or TAGS[mod.names[1]] or "" }
@@ -5597,7 +5598,7 @@ local TOOLS = {
 	cobalt = { title = "Cobalt", names = { "cobalt", "cspy", "cobaltspy" }, builtin = "Cobalt", github = "Cobalt" },
 	kelsec = { title = "Kelsec", names = { "kelsec", "executor", "exec" }, builtin = "Kelsec", github = "Kelsec" },
 	workwell = { title = "WorkWell", names = { "workwell" }, builtin = "WorkWell", github = "WorkWell" },
-	hlxp = { title = "KL HL XP", names = { "hlxp" }, builtin = "KL HL XP", github = "HLXP",
+	hlxp = { title = "KL HL XP", names = { "hlxp" }, builtin = "KL HL XP", github = "HLXP", handle = "__HLXP_SHUTDOWN",
 		onKill = function() if env.__HLXP_SHUTDOWN then pcall(env.__HLXP_SHUTDOWN) end end },
 	vcb = { title = "VC Bypasser", names = { "vcb", "vcbypass" }, github = "VC Bypasser", own = true, onKill = function() ctx.bus.fire("vcb:cmd", "kill") end, onOpen = function() ctx.bus.fire("vcb:cmd", "open") end },
 	rspy = { title = "RSpy", names = { "rspy", "simplespy", "remotespy" }, github = "RSpy" },
@@ -5607,8 +5608,8 @@ local TOOLS = {
 	tooleditor = { title = "Tool Properties Editor", names = { "tooleditor", "properties", "toolproperties" }, github = "Tool Properties Editor" },
 	klpfxp = { title = "KL PF XP", names = { "klpfxp", "pfxp" }, github = "KL PF XP" },
 	-- own = true: the module cleans up after itself (its window is not swept by ;kill's name match); ;kill calls its Unload
-	avatars = { title = "Avatar Discovery", names = { "avatars", "avatar" }, github = "Avatar Discovery", own = true, onKill = function() if env.AvatarDiscovery then pcall(env.AvatarDiscovery.Unload) end end },
-	grass = { title = "Mic Up Grass", names = { "grass" }, github = "Mic Up Grass", own = true, onKill = function() if env.KLGrass then pcall(env.KLGrass.Unload) end end },
+	avatars = { title = "Avatar Discovery", names = { "avatars", "avatar" }, github = "Avatar Discovery", handle = "AvatarDiscovery", own = true, onKill = function() if env.AvatarDiscovery then pcall(env.AvatarDiscovery.Unload) end end },
+	grass = { title = "Mic Up Grass", names = { "grass" }, github = "Mic Up Grass", handle = "KLGrass", own = true, onKill = function() if env.KLGrass then pcall(env.KLGrass.Unload) end end },
 }
 local TOOL_BY = {}
 for key, t in pairs(TOOLS) do
@@ -5643,26 +5644,89 @@ local function snapshot()
 	end
 	return s
 end
+-- ;kill puts back what a tool is known to change, as it was in this server just before the tool loaded
+ctx.KILL = {} -- on ctx, not a local: Luau caps locals at 200 per function
+ctx.KILL.revert = { liu = { lighting = true, camera = true }, hlxp = { movement = true, camera = true }, klpfxp = { movement = true, camera = true } }
+ctx.KILL.light = { "Ambient", "OutdoorAmbient", "Brightness", "ClockTime", "FogColor", "FogStart", "FogEnd", "ExposureCompensation", "GlobalShadows", "ColorShift_Top", "ColorShift_Bottom", "EnvironmentDiffuseScale", "EnvironmentSpecularScale" }
+ctx.KILL.hum = { "UseJumpPower", "WalkSpeed", "JumpPower", "JumpHeight", "HipHeight", "MaxSlopeAngle", "AutoRotate", "CameraOffset", "PlatformStand" }
+function ctx.KILL.isEffect(o) return o:IsA("PostEffect") or o:IsA("Sky") or o:IsA("Atmosphere") end
+function ctx.KILL.save(what)
+	local saved = {}
+	local function keep(get, props)
+		local o = get()
+		if not o then return end
+		for _, p in ipairs(props) do
+			local ok, v = pcall(function() return o[p] end)
+			if ok then saved[#saved + 1] = { get, p, v } end
+		end
+	end
+	if what.lighting then
+		keep(function() return S.Lighting end, ctx.KILL.light)
+		for _, o in ipairs(S.Lighting:GetChildren()) do
+			if o:IsA("PostEffect") and o.Name ~= "KLOSAD_Blur" then keep(function() return o end, { "Enabled" }) end
+		end
+	end
+	if what.camera then
+		keep(function() return workspace.CurrentCamera end, { "CameraType", "FieldOfView" })
+		keep(function() return lp end, { "CameraMaxZoomDistance", "CameraMinZoomDistance", "CameraMode" })
+	end
+	if what.movement then
+		keep(function() return workspace end, { "Gravity" })
+		keep(function() return lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") end, ctx.KILL.hum) -- looked up again on restore: you may have respawned
+	end
+	return saved
+end
+function ctx.KILL.restore(st)
+	for _, o in ipairs(st.fx or {}) do pcall(function() o:Destroy() end) end
+	for _, s in ipairs(st.saved or {}) do
+		pcall(function()
+			local o = s[1]()
+			if o then o[s[2]] = s[3] end
+		end)
+	end
+end
+local killTool -- defined below
 local function openTool(key)
 	local t, st = TOOLS[key], state.tools[key]
+	local M = t.own and t.handle and env[t.handle]
+	if M and not M.dead then -- our own modules hide their window, not the ScreenGui: ask the module itself
+		if M.open then M.open() else M.cmd("open") end
+		return
+	end
 	if st then
-		local any = false
+		local shown = t.onOpen ~= nil -- a minimizing tool (VC Bypasser) is never reloaded: it may be mid-bypass
+		local alive = false
 		for _, g in ipairs(st.guis) do
 			if g.Parent then
-				any = true
-				pcall(function() if g:IsA("ScreenGui") then g.Enabled = true end end)
+				alive = true
+				pcall(function()
+					if g:IsA("ScreenGui") then g.Enabled = true end
+					for _, c in ipairs(g:GetChildren()) do
+						if c:IsA("GuiObject") and c.Visible then shown = true end
+					end
+				end)
 			end
 		end
-		if any then
-				if t.onOpen then t.onOpen() end -- a tool that only minimizes (VC Bypasser) is told to come back
-				return ctx.notify(t.title .. " reopened")
-			end
+		if alive and shown and not (t.own and t.handle) then
+			if t.onOpen then t.onOpen() end -- a tool that only minimizes (VC Bypasser) is told to come back
+			return ctx.notify(t.title .. " reopened")
+		end
+		killTool(key) -- closed, with at most an empty or hidden window left: shut it down and load it fresh
 	end
 	local src, err = toolSource(t)
 	if not src then return ctx.notify(t.title .. ": " .. err, 5) end
 	local before = snapshot()
-	st = { guis = {}, conns = {} }
+	st = { guis = {}, conns = {}, fx = {} }
 	state.tools[key] = st
+	local what = ctx.KILL.revert[key]
+	if what then
+		st.saved = ctx.KILL.save(what)
+		if what.lighting then
+			st.conns[#st.conns + 1] = S.Lighting.ChildAdded:Connect(function(o)
+				if o.Name ~= "KLOSAD_Blur" and ctx.KILL.isEffect(o) then st.fx[#st.fx + 1] = o end
+			end)
+		end
+	end
 	-- every new ScreenGui that appears in the next 25 seconds belongs to this tool (tools build theirs late), so ;kill can remove it
 	-- shortcut: a window the game opens in those 25 seconds is also caught, when to upgrade: run the tool with a wrapped Instance.new
 	local function track(c)
@@ -5694,18 +5758,24 @@ local function killByName(key)
 	return n > 0
 end
 -- true only if something was actually closed, so ;kill never says "closed" when nothing happened
-local function killTool(key)
+function killTool(key)
 	local st = state.tools[key]
-	if not st then return false end
+	if not st then
+		local handle = TOOLS[key].handle -- started some other way (executor): its own shutdown still works
+		if not (handle and env[handle]) then return false end
+		TOOLS[key].onKill()
+		return true
+	end
 	for _, cn in ipairs(st.conns or {}) do cn:Disconnect() end
-	if TOOLS[key].onKill then TOOLS[key].onKill() end -- tools with their own shutdown get to disconnect their connections
+	if TOOLS[key].onKill then pcall(TOOLS[key].onKill) end -- tools with their own shutdown get to disconnect their connections
 	local n = 0
 	for _, g in ipairs(st.guis) do
 		if g.Parent and not TOOLS[key].own then pcall(function() g:Destroy() end); n = n + 1 end -- a gui that showed up in the 25 s window (the V2 mic button) is not the tool's panel
 	end
+	ctx.KILL.restore(st) -- after the tool's own shutdown and windows, so nothing of theirs overwrites it
 	state.tools[key] = nil
 	S.launched["tool:" .. key] = nil
-	return n > 0 or TOOLS[key].onKill ~= nil
+	return n > 0 or TOOLS[key].onKill ~= nil or st.saved ~= nil
 end
 ctx.openTool = openTool
 -- Load scripts rows use this, so a tool started from the panel is the same tool ;kill knows about
@@ -5771,6 +5841,7 @@ def({ "avatars", "avatar" }, "[refresh|close]", "Avatar discovery: filter player
 		if a == "refresh" then M.open(); M.refreshAll() elseif a == "close" then M.close() else M.toggle() end
 	end)
 end)
+ctx.owned = { avatars = true, grass = true }
 local MICUP = { [15546218972] = true, [6884319169] = true } -- Mic Up 18+ and the normal game; keep in step with Mic Up Grass
 def({ "grass" }, "[on|off|size N|offset N|margin N|blade N|color #hex|avoid|open|close]", "Mic Up only: client-side terrain grass on the baseplates (;kill grass removes it)", "mic up grass terrain baseplate lawn nature blades", function(a)
 	if not MICUP[game.PlaceId] then return ctx.notify("Grass only works in Mic Up", 4) end
@@ -5791,6 +5862,16 @@ def({ "kill" }, "<tool>", "Close a loaded tool: dex, kelsec, cobalt, rspy, alogg
 	local b = killByName(key)
 	ctx.notify((a or b) and (TOOLS[key].title .. " closed") or (TOOLS[key].title .. " isn't loaded"))
 end)
+
+ctx.Meta.kill.complete = function(i)
+	local out = {}
+	if i ~= 1 then return out end
+	for key, t in pairs(TOOLS) do
+		out[#out + 1] = { text = key, desc = t.title .. (state.tools[key] and "  ·  loaded" or "") }
+	end
+	out[#out + 1] = { text = "all", desc = "Close every loaded tool" }
+	return out
+end
 
 def({ "saveinstance", "save" }, "[dec]", "Save the game without humanoids and players (dec = decompile scripts)", "save map download place", function(a)
 	if not saveinstance then return ctx.notify("This executor has no saveinstance") end
@@ -7584,6 +7665,27 @@ end)
 	end
 
 	-- argument suggestions for a command whose Meta has a complete(i, partial, prev) function (;report): fills S.cur with the matching choices for the argument being typed
+	-- commands without their own complete(): the choices are read from the usage text, e.g. "[on|off]" or "<player|all>"
+	function ui.autoArgs(spec)
+		local groups = {}
+		for g in tostring(spec):gmatch("[<%[]([^>%]]+)[>%]]") do groups[#groups + 1] = g end
+		return function(i)
+			local out, alts = {}, {}
+			for a in (groups[i] or ""):gmatch("[^|/]+") do alts[#alts + 1] = a:match("^%s*(.-)%s*$") end
+			for _, a in ipairs(alts) do
+				local word = a:match("^%a+")
+				if a == "player" or a == "username" then
+					for _, pl in ipairs(S.Players:GetPlayers()) do
+						out[#out + 1] = { text = pl.Name, desc = pl.DisplayName ~= pl.Name and pl.DisplayName or "" }
+					end
+				elseif #alts > 1 and word and not ({ number = true, city = true, seconds = true, name = true })[word] then
+					out[#out + 1] = { text = word, desc = "" }
+				end
+			end
+			return out
+		end
+	end
+
 	function ui.argSuggest(meta, q, rest)
 		local toks = {}
 		for w in rest:gmatch("%S+") do toks[#toks + 1] = w end
@@ -7593,7 +7695,8 @@ end)
 		local base = (S.pre or "") .. q .. " " .. table.concat(toks, " ") .. (#toks > 0 and " " or "")
 		for _, it in ipairs(meta.complete(#toks + 1, lq, toks) or {}) do
 			local t = it.text
-			if lq == "" or t:lower():find(lq, 1, true) then
+			local d = (it.desc or ""):lower() -- a player is also found by display name
+			if lq == "" or t:lower():find(lq, 1, true) or d:find(lq, 1, true) then
 				list[#list + 1] = { names = { t }, args = "", desc = it.desc or "", canon = t, fill = base .. (t:find("%s") and ('"' .. t .. '"') or t) .. " ", pre = t:lower():sub(1, #lq) == lq }
 			end
 		end
@@ -7635,25 +7738,9 @@ end)
 			for _, e in ipairs(ui.entries()) do
 				if e.canon == ctx.Aliases[q] then S.cur = { e } end
 			end
-			-- a command that takes a <player>: suggest the server's players while the first argument is typed (Tab fills it)
-			local part = rest:match("^%s+(%S*)$")
+			-- suggest values for the argument being typed (Tab fills it)
 			local cm = S.cur[1] and ctx.Meta[S.cur[1].canon]
-			if cm and cm.complete then ui.argSuggest(cm, q, rest) end
-			if S.cur[1] and part and not (cm and cm.complete) and tostring(S.cur[1].args):find("^<player") then
-				local lq, list = part:lower(), {}
-				for _, pl in ipairs(S.Players:GetPlayers()) do
-					local nm, dn = pl.Name:lower(), pl.DisplayName:lower()
-					if lq == "" or nm:find(lq, 1, true) or dn:find(lq, 1, true) then
-						list[#list + 1] = { names = { pl.Name }, args = "", desc = pl.DisplayName ~= pl.Name and pl.DisplayName or "", canon = pl.Name, fill = (S.pre or "") .. q .. " " .. pl.Name .. " ", pre = nm:sub(1, #lq) == lq or dn:sub(1, #lq) == lq }
-					end
-				end
-				table.sort(list, function(x, z)
-					if x.pre ~= z.pre then return x.pre end
-					return x.names[1]:lower() < z.names[1]:lower()
-				end)
-				for i = 1, math.min(#list, 8) do S.cur[#S.cur + 1] = list[i] end
-				if #S.cur > 1 then S.sel, S.q = 2, part end
-			end
+			if S.cur[1] then ui.argSuggest((cm and cm.complete) and cm or { complete = ui.autoArgs(S.cur[1].args) }, q, rest) end
 		elseif rest ~= "" then
 			-- more than one word that isn't a command: search by what commands do
 			S.cur = ui.matches(line)
