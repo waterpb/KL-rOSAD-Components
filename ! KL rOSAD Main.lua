@@ -1,28 +1,28 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py)
 -- [BOOT] version, env, wait for game, single-run guard, unload old runs | VERSION, DIR, env | deps: none | L24-52
--- [DATA] builtin slots, GitHub links, welcome/home/tip text | BUILTIN, GITHUB, WELCOME, TIPS | deps: BOOT | L54-176
--- [STATE] service cache, settings load/save, Module Cfg defaults | S, cfg, save(), MODDEF | deps: BOOT | L178-264
--- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L266-435
--- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L437-1135
--- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1137-1905
--- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools, autoexec, autostart, notifier, cleanup, playernames, update, void/autovoid | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1907-6167
--- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L6169-7175
--- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L7177-7740
--- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7742-8113
--- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L8115-8404
--- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L8406-8959
--- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L8960-9368
--- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L9370-9486
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9488-9569
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9571-9602
--- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9604-9625
--- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9627-9750
--- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9752-9985
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow(), section search box | deps: PG_FLOW | L9987-10122
--- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L10124-10213
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L10215-10415
+-- [DATA] builtin slots, GitHub links, welcome/home/tip text | BUILTIN, GITHUB, WELCOME, TIPS | deps: BOOT | L54-178
+-- [STATE] service cache, settings load/save, Module Cfg defaults | S, cfg, save(), MODDEF | deps: BOOT | L180-266
+-- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L268-437
+-- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L439-1137
+-- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1139-1905
+-- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools (also the ;avatars and ;grass launchers), autoexec, autostart, notifier, cleanup, playernames, update, void/autovoid | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1907-6230
+-- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L6232-7238
+-- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L7240-7803
+-- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7805-8177
+-- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L8179-8468
+-- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L8470-9027
+-- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L9028-9437
+-- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L9439-9555
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9557-9638
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9640-9671
+-- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9673-9694
+-- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9696-9819
+-- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9821-10054
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow(), section search box | deps: PG_FLOW | L10056-10192
+-- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L10194-10283
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L10285-10502
 -- [BOOT]
-local VERSION = "1.2"
+local VERSION = "1.3"
 local DIR = "KLOSAD"
 local env = (getgenv and getgenv()) or _G
 local PROF = { t0 = os.clock(), last = os.clock(), n = {} } -- load timing: run work per stage, printed once at the end (compile time is NOT in here: it happens before line 1)
@@ -105,6 +105,8 @@ local GITHUB = {
 	{ name = "Tool Properties Editor", desc = "Edits properties for tools (inventory)", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/Properties%20Editor.lua" },
 	{ name = "VC Bypasser", desc = "Voice chat bypass: prevents you from getting kicked from voice chat", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/refs/heads/main/VC%20Bypass.lua" },
 	{ name = "KL PF XP", desc = "Half-Life / GoldSrc style movement in Phantom Forces", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/KL%20PF%20XP.lua" },
+	{ name = "Avatar Discovery", desc = "Player discovery: filter by worn items and skin brightness, 3D avatar preview (;avatars)", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/Avatar%20Discovery.lua" },
+	{ name = "Mic Up Grass", desc = "Mic Up only: client-side terrain grass on the baseplates (;grass)", url = "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/Mic%20Up%20Grass.lua" },
 }
 
 local WELCOME = {
@@ -248,7 +250,7 @@ local MODDEF = {
 	chStyle = "Cross", chLen = 6, chGap = 4, chThick = 2, chOutline = 1, chOutlineAlpha = 1, chColor = "#00FF00", chCursor = false,
 	headDist = 1.5, headHeight = 1.5, headSide = 0, headSweep = true, headSweepAmp = 0.5, headSweepSpeed = 10,
 	backDist = 1.2, backHeight = 0.5, backSide = 0, backSweep = true, backSweepAmp = 0.5, backSweepSpeed = 20, srvPingMult = 2,
-	ph1Mult = 1, spWall = 3, fcDef = 50, fcSens = 1,
+	ph1Mult = 1, spWall = 3, fcDef = 50, fcSens = 1, autoScan = true,
 }
 for k, v in pairs(MODDEF) do
 	if type(cfg.mod[k]) ~= type(v) then cfg.mod[k] = v end
@@ -1064,7 +1066,7 @@ local CATS = {
 	Character = "reset anim noanim invisible visible placeholder1 unplaceholder1 keepemotes unkeepemotes",
 	Privacy = "streamer unstreamer name unname",
 	Server = "serverhop smallserver serverinfo rejoin jobid placeid",
-	Tools = "hlxp liu dex cobalt kelsec rspy alogger workwell tetris untetris workwellpf properties tooleditor klpfxp kill saveinstance freezesave tools console",
+	Tools = "hlxp liu dex cobalt kelsec rspy alogger workwell tetris untetris workwellpf properties tooleditor klpfxp kill saveinstance freezesave tools console avatars avatar grass",
 	rOSAD = "ui exit cmds config keeposad unkeeposad alias unalias bind unbind loop unloop breakloop prefix fpscap gamedefault text stopall reload panel selftest",
 }
 CATS.Movement = CATS.Movement .. " spider unspider"
@@ -1469,8 +1471,6 @@ end)()
 CMD[#CMD + 1] = (function()
 -- fov.lua  |  aliases: fov  |  args: n
 return function(ctx)
-	local cam = ctx.cam
-
 	return {
 		names = { "fov" },
 		run = function(n)
@@ -1940,7 +1940,7 @@ state.defaults = env.KLOSAD_DEF
 
 -- a fresh character has the server's values, before any command touched it
 ctx.connect("defCap", lp.CharacterAdded, function(c)
-	if state.swapped and state.swapped[c] then return end -- a blink swap is not a fresh character: its values may already be changed by your commands
+
 	task.wait(1.5)
 	local hh = ctx.hum()
 	if state.blink or not hh or hh.Parent ~= c then return end
@@ -4049,17 +4049,19 @@ do
 	-- internal = the engine's own request (carries your session), api = HttpRbxApiService, request = the executor's request with a cookie
 	local URL = "https://gamejoin.roblox.com/v1/join-game-instance"
 	local function viaInternal(body)
+		pcall(function() if setthreadidentity then setthreadidentity(8) end end) -- RequestInternal needs a high identity
 		local res
 		for _ = 1, 2 do
 			res = nil
 			local ok, rq = pcall(function()
 				return S.HttpService:RequestInternal({ Url = URL, Method = "POST", Headers = { ["Content-Type"] = "application/json", ["x-csrf-token"] = csrf }, Body = body })
 			end)
-			if not (ok and rq) then return nil end
-			if not pcall(function() rq:Start(function(_, r) res = r or false end) end) then return nil end
+			if not (ok and rq) then return nil, "RequestInternal blocked: " .. tostring(rq):sub(1, 90) end
+			local okS, errS = pcall(function() rq:Start(function(_, r) res = r or false end) end)
+			if not okS then return nil, "Start failed: " .. tostring(errS):sub(1, 90) end
 			local t = os.clock()
 			while res == nil and os.clock() - t < 10 do task.wait(0.05) end
-			if type(res) ~= "table" then return nil end
+			if type(res) ~= "table" then return nil, "no answer in 10 s" end
 			if res.StatusCode == 403 and hdr(res, "x-csrf-token") then csrf = hdr(res, "x-csrf-token") else break end
 		end
 		return { StatusCode = res.StatusCode, Body = res.Body }
@@ -4069,6 +4071,7 @@ do
 			return game:GetService("HttpRbxApiService"):PostAsyncFullUrl(URL, body, Enum.ThrottlingPriority.Default, Enum.HttpContentType.ApplicationJson)
 		end)
 		if ok and type(out) == "string" then return { StatusCode = 200, Body = out } end
+		return nil, "HttpRbxApiService: " .. tostring(out):sub(1, 90)
 	end
 	-- executors differ on whether they honour the Cookie header, the Cookies field or both, so try each and remember the one Roblox accepts (SRV.how)
 	local HOW = { "both", "header", "table" }
@@ -4335,15 +4338,45 @@ do
 			end
 		end)
 	end
-	-- this server's own region (Home tab): the cache first, else one lookup of this JobId. Returns the label, or nil + why
+	-- this server's public IP from the Roblox client log (the lines the RobloxServerInfo tool reads): no request and no login needed.
+	-- shortcut: needs an executor whose readfile / listfiles can go up out of workspace (../), several clients = the newest log wins, and right after a hop inside the same place the log can still name the old server for a moment, when to upgrade: ask the executor for its own log path
+	function SRV.logIp()
+		if not (listfiles and readfile) then return nil end
+		for depth = 1, 5 do
+			local ok, files = pcall(listfiles, ("../"):rep(depth) .. "Roblox/logs")
+			local logs = {}
+			for _, f in ipairs(ok and type(files) == "table" and files or {}) do
+				if f:lower():find("player", 1, true) and f:sub(-8) == "last.log" then logs[#logs + 1] = f end
+			end
+			table.sort(logs, function(a, b) return a > b end) -- the file name carries the start time
+			for _, f in ipairs(logs) do
+				local okR, body = pcall(readfile, f)
+				if okR and type(body) == "string" then
+					local pid, ip
+					for p in body:gmatch("placeid:(%d+), join_time") do pid = p end
+					for _, pat in ipairs({ "UDMUX Address = ([%d%.]+), Port", "serverId: ([%d%.]+)|%d+", "Creating connection to ([%d%.]+):%d+" }) do
+						for a in body:gmatch(pat) do ip = a end
+						if ip then break end
+					end
+					if ip and not ip:match("^10%.") and (not pid or pid == tostring(game.PlaceId)) then return ip end
+				end
+			end
+		end
+	end
+	-- this server's own region (Home tab): the client log, else the cache / one gamejoin lookup of this JobId. Returns the label, or nil + why
 	function SRV.here()
 		local id = game.JobId
 		if id == "" then return nil, "no job id" end
 		local e = SRV.byId[id]
 		if not (e and e.ip) then
-			local r, why = resolve(game.PlaceId, id)
-			if not r then return nil, why end
-			e = r
+			local ip = SRV.logIp() -- not stored in byId: a stale log must never stick to this job id
+			if ip then
+				e = { ip = ip }
+			else
+				local r, why = resolve(game.PlaceId, id)
+				if not r then return nil, why end
+				e = r
+			end
 		end
 		if not SRV.ip[e.ip] and not geo({ e.ip }) then return nil, "IP lookup failed" end
 		SRV.save()
@@ -5566,13 +5599,16 @@ local TOOLS = {
 	workwell = { title = "WorkWell", names = { "workwell" }, builtin = "WorkWell", github = "WorkWell" },
 	hlxp = { title = "KL HL XP", names = { "hlxp" }, builtin = "KL HL XP", github = "HLXP",
 		onKill = function() if env.__HLXP_SHUTDOWN then pcall(env.__HLXP_SHUTDOWN) end end },
-	vcb = { title = "VC Bypasser", names = { "vcb", "vcbypass" }, github = "VC Bypasser", onKill = function() ctx.bus.fire("vcb:cmd", "kill") end, onOpen = function() ctx.bus.fire("vcb:cmd", "open") end },
+	vcb = { title = "VC Bypasser", names = { "vcb", "vcbypass" }, github = "VC Bypasser", own = true, onKill = function() ctx.bus.fire("vcb:cmd", "kill") end, onOpen = function() ctx.bus.fire("vcb:cmd", "open") end },
 	rspy = { title = "RSpy", names = { "rspy", "simplespy", "remotespy" }, github = "RSpy" },
 	alogger = { title = "ALogger", names = { "alogger", "audiologger" }, github = "ALogger" },
 	tetris = { title = "Tetris", names = { "tetris" }, github = "Tetris" },
 	wwapf = { title = "WWA Phantom Forces", names = { "workwellpf", "wwapf" }, github = "WWA Phantom Forces (Workwell)" },
 	tooleditor = { title = "Tool Properties Editor", names = { "tooleditor", "properties", "toolproperties" }, github = "Tool Properties Editor" },
 	klpfxp = { title = "KL PF XP", names = { "klpfxp", "pfxp" }, github = "KL PF XP" },
+	-- own = true: the module cleans up after itself (its window is not swept by ;kill's name match); ;kill calls its Unload
+	avatars = { title = "Avatar Discovery", names = { "avatars", "avatar" }, github = "Avatar Discovery", own = true, onKill = function() if env.AvatarDiscovery then pcall(env.AvatarDiscovery.Unload) end end },
+	grass = { title = "Mic Up Grass", names = { "grass" }, github = "Mic Up Grass", own = true, onKill = function() if env.KLGrass then pcall(env.KLGrass.Unload) end end },
 }
 local TOOL_BY = {}
 for key, t in pairs(TOOLS) do
@@ -5643,6 +5679,7 @@ local function openTool(key)
 end
 -- a tool that was started some other way (executor, another script) is found by its window name
 local function killByName(key)
+	if TOOLS[key].own then return false end -- the tool cleans up after itself: VC Bypasser's mic button / hud outlive its panel and must not be swept by name ("vcb" matched VCBypass_Mic)
 	local words, n = { key, TOOLS[key].title:lower() }, 0
 	for _, root in ipairs(guiRoots()) do
 		for _, g in ipairs(root:GetChildren()) do
@@ -5664,7 +5701,7 @@ local function killTool(key)
 	if TOOLS[key].onKill then TOOLS[key].onKill() end -- tools with their own shutdown get to disconnect their connections
 	local n = 0
 	for _, g in ipairs(st.guis) do
-		if g.Parent then pcall(function() g:Destroy() end); n = n + 1 end
+		if g.Parent and not TOOLS[key].own then pcall(function() g:Destroy() end); n = n + 1 end -- a gui that showed up in the 25 s window (the V2 mic button) is not the tool's panel
 	end
 	state.tools[key] = nil
 	S.launched["tool:" .. key] = nil
@@ -5674,11 +5711,11 @@ ctx.openTool = openTool
 -- Load scripts rows use this, so a tool started from the panel is the same tool ;kill knows about
 ctx.toolKey = { ["Dex++"] = "dex", Dex = "dex", Cobalt = "cobalt", Kelsec = "kelsec", WorkWell = "workwell",
 	["Lighting Utility"] = "liu", LiU = "liu", HLXP = "hlxp", ["KL HL XP"] = "hlxp", RSpy = "rspy", ALogger = "alogger",
-	Tetris = "tetris", ["WWA Phantom Forces (Workwell)"] = "wwapf", ["Tool Properties Editor"] = "tooleditor", ["KL PF XP"] = "klpfxp", ["VC Bypasser"] = "vcb" }
+	Tetris = "tetris", ["WWA Phantom Forces (Workwell)"] = "wwapf", ["Tool Properties Editor"] = "tooleditor", ["KL PF XP"] = "klpfxp", ["VC Bypasser"] = "vcb", ["Avatar Discovery"] = "avatars", ["Mic Up Grass"] = "grass" }
 ctx.killTools = function()
 	for key in pairs(TOOLS) do
-		local a = killTool(key)
-		local b = killByName(key)
+		killTool(key)
+		killByName(key)
 	end
 end
 def({ "hlxp" }, "", "Load KL HL XP (half-life movement and physics)", "movement physics half life", function() openTool("hlxp") end)
@@ -5714,11 +5751,37 @@ def({ "vcb", "vcbypass" }, "[mute|unmute|v1|v2|run|close]", "Opens the voice cha
 		if state.vcb and cmd ~= "toggle" and cmd ~= "open" then ctx.bus.fire("vcb:cmd", cmd) end -- a fresh load opens its panel by itself
 	end)
 end)
+-- ;avatars and ;grass: rOSAD owns the commands. The module loads once (openTool), then is driven through its getgenv handle.
+local function ext(key, handle, a, run)
+	local M = env[handle]
+	if M and not M.dead then return run(M) end
+	openTool(key)
+	if a == "" then return end -- a fresh load opens its own window
+	task.spawn(function()
+		for _ = 1, 40 do
+			M = env[handle]
+			if M and not M.dead then return run(M) end
+			task.wait(.25)
+		end
+	end)
+end
+def({ "avatars", "avatar" }, "[refresh|close]", "Avatar discovery: filter players by worn items, female keywords and skin brightness, preview their 3D avatar (;kill avatars closes it)", "avatar accessories headless korblox crown opal female skin brightness preview player discover", function(a)
+	a = (a or ""):lower()
+	ext("avatars", "AvatarDiscovery", a, function(M)
+		if a == "refresh" then M.open(); M.refreshAll() elseif a == "close" then M.close() else M.toggle() end
+	end)
+end)
+local MICUP = { [15546218972] = true, [6884319169] = true } -- Mic Up 18+ and the normal game; keep in step with Mic Up Grass
+def({ "grass" }, "[on|off|size N|offset N|margin N|blade N|color #hex|avoid|open|close]", "Mic Up only: client-side terrain grass on the baseplates (;kill grass removes it)", "mic up grass terrain baseplate lawn nature blades", function(a)
+	if not MICUP[game.PlaceId] then return ctx.notify("Grass only works in Mic Up", 4) end
+	a = a or ""
+	ext("grass", "KLGrass", a, function(M) M.cmd(a) end)
+end)
 def({ "workwellpf", "wwapf" }, "", "Load WorkWell for Phantom Forces (;kill wwapf closes it)", "aim assist phantom forces pf", function() openTool("wwapf") end)
 def({ "properties", "tooleditor" }, "", "Load the Tool Properties Editor (;kill tooleditor closes it)", "tool properties edit inventory", function() openTool("tooleditor") end)
 def({ "klpfxp", "pfxp" }, "", "Load KL PF XP, Half-Life / GoldSrc movement in Phantom Forces (;kill klpfxp closes it)", "movement phantom forces pf half life", function() openTool("klpfxp") end)
-def({ "kill" }, "<tool>", "Close a loaded tool: dex, kelsec, cobalt, rspy, alogger, workwell, liu, hlxp, tetris, wwapf, tooleditor, klpfxp, all", "close unload stop tool", function(q)
-	if not q then return ctx.notify("Usage: kill <dex|kelsec|cobalt|rspy|alogger|workwell|liu|hlxp|tetris|wwapf|tooleditor|klpfxp|all>") end
+def({ "kill" }, "<tool>", "Close a loaded tool: dex, kelsec, cobalt, rspy, alogger, workwell, liu, hlxp, tetris, wwapf, tooleditor, klpfxp, avatars, grass, all", "close unload stop tool", function(q)
+	if not q then return ctx.notify("Usage: kill <dex|kelsec|cobalt|rspy|alogger|workwell|liu|hlxp|tetris|wwapf|tooleditor|klpfxp|avatars|grass|all>") end
 	q = q:lower()
 	if q == "all" then ctx.killTools(); return ctx.notify("Closed every loaded tool") end
 	local key = TOOL_BY[q]
@@ -5978,7 +6041,7 @@ function ctx.runAutostart(reason)
 end
 def({ "autostart" }, "", "Launch (relaunch) everything in Autostart now, like on execute", "startup launch run exec relaunch autorun", function() ctx.runAutostart("exec") end)
 ctx.connect("autoRespawn", lp.CharacterAdded, function(c)
-	if state.swapped and state.swapped[c] then return end -- ;blink / ;ghost swapping bodies is not a respawn (it relaunched every autostart item on each toggle)
+
 	task.wait(1)
 	ctx.runAutostart("respawn")
 end)
@@ -7854,35 +7917,37 @@ do
 
 	btn(panel, "×", L.PW - 46, 14, 34, 28, "ghost", nil, function() ui.setPanel(false) end, 13)
 
-	-- relay indicator: hidden until region-relay.py answers once; green ok, orange rate limited, red errors / connection lost. PID beside it
+	-- relay indicator, always shown beside the close button: green = region-relay.py connected, orange = Roblox rate limited it, red = relay errors, connection lost or not running. PID beside it
 	do
 		local rel = { sys = {}, pid = "-", col = { ok = Color3.fromRGB(70, 200, 90), warn = Color3.fromRGB(255, 165, 40), bad = Color3.fromRGB(230, 60, 60) } }
 		ui.rel = rel
-		local rdot = new("Frame", { Position = UDim2.fromOffset(L.PW - 66, 24), Size = UDim2.fromOffset(10, 10), BorderSizePixel = 0, Visible = false }, panel)
+		local rdot = new("Frame", { Position = UDim2.fromOffset(L.PW - 66, 24), Size = UDim2.fromOffset(10, 10), BorderSizePixel = 0, BackgroundColor3 = rel.col.bad }, panel)
 		new("UICorner", { CornerRadius = UDim.new(1, 0) }, rdot)
-		local rpid = txt(panel, "", 8, "sub", L.PW - 148, 22, 76, 14, { TextXAlignment = Enum.TextXAlignment.Right, TextTruncate = Enum.TextTruncate.AtEnd, Visible = false })
+		local rpid = txt(panel, "Relay off", 8, "sub", L.PW - 172, 22, 100, 14, { TextXAlignment = Enum.TextXAlignment.Right, TextTruncate = Enum.TextTruncate.AtEnd })
 		local function poll()
 			local ok, r = pcall(request, { Url = "http://127.0.0.1:47653/sys", Method = "GET" })
 			local d
 			if ok and type(r) == "table" and r.StatusCode == 200 then ok, d = pcall(S.HttpService.JSONDecode, S.HttpService, r.Body) end
-			if type(d) == "table" then rel.sys, rel.s = d, d.err and "bad" or d.warn and "warn" or "ok"
-			elseif rel.s then rel.s = "bad" end -- answered before, silent now
+			local up = type(d) == "table"
+			if up then rel.sys, rel.s = d, d.err and "bad" or d.warn and "warn" or "ok"
+			else rel.sys, rel.s = {}, "bad" end -- not running / silent: red
 			local f = (getgenv and getgenv() or {}).getpid or (getgenv and getgenv() or {}).get_pid
 			local pk, p = pcall(function() return f() end)
 			local ps = rel.sys.pids
 			-- shortcut: with several Roblox clients open the relay lists every PID, it cannot tell which one is this client; upgrade if an executor exposes its own PID
 			rel.pid = pk and tonumber(p) and tostring(p) or (ps and #ps > 0 and table.concat(ps, "/")) or "-"
-			rdot.Visible, rpid.Visible = rel.s ~= nil, rel.s ~= nil
-			if rel.s then rdot.BackgroundColor3, rpid.Text = rel.col[rel.s], "PID " .. rel.pid end
+			rdot.BackgroundColor3 = rel.col[rel.s]
+			rpid.Text = up and ("PID " .. rel.pid) or "Relay off"
 		end
 		task.spawn(function()
-			local first = true
 			while S.alive do
-				if S.panelOpen or first then first = false; pcall(poll) end
+				if S.panelOpen or not rel.s then pcall(poll) end
 				task.wait(3)
 			end
 		end)
 	end
+
+
 
 	-- drag by the title bar; moves in screen fractions
 	local header = new("Frame", { Size = UDim2.fromOffset(L.PW - 50, L.TOP - 6), BackgroundTransparency = 1 }, panel)
@@ -7903,7 +7968,7 @@ do
 	conn(S.UserInputService.InputEnded, function(i)
 		if drag and (i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch) then
 			drag = false
-			S.dragged = true
+
 		end
 	end)
 
@@ -8051,8 +8116,7 @@ do
 		b.BackgroundTransparency = 1
 		tabs[name] = b
 		fx.bar = fr(panel, 12, t[2] + 8, 3, 16, "accent", 1, 2)
-		ui.tabY = ui.tabY or {}
-		ui.tabY[name] = t[2]
+
 		S.hover(b, function(v) -- hover previews the selected look, with the same glow strength every control uses
 			if ui.tab ~= name then
 				tw(fx.glow, { BackgroundTransparency = v and ST.glow.hover or 1 }, 0.1)
@@ -8659,6 +8723,8 @@ do
 		slider(r, 76, 53, 160, uid)
 	end
 
+
+
 	-- an alt that is in another server: avatar, name, Join
 	local function altRow(a, order)
 		local r = fr(plist, 0, 0, CW, 56, "row", 0.85, 8, "edge", 1, 0.55)
@@ -8698,6 +8764,7 @@ do
 		for _, list in pairs(groups) do
 			sortList(list)
 		end
+
 		local off = {} -- alts that are not in this server
 		do
 			local here = {}
@@ -8755,6 +8822,7 @@ do
 		end
 		wasVisible = true
 		if (state.altsRev or 0) ~= altRev then altRev = state.altsRev or 0; render() end -- the accounts list changed
+
 		pollT = pollT + dt
 		if (cfg.plSort == "Nearest" or cfg.plSort == "Farthest") and pollT >= (tonumber(cfg.plPoll) or 1) then
 			pollT = 0
@@ -9304,6 +9372,7 @@ do
 			local function add(t, k) list[#list + 1] = { t, k } end
 			if me then add("You", "accent") end
 			if state.alts and state.alts[uid] then add("Your alt", "accent") end
+
 			if P.friend[uid] then add("Friend", "accent") end
 			if prop(p, "HasVerifiedBadge") then add("Verified", "info") end
 			if prop(p, "MembershipType") == Enum.MembershipType.Premium then add("Premium", "sub") end
@@ -10110,6 +10179,7 @@ ui.lazy("Module Cfg", function() -- built the first time the tab opens, a few ro
 	numRow("Animation speed (1 = default)", "ph1Mult")
 	fhdr(pg, "Server browser")
 	numRow("Ping shown = list ping x this (the list underreports)", "srvPingMult")
+	togRow("Scan server regions automatically on start", "autoScan")
 	fhdr(pg, "Defense")
 	togRow("Defense notifications", "defNotify")
 	numRow("Anti fling: radius", "afRadius"); numRow("Anti fling: velocity threshold", "afThreshold"); numRow("Anti fling: restore time (s)", "afRestore")
@@ -10180,8 +10250,8 @@ ui.lazy("Preferences", function() -- built the first time the tab opens, a few r
 	local function refreshSys()
 		local r = ui.rel
 		local s = r.sys
-		rdot.BackgroundColor3, rdot.Visible = r.col[r.s or "bad"], r.s ~= nil
-		rtx.Text = "Relay: " .. (({ ok = "connected", warn = "connected, rate limited", bad = "errors / connection lost" })[r.s or ""] or "not connected") .. "   PID " .. r.pid
+		rdot.BackgroundColor3, rdot.Visible = r.col[r.s or "bad"], true
+		rtx.Text = "Relay: " .. (({ ok = "connected", warn = "connected, rate limited", bad = "errors / connection lost / not running" })[r.s or "bad"]) .. "   PID " .. r.pid
 		sysT.cpu.Text = "CPU: " .. (s.cpu or "needs relay")
 		sysT.gpu.Text = "GPU: " .. (s.gpu or "needs relay")
 		sysT.ram.Text = "RAM: " .. (s.ram and (s.ram .. " GB, " .. s.load .. "% used") or "needs relay")
@@ -10411,5 +10481,22 @@ if not (HAS_FS and HAS_LOAD) then ctx.notify("Limited mode: this executor has no
 ui.welcome()
 if cfg.startBar then task.defer(function() ui.openBar() end) end
 if cfg.autostart.onExec then task.delay(2, function() ctx.runAutostart("exec") end) end
+-- region scan on start: same scan as the Servers tab button (Roblox join request per server -> its IP -> city), servers already cached cost no request, capped by Preferences > Max servers to scan.
+-- If Roblox rate limits it the scan stops by itself and says so; the Scan regions button / ;scanregions works again a minute later.
+if cfg.mod.autoScan and game.JobId ~= "" then
+	task.delay(6, function()
+		local SR = ctx.SRV
+		if not S.alive or SR.running() then return end
+		local okP, rp = pcall(request, { Url = "http://127.0.0.1:47653/sys", Method = "GET" })
+		if not (okP and type(rp) == "table" and rp.StatusCode == 200) then return end -- relay not running (the red dot says so): nothing to scan with, stay quiet
+		local list = SR.list(game.PlaceId)
+		if #list == 0 then return end
+		SR.scan(game.PlaceId, list, function(chunk)
+			if chunk then return end
+			if SR.err then ctx.notify("Region scan stopped: " .. SR.err, 8)
+			elseif SR.okN > 0 then ctx.notify("Region scan done: " .. SR.okN .. " new servers", 4) end
+		end)
+	end)
+end
 warn("[KLOSAD] load run-work: " .. table.concat(PROF.n, ", ") .. ", ENTRY " .. math.floor((os.clock() - PROF.last) * 1000) .. "ms | wall " .. math.floor((os.clock() - PROF.t0) * 1000) .. "ms")
 -- [/ENTRY]
