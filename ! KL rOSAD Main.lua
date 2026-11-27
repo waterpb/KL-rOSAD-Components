@@ -5,22 +5,22 @@
 -- [THEME] colors, repaint registry, tween, text helpers | THEMES, col(), paint(), tw(), dur(), split(), score() | deps: STATE | L268-437
 -- [CMD_CORE] ctx, player find, chat hook, mute/listen, keybind helpers, Run(), TOGGLES, register | ctx, ctx.Run, ctx.register, TOGGLES | deps: STATE, THEME | L439-1138
 -- [CMD_BUILTIN] small built-in command files | CMD[] | deps: CMD_CORE | L1140-1906
--- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools (also the ;avatars and ;grass launchers), autoexec, autostart, notifier, cleanup, playernames, update, void/autovoid | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1908-6311
--- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L6313-7319
--- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L7321-7890
--- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7892-8264
--- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L8266-8555
--- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L8557-9114
--- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L9115-9524
--- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L9526-9642
--- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9644-9725
--- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9727-9758
--- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9760-9781
--- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9783-9906
--- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9908-10141
--- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow(), section search box | deps: PG_FLOW | L10143-10279
--- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L10281-10370
--- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L10372-10589
+-- [CMD_EXTRA] movement, defense, blink, names, servers (ctx.SRV), voice, hide, hideui, baseplate, tools (also the ;avatars and ;grass launchers), autoexec, autostart, notifier, cleanup, playernames, update, void/autovoid | def(), SRV, TOOLS, openTool, setAutoExec | deps: CMD_CORE | L1908-6320
+-- [UI_SHARED] gui root, widget builders, toast, welcome, HUD, search, mouse sync | fr(), txt(), btn(), input(), seg(), S.switch, S.notch, ST, ui.toast, ui.matches, ctx.AV | deps: THEME, CMD_CORE | L6322-7328
+-- [UI_BAR] command bar, suggestions, history | ui.openBar, ui.closeBar, ui.search, ui.sugRender | deps: UI_SHARED | L7330-7899
+-- [UI_PANEL] panel frame, layout table L, sidebar tabs, page motion, loading | L, pages, onShow, ui.selectTab, ui.setPanel, ui.busy, ui.lazy | deps: UI_SHARED | L7901-8273
+-- [PG_HOME] Home page: profile, bio/tip, server hero, stats, actions | bannerShow(), stats loop, avatar total | deps: UI_PANEL | L8275-8564
+-- [PG_PLAYERS] Players page (cards, sort, voice) and Servers page | render(), card(), slider(), ctx.SRV | deps: UI_PANEL | L8566-9123
+-- [PROFILE] player profile window | ui.openProfile, ui.closeProfile, build() | deps: UI_PANEL, PG_PLAYERS | L9124-9533
+-- [PG_LOOK] Look and feel page | seg controls, HSL picker | deps: UI_PANEL | L9535-9651
+-- [PG_SCRIPTS] Load scripts page | item(), ghInfo() | deps: UI_PANEL, DATA | L9653-9734
+-- [PG_CMDS] Commands page | render() | deps: UI_PANEL | L9736-9767
+-- [PG_FLOW] flow layout helpers for simple pages | flow(), fhdr(), frow() | deps: UI_PANEL | L9769-9790
+-- [PG_AUTOSTART] Autostart page | add(), QUICK, render() | deps: PG_FLOW | L9792-9915
+-- [PG_KEYS] Keybinds page | keyTile(), card(), ui.refreshKeys | deps: PG_FLOW | L9917-10150
+-- [PG_MODCFG] Module Cfg page | numRow(), strRow(), togRow(), optRow(), section search box | deps: PG_FLOW | L10152-10288
+-- [PG_PREFS] Preferences page | refresh(), refreshSys(), ui.refreshNu | deps: PG_FLOW | L10290-10379
+-- [ENTRY] apply settings, input wiring, unload, startup | ui.apply, ui.rescale, ui.unload, env.KLOSAD | deps: all | L10381-10598
 -- [BOOT]
 local VERSION = "1.3"
 local DIR = "KLOSAD"
@@ -5166,11 +5166,19 @@ do
 		if not fn then return ctx.notify("rOSAD: the download does not compile (" .. tostring(perr) .. "), nothing changed", 8) end
 		local ver, path = body:match('local VERSION = "([^"]+)"') or "?", DIR .. "/KL_rOSAD.lua"
 		local same = pcall(function() assert(readfile(path) == body) end)
-		if same and ver == VERSION then return ctx.notify("rOSAD is up to date (v" .. VERSION .. ")", 4) end
+		local sp = cfg.selfPath -- the .lua you keep in the workspace (what Autostart / auto execute run): it must get the update too
+		local spOld = sp ~= "" and isfile(sp) and sp ~= path and select(2, pcall(readfile, sp))
+		local spStale = type(spOld) == "string" and spOld ~= body
+		if same and ver == VERSION and not spStale then return ctx.notify("rOSAD is up to date (v" .. VERSION .. ")", 4) end
 		pcall(function()
 			if not isfolder(DIR) then makefolder(DIR) end
 			writefile(path, body)
 		end)
+		if spStale then
+			pcall(writefile, sp .. ".bak", spOld) -- one backup of your old file, in case it had your own edits
+			if pcall(writefile, sp, body) then ctx.notify("rOSAD: also updated " .. sp .. " (old one kept as .bak)", 5)
+			else ctx.notify("rOSAD: could not write " .. sp .. ", only the " .. path .. " copy was updated", 7) end
+		end
 		ctx.notify("rOSAD v" .. ver .. " downloaded, restarting...", 3)
 		task.delay(0.6, function() task.spawn(fn) end) -- the new run's boot unloads this one
 	end
@@ -5711,7 +5719,7 @@ local function openTool(key)
 			if t.onOpen then t.onOpen() end -- a tool that only minimizes (VC Bypasser) is told to come back
 			return ctx.notify(t.title .. " reopened")
 		end
-		killTool(key) -- closed, with at most an empty or hidden window left: shut it down and load it fresh
+		killTool(key, true) -- closed, with at most an empty or hidden window left: shut it down and load it fresh
 	end
 	local src, err = toolSource(t)
 	if not src then return ctx.notify(t.title .. ": " .. err, 5) end
@@ -5758,7 +5766,8 @@ local function killByName(key)
 	return n > 0
 end
 -- true only if something was actually closed, so ;kill never says "closed" when nothing happened
-function killTool(key)
+function killTool(key, force)
+	if key == "vcb" and not force then return false end -- VC Bypasser survives ;kill all, ;exit and any internal sweep: only ;kill vcb (force) closes it
 	local st = state.tools[key]
 	if not st then
 		local handle = TOOLS[key].handle -- started some other way (executor): its own shutdown still works
@@ -5858,7 +5867,7 @@ def({ "kill" }, "<tool>", "Close a loaded tool: dex, kelsec, cobalt, rspy, alogg
 	local key = TOOL_BY[q]
 	if not key then return ctx.notify("Unknown tool: " .. q) end
 	-- both ways, no "or": the tracked windows AND anything whose name matches
-	local a = killTool(key)
+	local a = killTool(key, true) -- an explicit ;kill <tool> is the one way to close VC Bypasser
 	local b = killByName(key)
 	ctx.notify((a or b) and (TOOLS[key].title .. " closed") or (TOOLS[key].title .. " isn't loaded"))
 end)
