@@ -1,3 +1,19 @@
+-- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py)
+-- [BOOT] header, env, services, M table, conn | env, M, K, conn() | deps: none | L16-47
+-- [THEME] rOSAD palette, paint registry, small helpers | col(), paint(), applyTheme(), fs(), thumb() | deps: BOOT | L48-107
+-- [PURE] name classify, filter match, skin brightness | classifyNames(), filterMatch(), bodyLum() | deps: THEME | L108-185
+-- [CACHE] avatar cache, lazy catalog names, per-player analyze | reclassify(), pump(), analyze(), watchPlayer() | deps: PURE | L186-316
+-- [UI] window and widget builders | frame(), label(), button(), input(), scroller(), slider() | deps: THEME | L317-538
+-- [HEADER] title bar, close/drag | deps: UI | L539-574
+-- [FILTERS] filter chips and player list panel | paintChip() | deps: UI | L575-680
+-- [RIGHT] 3D preview, details, actions, worn items panels | deps: UI | L681-745
+-- [LIST] apply filters, render player rows | schedule(), tagLine(), renderList() | deps: CACHE, FILTERS | L746-824
+-- [DETAILS] preview model, details, worn items | buildPreview(), showDetails(), renderItems() | deps: RIGHT, CACHE | L825-965
+-- [ACTIONS] view/listen/hide/ESP and rOSAD commands | refreshActions(), espToggle(), M.action(), selectPlayer(), M.refreshAll() | deps: DETAILS | L966-1150
+-- [LIFE] search box wiring, rOSAD hooks, open/close/toggle/Unload | M.open(), M.close(), M.toggle(), M.Unload() | deps: all | L1151-1260
+-- [SELFTEST] assert self-check of pure logic | M.selftest() | deps: PURE | L1261-1289
+-- [ENTRY] run selftest, open window | deps: all | L1290-1295
+-- [BOOT]
 -- ===== AVATAR DISCOVERY 1.0 ==================================================
 -- Player discovery for KL rOSAD: filter players by worn items (Headless, Korblox,
 -- 8-Bit Crown, Opal), female keywords and skin brightness, then preview the full
@@ -28,6 +44,8 @@ local function conn(sig, fn)
 	return c
 end
 
+-- [/BOOT]
+-- [THEME]
 -- ===== theme (rOSAD's palette, inherited live through its "look" bus) ========
 local function rgb(r, g, b) return Color3.fromRGB(r, g, b) end
 local PAL = {
@@ -86,6 +104,8 @@ local function clear(g)
 end
 local function thumb(kind, id, size) return ("rbxthumb://type=%s&id=%d&w=%d&h=%d"):format(kind, id, size, size) end
 
+-- [/THEME]
+-- [PURE]
 -- ===== pure helpers (also covered by M.selftest) ===========================
 local FEMALE_WORDS = { "girl", "doll", "female", "woman", "lady", "princess", "barbie", "bride", "queen", "sister", "gal" }
 local ITEM_KEYS = { "headless", "korblox", "crown", "opal", "limited" }
@@ -162,6 +182,8 @@ local function bodyLum(desc)
 	return wsum > 0 and (sum / wsum) or nil
 end
 
+-- [/PURE]
+-- [CACHE]
 -- ===== avatar cache + lazy catalog names (no polling, cached per session) ===
 local cache = {}      -- uid -> { desc, ids, idset, rig, lum, tags, words, namesList, status, sig, busy }
 local product = {}    -- assetId -> name | false
@@ -291,6 +313,8 @@ local function watchPlayer(p)
 	end)
 end
 
+-- [/CACHE]
+-- [UI]
 -- ===== window + widgets ====================================================
 local gui = Instance.new("ScreenGui")
 gui.Name = "AvatarDiscovery"
@@ -511,6 +535,8 @@ local function slider(parent, x, y, w, min, max, step, get, set, rainbow)
 	return place
 end
 
+-- [/UI]
+-- [HEADER]
 -- ===== header ===============================================================
 U = {}
 U.title = label(win, "", 14, "text", 22, 9, 190, 26, { Font = FONT_CODE, RichText = true, TextSize = 21 })
@@ -545,6 +571,8 @@ do
 	end)
 end
 
+-- [/HEADER]
+-- [FILTERS]
 -- ===== left: filters + player list ==========================================
 local LEFT_W = 312
 local leftH = H - HD - 12
@@ -649,6 +677,8 @@ listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 local listPad = Instance.new("UIPadding", U.list)
 listPad.PaddingLeft = UDim.new(0, 10); listPad.PaddingRight = UDim.new(0, 10)
 
+-- [/FILTERS]
+-- [RIGHT]
 -- ===== right: 3D preview, details, actions, worn items =====================
 local RX = 336
 local RW = W - RX - 12
@@ -712,6 +742,8 @@ itemLayout.Padding = UDim.new(0, 2)
 local itemPad = Instance.new("UIPadding", U.items)
 itemPad.PaddingLeft = UDim.new(0, 12); itemPad.PaddingRight = UDim.new(0, 12)
 
+-- [/RIGHT]
+-- [LIST]
 -- ===== filtering + list =====================================================
 local queued = false
 function schedule()
@@ -789,6 +821,8 @@ function renderList()
 	refreshActions()
 end
 
+-- [/LIST]
+-- [DETAILS]
 -- ===== details, preview and worn items =====================================
 local function clearPreview()
 	for _, c in ipairs(world:GetChildren()) do c:Destroy() end
@@ -928,6 +962,8 @@ function renderItems(p)
 	U.items.CanvasSize = UDim2.fromOffset(0, #rows * 26 + 4)
 end
 
+-- [/DETAILS]
+-- [ACTIONS]
 -- ===== actions ==============================================================
 local esp = {}
 local soloView, soloPrev
@@ -1111,6 +1147,8 @@ function M.refreshAll()
 	schedule()
 end
 
+-- [/ACTIONS]
+-- [LIFE]
 -- ===== lifecycle + rOSAD integration =======================================
 U.search:GetPropertyChangedSignal("Text"):Connect(function()
 	F.query = U.search.Text
@@ -1219,6 +1257,8 @@ function M.Unload()
 end
 
 -- ===== self-check of the pure logic ========================================
+-- [/LIFE]
+-- [SELFTEST]
 function M.selftest()
 	local tags, words = classifyNames({ "8-Bit Royal Crown", "Headless Head", "Cute Doll Hair", "Korblox Deathspeaker Right Leg" })
 	assert(tags.crown and tags.headless and tags.korblox and tags.female)
@@ -1246,7 +1286,10 @@ function M.selftest()
 	assert(not filterMatch(e, { items = {}, skin = true, min = .3 }))
 	return true
 end
+-- [/SELFTEST]
+-- [ENTRY]
 local okTest, errTest = pcall(M.selftest)
 if not okTest then warn("[AvatarDiscovery] self-test failed: " .. tostring(errTest)) end
 
 M.open()
+-- [/ENTRY]
