@@ -1,25 +1,26 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py). Markers use "--" (Lua), not "//".
--- [BOOT] scale, services, single-instance guard, bind/px/new/tween | S, bind(), px(), new(), tween() | deps: none | L27-82
--- [THEME] colors, fonts, panel/inner/outline tokens | WHITE, ACCENT, PANEL, INNER, OUTLINE, F_* | deps: BOOT | L84-104
--- [SETTINGS] settings file load/save | settings, save(), box, fullText | deps: BOOT | L108-131
--- [GUIROOT] ScreenGui root, screenSize, zTop, overFrame | gui, screenSize(), front(), overFrame() | deps: SETTINGS | L133-154
--- [PANELS] panel frame, pop/fade, drag | newPanel(), setTL(), popOpen(), fadeClose(), makeDrag() | deps: GUIROOT | L156-257
--- [WIDGETS] box2, label, icon, inner, window buttons, scrollbar | box2(), label(), inner(), xButton(), minButton(), scrollbar() | deps: PANELS | L259-389
--- [HIGHLIGHT] Lua syntax highlighter | highlight() | deps: none | L391-455
--- [LOGSTATE] log queue, unread dot | emit(), updateDot(), stamp() | deps: WIDGETS | L457-488
--- [KEEP] keep executor after teleport, auto re-join, server hop | queueSelf(), findServer() | deps: LOGSTATE, SETTINGS | L490-555
--- [EXEC_PANEL] executor panel, title morph, header, window buttons | ex, titleMorph(), minBtn, closeBtn | deps: PANELS, WIDGETS | L557-609
--- [WINMODEL] script model: head lines + window + tail lines, unit tested | newDoc(), lineStart(), cut() | deps: none | L611-721
--- [EDITOR] windowed + culled code editor, whole-script selection (Ctrl+A, drag, shift+click, Ctrl+Home/End) | box, doc, sf, setWindow(), renderSlice(), onEdited(), syncNative() | deps: EXEC_PANEL, HIGHLIGHT, WINMODEL | L723-1156
--- [EXEC_BTNS] bottom row buttons settings / logs / run | gearBtn, logsBtn, runBtn, dot | deps: EXEC_PANEL | L1158-1165
--- [LOGS] logs panel, log list, LogService hook | logsP, pushLine() | deps: WIDGETS, LOGSTATE | L1167-1255
--- [SETTINGS_UI] settings panel with its toggles | setP | deps: WIDGETS, SETTINGS | L1257-1297
--- [PLACE] open / place panels | place(), toggleLogs(), toggleSettings() | deps: LOGS, SETTINGS_UI | L1299-1324
--- [RUN] run the script | run() | deps: EDITOR | L1326-1344
--- [WINDOW] minimize / restore / close, header drag | minimize(), restore(), closeExecutor(), api | deps: all | L1346-1416
--- [ENTRY] startup | popOpen(ex) | deps: all | L1418-1422
+-- [BOOT] scale, services, single-instance guard, bind/px/new/tween | S, bind(), px(), new(), tween() | deps: none | L28-83
+-- [THEME] colors, fonts, panel/inner/outline tokens | WHITE, ACCENT, PANEL, INNER, OUTLINE, F_* | deps: BOOT | L85-105
+-- [SETTINGS] settings file load/save | settings, save(), box, fullText | deps: BOOT | L109-144
+-- [GUIROOT] ScreenGui root, screenSize, zTop, overFrame | gui, screenSize(), front(), overFrame() | deps: SETTINGS | L146-167
+-- [PANELS] panel frame, pop/fade, drag | newPanel(), setTL(), popOpen(), fadeClose(), makeDrag() | deps: GUIROOT | L169-270
+-- [WIDGETS] box2, label, icon, inner, window buttons, scrollbar | box2(), label(), inner(), xButton(), minButton(), scrollbar() | deps: PANELS | L272-402
+-- [HIGHLIGHT] Lua syntax highlighter | highlight() | deps: none | L404-468
+-- [LOGSTATE] log queue, unread dot | emit(), updateDot(), stamp() | deps: WIDGETS | L470-501
+-- [KEEP] keep executor after teleport, auto re-join, server hop | queueSelf(), findServer() | deps: LOGSTATE, SETTINGS | L503-568
+-- [EXEC_PANEL] executor panel, title morph, header, window buttons | ex, titleMorph(), minBtn, closeBtn | deps: PANELS, WIDGETS | L570-622
+-- [WINMODEL] script model: head lines + window + tail lines, unit tested | newDoc(), lineStart(), cut() | deps: none | L624-734
+-- [EDITOR] windowed + culled code editor, whole-script selection (Ctrl+A, drag, shift+click, Ctrl+Home/End) | box, doc, sf, setWindow(), renderSlice(), onEdited(), syncNative() | deps: EXEC_PANEL, HIGHLIGHT, WINMODEL | L736-1176
+-- [EXEC_BTNS] bottom row buttons settings / logs / run | gearBtn, logsBtn, runBtn, dot | deps: EXEC_PANEL | L1178-1185
+-- [TABS] script tabs, Chrome style: shrinking equal tabs, drag to reorder, x / middle-click close, double-click rename, + after the last tab, scrolls when crowded | sync(), layout(), addTab(), closeTab(), ex.loadText | deps: EDITOR, EXEC_BTNS | L1187-1629
+-- [LOGS] logs panel, log list, LogService hook | logsP, pushLine() | deps: WIDGETS, LOGSTATE | L1631-1719
+-- [SETTINGS_UI] settings panel with its toggles | setP | deps: WIDGETS, SETTINGS | L1721-1761
+-- [PLACE] open / place panels | place(), toggleLogs(), toggleSettings() | deps: LOGS, SETTINGS_UI | L1763-1788
+-- [RUN] run the script | run() | deps: EDITOR | L1790-1808
+-- [WINDOW] minimize / restore / close, header drag | minimize(), restore(), closeExecutor(), api | deps: all | L1810-1903
+-- [ENTRY] startup | popOpen(ex) | deps: all | L1905-1909
 
---// >kelsec v1.0.0 : LocalScript executor
+--// >kelsec v1.2.0 : LocalScript executor (1.1: script tabs, follows rOSAD's accent; 1.2: Chrome-style tabs)
 --// All sizes are the deck's 1080p pixels (1 slide inch = 144 px).
 --// Save this file as "kelsec.lua" in your executor's workspace folder if you want
 --// "Keep executor between sessions" to work (it re-loads that file after a teleport).
@@ -122,10 +123,22 @@ end
 
 if settings.code == OLD_SAMPLE then settings.code = nil end -- old starter -> new starter
 
+-- tabs: settings.tabs = { { name, code }, ... }, settings.active = the open one. A file from before the tabs became the first tab.
+if type(settings.tabs) ~= "table" or #settings.tabs == 0 then
+	settings.tabs = { { name = "Script 1", code = type(settings.code) == "string" and settings.code or SAMPLE } }
+end
+for i, t in ipairs(settings.tabs) do
+	if type(t) ~= "table" then t = {} settings.tabs[i] = t end
+	t.name = type(t.name) == "string" and t.name ~= "" and t.name or ("Script " .. i)
+	t.code = type(t.code) == "string" and t.code or ""
+end
+settings.code = nil
+settings.active = math.clamp(math.floor(tonumber(settings.active) or 1), 1, #settings.tabs)
+
 local box, doc, fullText -- editor TextBox; doc = the script model: lines above / below the TextBox window (assigned below)
 local function save()
 	if not writefile then return end
-	if fullText then settings.code = fullText() end
+	if fullText then settings.tabs[settings.active].code = fullText() end
 	pcall(writefile, SETTINGS_FILE, HttpService:JSONEncode(settings))
 end
 -- [/SETTINGS]
@@ -555,9 +568,9 @@ end)
 -- [/KEEP]
 
 -- [EXEC_PANEL]
----------------------------------------------------------------- EXECUTOR PANEL  (648 x 312)
+---------------------------------------------------------------- EXECUTOR PANEL  (648 x 348)
 -- grid: 12px outer margin, 40px header, 28px square window buttons, 36px square bottom buttons
-ex = newPanel("Executor", 648, 312, 9)
+ex = newPanel("Executor", 648, 348, 9)
 ex.state, ex.busy = "open", false
 ex.tl = V2(px(311), px(244))
 do -- on a small screen the start position keeps the whole window in view
@@ -600,7 +613,7 @@ local function titleMorph(toMin)
 	end
 end
 
-label(content, "v1.0.0", 14 + 7 * cwE / S + 5, 17, 60, 15, F_CODE, 11, Color3.fromRGB(128, 128, 128))
+label(content, "v1.2.0", 14 + 7 * cwE / S + 5, 17, 60, 15, F_CODE, 11, Color3.fromRGB(128, 128, 128))
 local header = box2(content, 0, 0, 560, 40, { BackgroundTransparency = 1 })
 
 -- window controls
@@ -722,7 +735,7 @@ end
 
 -- [EDITOR]
 do local function buildEditor() -- its own function = its own 200-local budget, so the editor's ~70 locals don't count against the main chunk
-local ebox = inner(content, 12, 40, 624, 228)
+local ebox = inner(content, 12, 76, 624, 228) -- under the 34px tab strip
 local fsC = tpx(15) -- editor text (was 13)
 -- the line-number gutter is as wide as 4 digits of the editor font, so it still fits at the bigger text and scale
 local GUT = math.ceil(TextService:GetTextSize("0000", fsC, F_MONO, V2(100000, 100000)).X) + px(10)
@@ -762,7 +775,7 @@ local function count(s) return select(2, s:gsub("\n", "")) end
 local WIN_BUF, WIN_MAX, WIN_MARGIN, SLICE_BUF = 80, 400, 30, 8
 local ROWS = math.ceil(VH / PITCH) + 1 -- lines in view
 -- the saved script may hold tabs / CRLF from an older version or a paste: normalise it like typing does
-local startText = (type(settings.code) == "string" and settings.code or SAMPLE):gsub("\r\n?", "\n"):gsub("\t", "    ")
+local startText = settings.tabs[settings.active].code:gsub("\r\n?", "\n"):gsub("\t", "    ")
 doc = newDoc()
 local win0 = doc:load(startText, 1, ROWS + 2 * WIN_BUF)
 local hN, tN, wN, winY = #doc.H, #doc.T, count(win0) + 1, 0 -- lines above / below / inside the window, window top in the canvas
@@ -979,6 +992,13 @@ local function reload(text, caret)
 	updateCaret(true)
 end
 
+-- the tab strip swaps the whole script through this
+ex.loadText = function(text)
+	reload((text:gsub("\r\n?", "\n"):gsub("\t", "    ")), 1)
+	undoSnap, redoSnap = nil, nil
+	sf.CanvasPosition = V2(0, 0)
+end
+
 -- the user changed the window text (typed, pasted, cut, deleted)
 onEdited = function()
 	local t = box.Text
@@ -1156,13 +1176,457 @@ end -- do
 -- [/EDITOR]
 
 -- [EXEC_BTNS]
--- bottom row (y 268..312): settings, logs, run
-local gearBtn = btn(content, "Settings", 12, 278, 72, 26)
-local logsBtn = btn(content, "Logs", 90, 278, 56, 26)
+-- bottom row (y 304..348): settings, logs, run
+local gearBtn = btn(content, "Settings", 12, 314, 72, 26)
+local logsBtn = btn(content, "Logs", 90, 314, 56, 26)
 dot = new("Frame", { Position = UDim2.fromOffset(px(49), px(-3)), Size = UDim2.fromOffset(px(10), px(10)), BackgroundColor3 = GREEN, BorderSizePixel = 0, Visible = false, ZIndex = 12 }, logsBtn)
 new("UICorner", { CornerRadius = UDim.new(1, 0) }, dot)
-local runBtn = btn(content, "Run", 564, 278, 72, 26, CTRL_ON, BTN_ON)
+local runBtn = btn(content, "Run", 564, 314, 72, 26, CTRL_ON, BTN_ON)
 -- [/EXEC_BTNS]
+
+-- [TABS]
+---------------------------------------------------------------- script tabs
+-- Chrome-style tabs on rOSAD's button look (3px corners, 1px edge, the open tab filled with the accent).
+--   tabs share the width equally and shrink as you add more, down to a minimum; after that the bar scrolls (wheel, or the ‹ › at its ends)
+--   the x sits on the right of every tab: always on the open tab, on hover for the others; middle-click closes too
+--   a tab with code asks once before closing (the x turns into a red circle, click again within 2 s)
+--   drag a tab to reorder it (it opens as you grab it), double-click to rename it in place (Enter keeps, Esc cancels)
+--   + sits right after the last tab, right-click a tab for the menu
+-- Every colour is read from the theme values above, so the tabs follow ACCENT (and rOSAD's accent through it).
+do
+	local BAR_Y, VW = 42, 592 -- bar top and the width of its scrolling part (design px)
+	local MINW, MAXW, GAPD = 76, 170, 2 -- narrowest / widest tab and the gap between tabs
+	local TSIZE = tpx(fs(10.5)) -- same text size as every rOSAD button
+	local ON_T = 0.18 -- fill transparency of the open tab
+	local list = settings.tabs
+	local views = {} -- [tab] = its gui objects
+	local armed, clickT, clickAt, menu, catch, press
+	local tabW, total = px(MAXW), 0
+
+	local function ink() -- text on the accent: dark on a light accent, white on a dark one
+		local l = 0.2126 * ACCENT.R + 0.7152 * ACCENT.G + 0.0722 * ACCENT.B
+		return l > 0.45 and Color3.fromRGB(16, 16, 18) or WHITE
+	end
+	local function fadeColor() return PANEL:Lerp(INNER, 0.5) end -- what the bar looks like, so the faded ends blend in
+
+	local bar = inner(content, 12, BAR_Y, 624, 28)
+	local strip = new("ScrollingFrame", {
+		Position = UDim2.fromOffset(px(3), 0), Size = UDim2.fromOffset(px(VW), px(28)), BackgroundTransparency = 1, BorderSizePixel = 0,
+		ScrollBarThickness = 0, ScrollingDirection = Enum.ScrollingDirection.X, ElasticBehavior = Enum.ElasticBehavior.Never,
+		CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.None, ZIndex = 6,
+	}, bar)
+
+	-- faded ends with a chevron, shown only when there is more to scroll that way
+	local function fade(left)
+		local f = new("Frame", {
+			Position = UDim2.fromOffset(left and px(3) or px(3 + VW - 34), 0), Size = UDim2.fromOffset(px(34), px(28)),
+			BackgroundColor3 = fadeColor(), BorderSizePixel = 0, ZIndex = 12, Visible = false,
+		}, bar)
+		new("UIGradient", { Rotation = left and 0 or 180, Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.5, 0.15), NumberSequenceKeypoint.new(1, 1) }) }, f)
+		local b = new("TextButton", {
+			Text = left and "‹" or "›", Font = F_UI, TextSize = tpx(20), TextColor3 = WHITE, TextTransparency = 0.35, BackgroundTransparency = 1, AutoButtonColor = false,
+			Size = UDim2.fromOffset(px(18), px(28)), Position = left and UDim2.new() or UDim2.new(1, -px(18), 0, 0), ZIndex = 13,
+		}, f)
+		b.MouseEnter:Connect(function() b.TextTransparency = 0 end)
+		b.MouseLeave:Connect(function() b.TextTransparency = 0.35 end)
+		return f, b
+	end
+	local fadeL, chevL = fade(true)
+	local fadeR, chevR = fade(false)
+	local function maxScroll() return math.max(strip.CanvasSize.X.Offset - px(VW), 0) end
+	local function edges()
+		fadeL.Visible = strip.CanvasPosition.X > 1
+		fadeR.Visible = strip.CanvasPosition.X < maxScroll() - 1
+	end
+	local function nudge(d) tween(strip, 0.25, { CanvasPosition = V2(math.clamp(strip.CanvasPosition.X + d, 0, maxScroll()), 0) }) end
+	bind(strip:GetPropertyChangedSignal("CanvasPosition"), edges)
+	bind(chevL.MouseButton1Click, function() nudge(-px(180)) end)
+	bind(chevR.MouseButton1Click, function() nudge(px(180)) end)
+
+	-- the + : drawn (not a font glyph), so it is always dead centre
+	local addB = new("TextButton", { Text = "", AutoButtonColor = false, BorderSizePixel = 0, Size = UDim2.fromOffset(px(24), px(22)), ZIndex = 8 }, bar)
+	new("UICorner", { CornerRadius = UDim.new(0, 3) }, addB)
+	local addStroke = new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, addB)
+	local thick = math.max(2, px(1.5))
+	local addH = new("Frame", { AnchorPoint = V2(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(px(10), thick), BorderSizePixel = 0, ZIndex = 9 }, addB)
+	local addV = new("Frame", { AnchorPoint = V2(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(thick, px(10)), BorderSizePixel = 0, ZIndex = 9 }, addB)
+	local function paintAdd()
+		addB.BackgroundColor3, addB.BackgroundTransparency, addStroke.Color = CTRL_OFF, BTN_OFF, EDGE
+		addH.BackgroundColor3, addV.BackgroundColor3 = WHITE, WHITE
+	end
+	bind(addB.MouseEnter, function() tween(addB, 0.1, { BackgroundTransparency = math.max(BTN_OFF - 0.15, 0) }) end)
+	bind(addB.MouseLeave, function() tween(addB, 0.12, { BackgroundTransparency = BTN_OFF }) end)
+
+	local function stash() list[settings.active].code = fullText() end -- the open tab's text goes back into its slot
+	local function closeMenu()
+		if menu then menu:Destroy() menu = nil end
+		if catch then catch:Destroy() catch = nil end
+	end
+	local function nextName()
+		local used = {}
+		for _, t in ipairs(list) do used[t.name] = true end
+		local n = #list + 1
+		while used["Script " .. n] do n += 1 end
+		return "Script " .. n
+	end
+	local function hasWork(t)
+		local code = t == list[settings.active] and fullText() or t.code
+		return code:match("%S") ~= nil and code ~= SAMPLE
+	end
+
+	---------------- one tab = one set of gui objects that lives as long as the tab (nothing is rebuilt on a click)
+	local paint, startRename, askClose, openMenu, switchTo
+	local function lines(v, col, tr)
+		v.l1.BackgroundColor3, v.l2.BackgroundColor3 = col, col
+		v.l1.BackgroundTransparency, v.l2.BackgroundTransparency = tr, tr
+	end
+	local function makeView(t)
+		local v = { hov = 0, base = BTN_OFF }
+		v.f = new("TextButton", { Text = "", AutoButtonColor = false, BorderSizePixel = 0, ZIndex = 8 }, strip)
+		new("UICorner", { CornerRadius = UDim.new(0, 3) }, v.f)
+		v.stroke = new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, v.f)
+		v.label = new("TextLabel", {
+			Text = t.name, Font = F_UI, TextSize = TSIZE, BackgroundTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd,
+			Position = UDim2.fromOffset(px(10), 0), Size = UDim2.new(1, -px(36), 1, 0), ZIndex = 9,
+		}, v.f)
+		-- the x: a round hit area with two drawn strokes
+		v.x = new("TextButton", {
+			Text = "", AutoButtonColor = false, BorderSizePixel = 0, AnchorPoint = V2(1, 0.5), Position = UDim2.new(1, -px(4), 0.5, 0),
+			Size = UDim2.fromOffset(px(16), px(16)), ZIndex = 10,
+		}, v.f)
+		new("UICorner", { CornerRadius = UDim.new(1, 0) }, v.x)
+		for i, rot in ipairs({ 45, -45 }) do
+			v["l" .. i] = new("Frame", {
+				AnchorPoint = V2(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(px(8), thick), Rotation = rot, BorderSizePixel = 0, ZIndex = 11,
+			}, v.x)
+		end
+		-- the rename box: an input set into the tab
+		v.box = new("TextBox", {
+			Visible = false, Font = F_UI, TextSize = TSIZE, TextColor3 = WHITE, ClearTextOnFocus = false, BorderSizePixel = 0, TextXAlignment = Enum.TextXAlignment.Left,
+			Position = UDim2.fromOffset(px(2), px(2)), Size = UDim2.new(1, -px(4), 1, -px(4)), ZIndex = 12,
+		}, v.f)
+		new("UIPadding", { PaddingLeft = UDim.new(0, px(8)), PaddingRight = UDim.new(0, px(6)) }, v.box)
+		new("UICorner", { CornerRadius = UDim.new(0, 2) }, v.box)
+		v.boxStroke = new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, v.box)
+
+		local function hover(d)
+			v.hov += d
+			paint(t, true)
+		end
+		for _, g in ipairs({ v.f, v.x }) do
+			g.MouseEnter:Connect(function() hover(1) end)
+			g.MouseLeave:Connect(function() hover(-1) end)
+		end
+		v.x.MouseEnter:Connect(function() v.overX = true paint(t) end)
+		v.x.MouseLeave:Connect(function() v.overX = false paint(t) end)
+		v.x.MouseButton1Click:Connect(function() askClose(t) end)
+		v.f.MouseButton2Click:Connect(function() openMenu(t) end)
+		v.f.InputBegan:Connect(function(i)
+			local ty = i.UserInputType
+			if v.overX or v.renaming then return end
+			if ty == Enum.UserInputType.MouseButton3 then
+				askClose(t)
+			elseif ty == Enum.UserInputType.MouseButton1 or ty == Enum.UserInputType.Touch then
+				press = { t = t, x0 = i.Position.X }
+			end
+		end)
+		v.box.FocusLost:Connect(function(_, input)
+			local v2 = views[t]
+			if not v2 or not v2.renaming then return end
+			v2.renaming = false
+			if not (input and input.KeyCode == Enum.KeyCode.Escape) then
+				local s = v2.box.Text:gsub("%c", ""):sub(1, 24)
+				if s:match("%S") then t.name = s end
+			end
+			v2.label.Text = t.name
+			v2.box.Visible, v2.label.Visible, v2.x.Visible = false, true, true
+			save()
+		end)
+		return v
+	end
+	local function destroyView(t)
+		local v = views[t]
+		if v then
+			views[t] = nil
+			v.f:Destroy()
+		end
+	end
+
+	paint = function(t, soft)
+		local v = views[t]
+		if not v then return end
+		local on = t == list[settings.active]
+		local isArmed = armed == t
+		local fg = on and ink() or WHITE
+		v.base = on and ON_T or BTN_OFF
+		local fill = math.max(v.base - (v.hov > 0 and 0.15 or 0), 0) -- rOSAD hover: the fill gets lighter
+		v.f.BackgroundColor3 = on and ACCENT or CTRL_OFF
+		if soft then tween(v.f, 0.1, { BackgroundTransparency = fill }) else v.f.BackgroundTransparency = fill end
+		v.stroke.Color, v.stroke.Transparency = EDGE, on and 0.2 or 0
+		v.label.TextColor3 = fg
+		v.box.BackgroundColor3, v.boxStroke.Color = INNER, ACCENT
+		v.x.BackgroundColor3 = isArmed and LOG_ERR or fg
+		v.x.BackgroundTransparency = isArmed and 0.1 or (v.overX and 0.85 or 1)
+		lines(v, isArmed and WHITE or fg, (on or isArmed or v.hov > 0) and 0 or 1)
+	end
+	local function paintAll()
+		for _, t in ipairs(list) do paint(t) end
+		paintAdd()
+		fadeL.BackgroundColor3, fadeR.BackgroundColor3 = fadeColor(), fadeColor()
+	end
+
+	-- positions: equal widths, shrinking to MINW; dragT / slot = the tab being dragged and the slot it hovers (others make room)
+	local function layout(animate, dragT, slot)
+		local n, gap, avail = #list, px(GAPD), px(VW)
+		tabW = math.clamp(math.floor((avail - gap * (n - 1)) / n), px(MINW), px(MAXW))
+		total = n * tabW + gap * (n - 1)
+		strip.CanvasSize = UDim2.fromOffset(total, 0)
+		local rest = {}
+		for _, t in ipairs(list) do
+			if t ~= dragT then rest[#rest + 1] = t end
+		end
+		local r = 0
+		for i = 1, n do
+			if not (dragT and i == slot) then
+				r += 1
+				local v = views[rest[r]]
+				local pos, size = UDim2.fromOffset((i - 1) * (tabW + gap), px(3)), UDim2.fromOffset(tabW, px(22))
+				if v.tw then v.tw:Cancel() end
+				if animate and v.placed then
+					v.tw = tween(v.f, 0.15, { Position = pos, Size = size })
+				else
+					v.f.Position, v.f.Size = pos, size
+				end
+				v.placed = true
+			end
+		end
+		local plus = UDim2.fromOffset(px(3) + math.min(total, avail) + px(4), px(3)) -- right after the last tab, pinned at the end when it scrolls
+		if animate then tween(addB, 0.15, { Position = plus }) else addB.Position = plus end
+	end
+	local function reveal() -- scroll the open tab into view
+		local aL = (settings.active - 1) * (tabW + px(GAPD))
+		local aR, cx, view = aL + tabW, strip.CanvasPosition.X, px(VW)
+		if aL < cx + px(34) then cx = aL - px(38) elseif aR > cx + view - px(34) then cx = aR - view + px(38) end
+		tween(strip, 0.2, { CanvasPosition = V2(math.clamp(cx, 0, maxScroll()), 0) })
+	end
+	local function sync(animate)
+		for _, t in ipairs(list) do
+			if not views[t] then views[t] = makeView(t) end
+		end
+		for t in pairs(views) do
+			if not table.find(list, t) then destroyView(t) end
+		end
+		layout(animate)
+		paintAll()
+		task.defer(function() edges() end)
+	end
+
+	---------------- actions
+	local function show(i, code) -- open tab i (code = its text when that is not in the slot yet)
+		settings.active = i
+		ex.loadText(code or list[i].code)
+		sync(true)
+		task.defer(reveal)
+		save()
+	end
+	switchTo = function(i)
+		if i and i ~= settings.active then
+			stash()
+			show(i)
+		end
+	end
+	local function addTab(name, code, at)
+		stash()
+		local i = at or #list + 1
+		table.insert(list, i, { name = name or nextName(), code = code or "" })
+		show(i)
+	end
+	-- gone = set of tabs to remove; fallback = the index to open when the open tab is among them (Chrome: the neighbour that slides in)
+	local function removeTabs(gone, fallback)
+		stash()
+		local act = list[settings.active]
+		for i = #list, 1, -1 do
+			if gone[list[i]] then
+				destroyView(list[i])
+				table.remove(list, i)
+			end
+		end
+		local ai = table.find(list, act)
+		if ai then
+			settings.active = ai
+		else
+			settings.active = math.clamp(fallback, 1, #list)
+			ex.loadText(list[settings.active].code)
+		end
+		sync(true)
+		task.defer(reveal)
+		save()
+	end
+	local function closeTab(t)
+		local i = table.find(list, t)
+		if not i then return end
+		if #list == 1 then -- the last tab is cleared, never removed
+			t.code = ""
+			ex.loadText("")
+			paintAll()
+			return save()
+		end
+		removeTabs({ [t] = true }, i)
+	end
+	local function closeOthers(keep)
+		local gone = {}
+		for _, t in ipairs(list) do
+			if t ~= keep then gone[t] = true end
+		end
+		removeTabs(gone, 1)
+	end
+	local function closeRight(from)
+		local gone, i = {}, table.find(list, from)
+		for k = i + 1, #list do gone[list[k]] = true end
+		removeTabs(gone, i)
+	end
+	-- x / middle-click: a tab with code in it asks once (the x turns into a red circle), a second click within 2 s closes it
+	askClose = function(t)
+		if hasWork(t) and armed ~= t then
+			local old = armed
+			armed = t
+			paint(t)
+			if old then paint(old) end
+			task.delay(2, function()
+				if armed == t then
+					armed = nil
+					paint(t)
+				end
+			end)
+			return
+		end
+		armed = nil
+		closeTab(t)
+	end
+	startRename = function(t)
+		local v = views[t]
+		if not v or v.renaming then return end
+		v.renaming = true
+		v.box.Text = t.name
+		v.box.Visible, v.label.Visible, v.x.Visible = true, false, false
+		task.defer(function()
+			if v.renaming and v.box.Parent then
+				v.box:CaptureFocus()
+				v.box.SelectionStart, v.box.CursorPosition = 1, #v.box.Text + 1 -- whole name selected
+			end
+		end)
+	end
+	openMenu = function(t)
+		closeMenu()
+		local i = table.find(list, t)
+		local items = {
+			{ "Rename", function() startRename(t) end },
+			{ "Duplicate", function() addTab(t.name .. " copy", t == list[settings.active] and fullText() or t.code, i + 1) end },
+			{ "Close", function() closeTab(t) end },
+			{ "Close others", #list > 1 and function() closeOthers(t) end },
+			{ "Close to the right", i < #list and function() closeRight(t) end },
+		}
+		local mx = math.clamp((UIS:GetMouseLocation().X - content.AbsolutePosition.X) / S, 12, 648 - 152)
+		catch = new("TextButton", { Text = "", AutoButtonColor = false, BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 30 }, content)
+		catch.MouseButton1Click:Connect(closeMenu)
+		catch.MouseButton2Click:Connect(closeMenu)
+		menu = box2(content, mx, BAR_Y + 32, 140, #items * 26 + 8, { BackgroundColor3 = PANEL, BackgroundTransparency = 0.05, ZIndex = 31 })
+		new("UICorner", { CornerRadius = UDim.new(0, px(6)) }, menu)
+		new("UIStroke", { Color = OUTLINE, Thickness = 1 }, menu)
+		for k, it in ipairs(items) do
+			local act = it[2]
+			local b = btn(menu, it[1], 4, 4 + (k - 1) * 26, 132, 22, nil, nil, act and function()
+				closeMenu()
+				act()
+			end)
+			b.TextXAlignment = Enum.TextXAlignment.Left
+			new("UIPadding", { PaddingLeft = UDim.new(0, px(10)) }, b)
+			if not act then b.TextTransparency = 0.6 end
+		end
+	end
+
+	---------------- press / drag / click on a tab (one set of global listeners: a drag keeps going when the mouse leaves the tab)
+	local function beginDrag(p)
+		local i = table.find(list, p.t)
+		if i ~= settings.active then
+			stash()
+			show(i) -- like Chrome, grabbing a tab opens it
+		end
+		local v = views[p.t]
+		if v.tw then v.tw:Cancel() end
+		p.dragging, p.slot, p.base = true, i, (i - 1) * (tabW + px(GAPD))
+		v.f.ZIndex = 20
+	end
+	local function dragMove(p, dx)
+		local v = views[p.t]
+		if not v then return end
+		local nx = math.clamp(p.base + dx, 0, math.max(total - tabW, 0))
+		v.f.Position = UDim2.fromOffset(nx, px(3))
+		local slot = math.clamp(math.floor((nx + tabW / 2) / (tabW + px(GAPD))) + 1, 1, #list)
+		if slot ~= p.slot then
+			p.slot = slot
+			layout(true, p.t, slot)
+		end
+	end
+	local function endDrag(p)
+		local v = views[p.t]
+		if v then v.f.ZIndex = 8 end
+		local i = table.find(list, p.t)
+		if i and p.slot ~= i then
+			table.remove(list, i)
+			table.insert(list, p.slot, p.t)
+		end
+		settings.active = table.find(list, p.t) or settings.active
+		layout(true)
+		paintAll()
+		save()
+	end
+	bind(UIS.InputChanged, function(i)
+		local ty = i.UserInputType
+		if press and (ty == Enum.UserInputType.MouseMovement or ty == Enum.UserInputType.Touch) then
+			local dx = i.Position.X - press.x0
+			if not press.dragging and math.abs(dx) > 6 and #list > 1 then beginDrag(press) end
+			if press.dragging then dragMove(press, dx) end
+		elseif ty == Enum.UserInputType.MouseWheel and ex.state == "open" and overFrame(bar) then
+			strip.CanvasPosition = V2(math.clamp(strip.CanvasPosition.X - i.Position.Z * 60, 0, maxScroll()), 0)
+		end
+	end)
+	bind(UIS.InputEnded, function(i)
+		local ty = i.UserInputType
+		if not press or (ty ~= Enum.UserInputType.MouseButton1 and ty ~= Enum.UserInputType.Touch) then return end
+		local p = press
+		press = nil
+		if p.dragging then
+			endDrag(p)
+		elseif views[p.t] then
+			if clickT == p.t and os.clock() - clickAt < 0.4 then -- double-click: the first click already opened the tab
+				clickT = nil
+				startRename(p.t)
+			else
+				clickT, clickAt = p.t, os.clock()
+				switchTo(table.find(list, p.t))
+			end
+		end
+	end)
+	bind(addB.MouseButton1Click, function() addTab() end)
+
+	sync(false)
+	task.defer(reveal)
+
+	-- listen to the theme: if any colour token changes anywhere in Kelsec (rOSAD's accent arrives through ACCENT), the tabs repaint next frame
+	local function palette() return { ACCENT, CTRL_ON, CTRL_OFF, EDGE, INNER, PANEL, OUTLINE, BTN_ON, BTN_OFF } end
+	local seen = palette()
+	bind(RunService.Heartbeat, function()
+		for i, v in ipairs(palette()) do
+			if seen[i] ~= v then
+				seen = palette()
+				return paintAll()
+			end
+		end
+	end)
+end
+-- [/TABS]
 
 -- [LOGS]
 ---------------------------------------------------------------- LOGS PANEL  (471 x 557)
@@ -1405,6 +1869,29 @@ api.close = function(instant)
 	if instant then destroy() else closeExecutor() end
 end
 genv.__kelsec = api
+
+-- follow rOSAD when it runs: it sends its look on the "look" port (and replays the last one at once), so the accent is the same one.
+-- Re-checked every frame, so starting or reloading rOSAD after Kelsec still connects. Everything that uses ACCENT repaints from it (tabs poll it).
+do
+	local lookK, lookOff
+	local function bindLook()
+		local K = genv.KLOSAD
+		if K == lookK then return end
+		lookK = K
+		if lookOff then pcall(lookOff) lookOff = nil end
+		local bus = K and K.ctx and K.ctx.bus
+		if bus then
+			lookOff = bus.on("look", function(s)
+				if not alive or type(s) ~= "table" or typeof(s.accent) ~= "Color3" then return end
+				ACCENT = s.accent
+				chars[1].TextColor3 = ACCENT
+			end, true)
+		end
+	end
+	bindLook()
+	bind(RunService.Heartbeat, bindLook)
+	conns[#conns + 1] = { Disconnect = function() if lookOff then pcall(lookOff) end end }
+end
 
 bind(minBtn.MouseButton1Click, minimize)
 bind(closeBtn.MouseButton1Click, closeExecutor)
