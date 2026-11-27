@@ -6,13 +6,13 @@
 -- [UI] window and widget builders | frame(), label(), button(), input(), scroller(), slider() | deps: THEME | L317-538
 -- [HEADER] title bar, close/drag | deps: UI | L539-574
 -- [FILTERS] filter chips and player list panel | paintChip() | deps: UI | L575-680
--- [RIGHT] 3D preview, details, actions, worn items panels | deps: UI | L681-745
--- [LIST] apply filters, render player rows | schedule(), tagLine(), renderList() | deps: CACHE, FILTERS | L746-824
--- [DETAILS] preview model, details, worn items | buildPreview(), showDetails(), renderItems() | deps: RIGHT, CACHE | L825-965
--- [ACTIONS] view/listen/hide/ESP and rOSAD commands | refreshActions(), espToggle(), M.action(), selectPlayer(), M.refreshAll() | deps: DETAILS | L966-1150
--- [LIFE] search box wiring, rOSAD hooks, open/close/toggle/Unload | M.open(), M.close(), M.toggle(), M.Unload() | deps: all | L1151-1260
--- [SELFTEST] assert self-check of pure logic | M.selftest() | deps: PURE | L1261-1289
--- [ENTRY] run selftest, open window | deps: all | L1290-1295
+-- [RIGHT] 3D preview, details, actions, worn items panels | deps: UI | L681-786
+-- [LIST] apply filters, render player rows | schedule(), tagLine(), renderList() | deps: CACHE, FILTERS | L787-865
+-- [DETAILS] preview model, details, worn items | buildPreview(), showDetails(), renderItems() | deps: RIGHT, CACHE | L866-1008
+-- [ACTIONS] view/listen/hide/ESP and rOSAD commands | refreshActions(), espToggle(), M.action(), selectPlayer(), M.refreshAll() | deps: DETAILS | L1009-1193
+-- [LIFE] search box wiring, rOSAD hooks, open/close/toggle/Unload | M.open(), M.close(), M.toggle(), M.Unload() | deps: all | L1194-1303
+-- [SELFTEST] assert self-check of pure logic | M.selftest() | deps: PURE | L1304-1332
+-- [ENTRY] run selftest, open window | deps: all | L1333-1338
 -- [BOOT]
 -- ===== AVATAR DISCOVERY 1.0 ==================================================
 -- Player discovery for KL rOSAD: filter players by worn items (Headless, Korblox,
@@ -697,6 +697,47 @@ local camera = Instance.new("Camera")
 camera.FieldOfView = 40
 camera.Parent = vp
 vp.CurrentCamera = camera
+-- 3D preview controls: left drag = orbit, middle drag = pan, scroll = zoom, right click = reset view
+local P3 = { yaw = 0, pitch = 0, pan = Vector3.zero, dist = 6, d0 = 6, target = Vector3.zero }
+U.pv3 = P3
+function U.pvUpdate()
+	local rot = CFrame.Angles(0, P3.yaw, 0) * CFrame.Angles(P3.pitch, 0, 0)
+	local center = P3.target + P3.pan
+	camera.CFrame = CFrame.lookAt(center + rot:VectorToWorldSpace(Vector3.new(0, 0, -P3.dist)), center)
+end
+function U.pvReset()
+	P3.yaw, P3.pitch, P3.pan, P3.dist = 0, 0, Vector3.zero, P3.d0
+	U.pvUpdate()
+end
+vp.Active = true -- sinks the wheel and clicks so the game camera does not zoom behind the window
+local pvDrag -- "orbit" | "pan" while a button is held that started on the preview
+vp.InputBegan:Connect(function(i)
+	local t = i.UserInputType
+	if t == Enum.UserInputType.MouseButton1 then pvDrag = "orbit"
+	elseif t == Enum.UserInputType.MouseButton3 then pvDrag = "pan"
+	elseif t == Enum.UserInputType.MouseButton2 then U.pvReset() end
+end)
+vp.InputChanged:Connect(function(i)
+	if i.UserInputType == Enum.UserInputType.MouseWheel then
+		P3.dist = math.clamp(P3.dist * (1 - i.Position.Z * .1), P3.d0 * .25, P3.d0 * 3)
+		U.pvUpdate()
+	end
+end)
+conn(UserInputService.InputChanged, function(i)
+	if not pvDrag or i.UserInputType ~= Enum.UserInputType.MouseMovement then return end
+	local d = i.Delta
+	if pvDrag == "orbit" then
+		P3.yaw = P3.yaw - d.X * .01
+		P3.pitch = math.clamp(P3.pitch + d.Y * .01, -1.4, 1.4)
+	else
+		local k, cf = P3.dist * .0024, camera.CFrame
+		P3.pan = P3.pan - cf.RightVector * d.X * k + cf.UpVector * d.Y * k
+	end
+	U.pvUpdate()
+end)
+conn(UserInputService.InputEnded, function(i)
+	if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.MouseButton3 then pvDrag = nil end
+end)
 U.pvImg = Instance.new("ImageLabel")
 U.pvImg.Size = UDim2.fromScale(1, 1)
 U.pvImg.BackgroundTransparency = 1
@@ -861,7 +902,9 @@ function buildPreview(p, e)
 	if not okB or not size then return end
 	local dist = math.max(size.Y * 1.35, size.X * 2.15, size.Z * 2.15, 6)
 	local target = cf.Position + Vector3.new(0, size.Y * .02, 0)
-	camera.CFrame = CFrame.lookAt(target + Vector3.new(0, 0, -dist), target)
+	local same = P3.uid == p.UserId -- the same player rebuilt (avatar finished loading): keep the view you set
+	P3.uid, P3.target, P3.d0 = p.UserId, target, dist
+	if same then U.pvUpdate() else U.pvReset() end
 end
 
 local function playerDistance(p)
