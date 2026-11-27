@@ -1,0 +1,513 @@
+-- ===== MIC UP GRASS 1.1 ======================================================
+-- Client-side terrain grass on Mic Up's baseplates, for KL rOSAD. Only you see it.
+-- Mic Up only (18+ and the normal game): anywhere else it refuses to load.
+-- Controls: size %, height offset (0 = exactly level with the baseplate), blade length, colour, blades,
+-- and "avoid builds": no grass under or around anything built on the plate.
+-- The grass is terrain laid flush on top of the plates (workspace.Baseplate and workspace.map.extra_room.platform).
+-- The plates are never hidden or moved; their colour follows the grass colour and is put back when the grass goes.
+--
+-- Linked mode: getgenv().KLOSAD exists -> uses rOSAD's theme, accent, opacity and
+-- scale live through its "look" port and closes with it ("unload" port).
+-- rOSAD owns the ;grass command and calls getgenv().KLGrass.cmd(args).
+-- ============================================================================
+
+local env = (getgenv and getgenv()) or _G
+if env.KLGrass and env.KLGrass.Unload then pcall(env.KLGrass.Unload) end
+
+local UIS = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+local K = env.KLOSAD -- rOSAD 1.2+ handle (nil = standalone)
+local Terrain = workspace.Terrain
+local GRASS, AIR = Enum.Material.Grass, Enum.Material.Air
+
+-- Mic Up place ids: 18+ (from the user) and the normal game. Add more here.
+local MICUP = { [15546218972] = true, [6884319169] = true }
+
+local function notify(msg)
+	if K and K.ctx and K.ctx.notify then pcall(K.ctx.notify, msg, 4) else warn("[KLGrass] " .. msg) end
+end
+if not MICUP[game.PlaceId] then return notify("Grass only works in Mic Up") end
+
+local M = { version = "1.1", visible = false, dead = false }
+env.KLGrass = M
+
+local function rgb(r, g, b) return Color3.fromRGB(r, g, b) end
+local function hex(c) return string.format("#%02X%02X%02X", math.floor(c.R * 255 + .5), math.floor(c.G * 255 + .5), math.floor(c.B * 255 + .5)) end
+local function parseHex(s)
+	s = tostring(s):gsub("#", "")
+	local n = #s == 6 and tonumber(s, 16)
+	if not n then return nil end
+	return rgb(math.floor(n / 65536), math.floor(n / 256) % 256, n % 256)
+end
+
+-- ===== settings (kept in getgenv so reloading the module keeps them) =========
+local DEF = { on = false, size = 100, offset = 0.05, margin = 0.5, blade = 0.7, color = rgb(115, 231, 117), blades = true, avoid = true, base = true, rooms = true }
+env.KLGrassCfg = env.KLGrassCfg or {}
+local cfg = env.KLGrassCfg
+for k, v in pairs(DEF) do if type(cfg[k]) ~= type(v) then cfg[k] = v end end
+
+-- ===== terrain =================================================================
+local DEPTH = 4 -- studs of grass buried in the plate, so the surface has no gap
+local CLEAR = 4 -- a build counts as "above the grass" when its bottom is within this many studs over the grass surface
+local MAX_RECTS = 2500
+local function setT(prop, v)
+	if pcall(function() Terrain[prop] = v end) then return true end
+	return sethiddenproperty ~= nil and pcall(sethiddenproperty, Terrain, prop, v)
+end
+local function getT(prop)
+	local ok, v = pcall(function() return Terrain[prop] end)
+	if ok then return v end
+	if gethiddenproperty then local o, h = pcall(gethiddenproperty, Terrain, prop); if o then return h end end
+end
+local orig = { decor = getT("Decoration"), len = getT("GrassLength"), color = Terrain:GetMaterialColor(GRASS) }
+
+-- Mic Up's plates: workspace.Baseplate and everything in workspace.map.extra_room.platform (4 parts); streamed-out parts are skipped.
+-- all = true ignores the Baseplate / Extra rooms toggles (used to tell a plate from a build)
+local function plates(all)
+	local t = {}
+	local bp = workspace:FindFirstChild("Baseplate")
+	if bp and bp:IsA("BasePart") and (all or cfg.base) then t[#t + 1] = bp end
+	local map = workspace:FindFirstChild("map")
+	local er = (map and map:FindFirstChild("extra_room")) or workspace:FindFirstChild("extra_room", true)
+	if er and (all or cfg.rooms) then
+		for _, p in ipairs(er:GetDescendants()) do
+			if p:IsA("BasePart") and (p.Name == "platform" or p:FindFirstAncestor("platform")) then t[#t + 1] = p end
+		end
+	end
+	return t
+end
+
+-- rect = { x1, z1, x2, z2 } in a plate's own space. Cuts b out of every rect: up to 4 non-overlapping pieces each.
+local function subtract(rects, b)
+	local out = {}
+	for _, r in ipairs(rects) do
+		if b[3] <= r[1] or b[1] >= r[3] or b[4] <= r[2] or b[2] >= r[4] then
+			out[#out + 1] = r
+		else
+			local x1, x2 = math.max(r[1], b[1]), math.min(r[3], b[3])
+			if b[1] > r[1] then out[#out + 1] = { r[1], r[2], b[1], r[4] } end
+			if b[3] < r[3] then out[#out + 1] = { b[3], r[2], r[3], r[4] } end
+			if b[2] > r[2] then out[#out + 1] = { x1, r[2], x2, b[2] } end
+			if b[4] < r[4] then out[#out + 1] = { x1, b[4], x2, r[4] } end
+		end
+	end
+	return out
+end
+
+-- the grass of plate p as rectangles in the plate's space, minus everything built on it (and the count of builds cut out); cfg.margin studs of bare plate stay around each one (negative: grass goes in under them).
+-- A build = any other part in the slab from the plate surface up to CLEAR studs over the grass that you can see or collide with.
+-- shortcut: a rotated build is cut out by its bounding rectangle (a little extra bare plate), when to upgrade: cut the rotated outline
+local function grassRects(p, skip)
+	local hx, hz = p.Size.X * cfg.size / 200, p.Size.Z * cfg.size / 200
+	local rects, builds = { { -hx, -hz, hx, hz } }, 0
+	if not cfg.avoid then return rects, 0 end
+	local h = math.max(cfg.offset, 0) + CLEAR
+	local op = OverlapParams.new()
+	op.FilterType = Enum.RaycastFilterType.Exclude
+	op.FilterDescendantsInstances = skip
+	op.MaxParts = 3000
+	local inv = p.CFrame:Inverse()
+	local slab = p.CFrame * CFrame.new(0, p.Size.Y / 2 + 0.05 + h / 2, 0)
+	for _, b in ipairs(workspace:GetPartBoundsInBox(slab, Vector3.new(hx * 2, h, hz * 2), op)) do
+		if b.CanCollide or b.Transparency < 1 then
+			local rel, hs = inv * b.CFrame, b.Size / 2
+			local x1, z1, x2, z2 = math.huge, math.huge, -math.huge, -math.huge
+			for sx = -1, 1, 2 do for sy = -1, 1, 2 do for sz = -1, 1, 2 do
+				local q = rel * Vector3.new(hs.X * sx, hs.Y * sy, hs.Z * sz)
+				x1, x2, z1, z2 = math.min(x1, q.X), math.max(x2, q.X), math.min(z1, q.Z), math.max(z2, q.Z)
+			end end end
+			-- a negative margin shrinks the cut-out: the grass reaches in under the build (a build smaller than that is not cut at all)
+			local m = cfg.margin
+			if x1 - m < x2 + m and z1 - m < z2 + m then rects = subtract(rects, { x1 - m, z1 - m, x2 + m, z2 + m }) end
+			builds = builds + 1
+			if #rects > MAX_RECTS then break end -- shortcut: past this the remaining builds keep their grass, when to upgrade: merge rects
+		end
+	end
+	return rects, builds
+end
+
+local drawn, tinted, bladesOk, info = {}, {}, true, ""
+local function clearAll()
+	-- shortcut: clears the exact boxes filled before (+1 stud), so any other terrain there would go too, when to upgrade: ReadVoxels first
+	for _, r in ipairs(drawn) do Terrain:FillBlock(r.cf, r.size + Vector3.new(2, 2, 2), AIR) end
+	drawn = {}
+	for p, c in pairs(tinted) do pcall(function() p.Color = c end) end
+	tinted = {}
+end
+local function restoreTerrain()
+	pcall(function() Terrain:SetMaterialColor(GRASS, orig.color) end)
+	if orig.decor ~= nil then setT("Decoration", orig.decor) end
+	if orig.len ~= nil then setT("GrassLength", orig.len) end
+end
+
+local function apply()
+	if M.dead then return end
+	clearAll()
+	info = ""
+	if not cfg.on then return restoreTerrain() end
+	local list = plates(false)
+	if #list == 0 then cfg.on = false; M.sync(); return notify("Grass: no Mic Up baseplate found near you (it may be streamed out)") end
+	-- never a build: the plates, every character, the terrain
+	local skip = { Terrain }
+	for _, p in ipairs(plates(true)) do skip[#skip + 1] = p end
+	for _, pl in ipairs(Players:GetPlayers()) do if pl.Character then skip[#skip + 1] = pl.Character end end
+	local placed, builds = {}, 0
+	for _, p in ipairs(list) do
+		local rects, n = grassRects(p, skip)
+		placed[p], builds = rects, builds + n
+		-- the grass top is the plate top + offset; DEPTH studs of it are buried in the plate
+		local d = math.min(DEPTH, p.Size.Y - 0.2)
+		local height = d + cfg.offset
+		if height > 0.1 then
+			for _, r in ipairs(rects) do
+				local w, dp = r[3] - r[1], r[4] - r[2]
+				if w > 0.25 and dp > 0.25 then
+					local cf = p.CFrame * CFrame.new((r[1] + r[3]) / 2, p.Size.Y / 2 + (cfg.offset - d) / 2, (r[2] + r[4]) / 2)
+					local sz = Vector3.new(w, height, dp)
+					Terrain:FillBlock(cf, sz, GRASS)
+					drawn[#drawn + 1] = { cf = cf, size = sz }
+				end
+			end
+		end
+	end
+	for _, p in ipairs(list) do tinted[p] = p.Color; p.Color = cfg.color end -- the plate takes the grass colour
+	Terrain:SetMaterialColor(GRASS, cfg.color)
+	bladesOk = setT("Decoration", cfg.blades) and true or false
+	if cfg.blades then setT("GrassLength", cfg.blade) end
+	if builds > 0 then info = builds .. " build" .. (builds == 1 and "" or "s") .. " skipped: no grass under them" end
+	-- a raised floor must not swallow you: lift whoever stands on grass (not inside a build)
+	pcall(function()
+		local hrp = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+		if not hrp or cfg.offset <= 0.3 then return end
+		for p, rects in pairs(placed) do
+			local l = p.CFrame:PointToObjectSpace(hrp.Position)
+			if l.Y > p.Size.Y / 2 - 1 and l.Y < p.Size.Y / 2 + cfg.offset + 2 then
+				for _, r in ipairs(rects) do
+					if l.X > r[1] and l.X < r[3] and l.Z > r[2] and l.Z < r[4] then
+						hrp.CFrame = hrp.CFrame + Vector3.new(0, cfg.offset + 1, 0)
+						return
+					end
+				end
+			end
+		end
+	end)
+	M.sync()
+end
+
+local gen = 0
+local function schedule() -- sliders fire many times a second: rebuild once they settle
+	gen = gen + 1
+	local g = gen
+	task.delay(.3, function() if g == gen then apply() end end)
+end
+
+-- ===== theme (rOSAD's palette, inherited live through its "look" bus) ========
+local PAL = {
+	Dark = { panel = rgb(8, 8, 10), edge = rgb(72, 70, 80), ctrlOff = rgb(30, 30, 35), btnFill = rgb(40, 40, 46), text = rgb(255, 255, 255),
+		sub = rgb(158, 156, 168), hint = rgb(122, 122, 134), danger = rgb(255, 99, 88) },
+	Light = { panel = rgb(242, 242, 242), edge = rgb(158, 155, 155), ctrlOff = rgb(250, 250, 250), btnFill = rgb(214, 213, 213), text = rgb(13, 13, 13),
+		sub = rgb(84, 81, 81), hint = rgb(107, 103, 103), danger = rgb(206, 38, 30) },
+}
+local themeName = (K and K.cfg and K.cfg.theme == "Light") and "Light" or "Dark"
+local ACCENT = (K and K.S and K.S.accent) or rgb(255, 255, 0)
+local ACCENT_TEXT, ACCENT_LABEL = rgb(16, 16, 18), rgb(255, 255, 0)
+local U = { tog = {}, sl = {} }
+local function accented()
+	local l = 0.2126 * ACCENT.R + 0.7152 * ACCENT.G + 0.0722 * ACCENT.B
+	ACCENT_TEXT = l > 0.45 and rgb(16, 16, 18) or rgb(255, 255, 255)
+	ACCENT_LABEL = themeName == "Dark" and ACCENT or ACCENT:Lerp(rgb(0, 0, 0), .45)
+end
+accented()
+local function col(key)
+	if key == "accent" then return ACCENT end
+	if key == "accentText" then return ACCENT_LABEL end
+	if key == "onAccent" then return ACCENT_TEXT end
+	return (PAL[themeName] or PAL.Dark)[key] or rgb(255, 255, 255)
+end
+local themed = setmetatable({}, { __mode = "k" })
+local function paint(o, prop, key)
+	local t = themed[o]
+	if not t then t = {}; themed[o] = t end
+	t[prop] = key
+	o[prop] = col(key)
+end
+local function applyTheme()
+	for o, t in pairs(themed) do
+		if o.Parent then for prop, key in pairs(t) do pcall(function() o[prop] = col(key) end) end end
+	end
+	if U.title then U.title.Text = "<font color=\"" .. hex(ACCENT_LABEL) .. "\">&gt;</font>GRASS" end
+end
+
+local cons = {}
+local function conn(sig, fn) local c = sig:Connect(fn); cons[#cons + 1] = c; return c end
+local fs = function(pt) return math.floor(pt * 4 / 3 * 1.08 + .5) end
+local FONT, FONT_B, FONT_CODE = Enum.Font.SourceSans, Enum.Font.SourceSansSemibold, Enum.Font.Code
+
+-- ===== window + widgets ====================================================
+local gui = Instance.new("ScreenGui")
+gui.Name = "KLGrass"
+gui.ResetOnSpawn = false
+gui.DisplayOrder = 60
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+local okG, holder = pcall(function() return (gethui and gethui()) or game:GetService("CoreGui") end)
+if not okG then holder = lp:WaitForChild("PlayerGui") end
+if not pcall(function() gui.Parent = holder end) then gui.Parent = lp:WaitForChild("PlayerGui") end
+
+local W, H, HD = 340, 456, 44
+local win = Instance.new("Frame")
+win.AnchorPoint = Vector2.new(.5, .5)
+win.Position = UDim2.fromScale(.5, .5)
+win.Size = UDim2.fromOffset(W, H)
+win.BorderSizePixel = 0
+win.Active = true
+win.Visible = false
+win.BackgroundTransparency = 1 - ((K and K.cfg and K.cfg.opacity) or 0.88)
+win.Parent = gui
+paint(win, "BackgroundColor3", "panel")
+Instance.new("UICorner", win).CornerRadius = UDim.new(0, 12)
+local winStroke = Instance.new("UIStroke", win)
+winStroke.Thickness = 1.5; winStroke.Transparency = .1; winStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+paint(winStroke, "Color", "accent")
+local winScale = Instance.new("UIScale", win)
+winScale.Scale = (K and K.cfg and K.cfg.scale) or 1
+
+local function label(str, pt, key, x, y, w, h, props)
+	local o = Instance.new("TextLabel")
+	o.BackgroundTransparency = 1; o.BorderSizePixel = 0
+	o.Text = str; o.TextSize = fs(pt); o.Font = FONT
+	o.TextXAlignment = Enum.TextXAlignment.Left; o.TextYAlignment = Enum.TextYAlignment.Top
+	o.Position = UDim2.fromOffset(x, y); o.Size = UDim2.fromOffset(w, h)
+	for k, v in pairs(props or {}) do o[k] = v end
+	o.Parent = win
+	paint(o, "TextColor3", key)
+	return o
+end
+
+local VARIANT = {
+	off = { fill = "ctrlOff", text = "text", tr = .25, edge = true },
+	on = { fill = "accent", text = "onAccent", tr = .18, edge = true },
+	ghost = { fill = "text", text = "text", tr = 1 },
+}
+local function setKind(b, kind)
+	local v = VARIANT[kind]
+	paint(b, "BackgroundColor3", v.fill)
+	paint(b, "TextColor3", v.text)
+	b.BackgroundTransparency = v.tr
+	b:SetAttribute("tr", v.tr)
+	local s = b:FindFirstChildOfClass("UIStroke")
+	paint(s, "Color", v.edge and "edge" or v.fill)
+	s.Enabled = v.edge == true
+	s.Transparency = kind == "on" and .2 or .7
+end
+local function button(str, x, y, w, h, kind, cb, pt)
+	local b = Instance.new("TextButton")
+	b.Text = str; b.TextSize = fs(pt or 9); b.Font = FONT; b.AutoButtonColor = false; b.BorderSizePixel = 0
+	b.Position = UDim2.fromOffset(x, y); b.Size = UDim2.fromOffset(w, h)
+	b.Parent = win
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
+	local s = Instance.new("UIStroke", b)
+	s.Thickness = 1; s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	setKind(b, kind)
+	b.MouseEnter:Connect(function() b.BackgroundTransparency = math.max((b:GetAttribute("tr") or 0) - .12, 0) end)
+	b.MouseLeave:Connect(function() b.BackgroundTransparency = b:GetAttribute("tr") or 0 end)
+	b.MouseButton1Click:Connect(function() cb(b) end)
+	return b
+end
+
+local function slider(x, y, w, min, max, step, key)
+	local hit = Instance.new("TextButton")
+	hit.Text = ""; hit.AutoButtonColor = false; hit.BackgroundTransparency = 1; hit.BorderSizePixel = 0
+	hit.Position = UDim2.fromOffset(x, y); hit.Size = UDim2.fromOffset(w, 20)
+	hit.Parent = win
+	local track = Instance.new("Frame")
+	track.AnchorPoint = Vector2.new(0, .5); track.Position = UDim2.new(0, 0, .5, 0); track.Size = UDim2.fromOffset(w, 4); track.BorderSizePixel = 0
+	track.Parent = hit
+	Instance.new("UICorner", track).CornerRadius = UDim.new(1, 0)
+	paint(track, "BackgroundColor3", "edge")
+	local fill = Instance.new("Frame")
+	fill.Size = UDim2.new(0, 0, 1, 0); fill.BorderSizePixel = 0; fill.BackgroundTransparency = .2
+	fill.Parent = track
+	paint(fill, "BackgroundColor3", "accent")
+	Instance.new("UICorner", fill).CornerRadius = UDim.new(1, 0)
+	local knob = Instance.new("Frame")
+	knob.AnchorPoint = Vector2.new(.5, .5); knob.Size = UDim2.fromOffset(14, 14); knob.BackgroundColor3 = rgb(255, 255, 255); knob.BorderSizePixel = 0
+	knob.Parent = hit
+	Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
+	local ks = Instance.new("UIStroke", knob); ks.Thickness = 1; ks.Color = rgb(0, 0, 0); ks.Transparency = .6
+	local function place(v)
+		local f = math.clamp((v - min) / (max - min), 0, 1)
+		fill.Size = UDim2.new(f, 0, 1, 0)
+		knob.Position = UDim2.new(f, 0, .5, 0)
+	end
+	local function apply_(px)
+		local f = math.clamp((px - track.AbsolutePosition.X) / math.max(track.AbsoluteSize.X, 1), 0, 1)
+		cfg[key] = math.clamp(math.floor((min + (max - min) * f) / step + .5) * step, min, max)
+		M.sync(); schedule()
+	end
+	local drag = false
+	hit.InputBegan:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then drag = true; apply_(i.Position.X) end
+	end)
+	conn(UIS.InputChanged, function(i)
+		if drag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then apply_(i.Position.X) end
+	end)
+	conn(UIS.InputEnded, function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then drag = false end
+	end)
+	return place
+end
+
+-- header
+U.title = label("", 14, "text", 22, 9, 190, 26, { Font = FONT_CODE, RichText = true, TextSize = 21 })
+local hline = Instance.new("Frame", win)
+hline.Position = UDim2.fromOffset(14, HD - 1); hline.Size = UDim2.fromOffset(W - 28, 1); hline.BorderSizePixel = 0; hline.BackgroundTransparency = .8
+paint(hline, "BackgroundColor3", "accent")
+local hg = Instance.new("UIGradient", hline)
+hg.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(.5, 0), NumberSequenceKeypoint.new(1, 1) })
+label(K and ("RoSaD linked  ·  v" .. tostring(K.version or "?")) or "standalone  ·  rOSAD not detected", 8, "hint", 112, 18, 200, 14, { Font = FONT_CODE, TextSize = 11 })
+button("×", W - 46, 8, 34, 28, "ghost", function() M.close() end, 13)
+do -- drag by the header
+	local drag, d0, p0 = false, nil, nil
+	local header = Instance.new("Frame", win)
+	header.BackgroundTransparency = 1; header.Size = UDim2.fromOffset(W - 56, HD - 6)
+	header.InputBegan:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then drag, d0, p0 = true, i.Position, win.Position end
+	end)
+	conn(UIS.InputChanged, function(i)
+		if drag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+			local d = i.Position - d0
+			win.Position = UDim2.new(p0.X.Scale, p0.X.Offset + d.X, p0.Y.Scale, p0.Y.Offset + d.Y)
+		end
+	end)
+	conn(UIS.InputEnded, function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then drag = false end
+	end)
+end
+
+local function toggle(x, y, w, text, key)
+	local b = button("", x, y, w, 30, "off", function() cfg[key] = not cfg[key]; M.sync(); schedule() end, 10)
+	U.tog[#U.tog + 1] = { b = b, key = key, text = text }
+end
+local function row(y, text, min, max, step, key, fmt)
+	label(text, 9, "sub", 18, y, 150, 16)
+	local val = label("", 9, "text", W - 168, y, 150, 16, { TextXAlignment = Enum.TextXAlignment.Right, Font = FONT_CODE, TextSize = 12 })
+	U.sl[#U.sl + 1] = { key = key, val = val, fmt = fmt, place = slider(18, y + 20, W - 36, min, max, step, key) }
+end
+
+toggle(18, 56, W - 36, "Grass", "on")
+row(98, "Size", 10, 100, 5, "size", function(v) return v .. "%" end)
+row(144, "Height offset", -3, 2, .05, "offset", function(v) return string.format("%+.2f studs", v) end)
+row(190, "Build margin", -3, 2, .1, "margin", function(v) return string.format("%+.1f studs", v) end)
+row(236, "Blade length", .2, 3, .1, "blade", function(v) return string.format("%.1f", v) end)
+
+label("Colour", 9, "sub", 18, 284, 150, 16)
+local SWATCH = { "#73E775", "#4CAF50", "#2E7D32", "#A5D63A", "#C9B458", "#3FA8A0", "#E88FB4" }
+for i, h in ipairs(SWATCH) do
+	local s = Instance.new("TextButton")
+	s.Text = ""; s.AutoButtonColor = false; s.BorderSizePixel = 0; s.BackgroundColor3 = parseHex(h)
+	s.Position = UDim2.fromOffset(18 + (i - 1) * 30, 306); s.Size = UDim2.fromOffset(24, 24)
+	s.Parent = win
+	Instance.new("UICorner", s).CornerRadius = UDim.new(0, 6)
+	local st = Instance.new("UIStroke", s); st.Thickness = 1; st.Transparency = .6; paint(st, "Color", "edge")
+	s.MouseButton1Click:Connect(function() cfg.color = parseHex(h); M.sync(); schedule() end)
+end
+local hexBox = Instance.new("TextBox")
+hexBox.ClearTextOnFocus = false; hexBox.Font = FONT_CODE; hexBox.TextSize = fs(10); hexBox.BorderSizePixel = 0; hexBox.BackgroundTransparency = .25
+hexBox.Position = UDim2.fromOffset(W - 18 - 82, 304); hexBox.Size = UDim2.fromOffset(82, 28); hexBox.Parent = win
+Instance.new("UICorner", hexBox).CornerRadius = UDim.new(0, 8)
+paint(hexBox, "BackgroundColor3", "ctrlOff"); paint(hexBox, "TextColor3", "text"); paint(hexBox, "PlaceholderColor3", "hint")
+U.hex = hexBox
+conn(hexBox.FocusLost, function()
+	local c = parseHex(hexBox.Text)
+	if c then cfg.color = c; schedule() end
+	M.sync()
+end)
+
+toggle(18, 350, 146, "Blades", "blades")
+toggle(W - 18 - 146, 350, 146, "Avoid builds", "avoid")
+toggle(18, 386, 146, "Baseplate", "base")
+toggle(W - 18 - 146, 386, 146, "Extra rooms", "rooms")
+U.status = label("", 8, "hint", 18, 426, W - 36, 14, { Font = FONT_CODE, TextSize = 11 })
+
+function M.sync()
+	for _, t in ipairs(U.tog) do
+		t.b.Text = t.text .. (cfg[t.key] and ": on" or ": off")
+		setKind(t.b, cfg[t.key] and "on" or "off")
+	end
+	for _, s in ipairs(U.sl) do s.place(cfg[s.key]); s.val.Text = s.fmt(cfg[s.key]) end
+	U.hex.Text = hex(cfg.color)
+	U.status.Text = (cfg.on and cfg.blades and not bladesOk) and "this executor can't set Terrain.Decoration: no blades"
+		or (cfg.on and info ~= "" and info) or "client-side: only you see it"
+end
+
+-- ===== commands (rOSAD's ;grass forwards here) ===============================
+local NUM = { size = { 10, 100 }, offset = { -3, 2 }, margin = { -3, 2 }, blade = { .2, 3 } }
+function M.cmd(a)
+	if M.dead then return end
+	local w, v = tostring(a or ""):lower():match("^%s*(%S*)%s*(.-)%s*$")
+	if w == "lift" then w = "offset" end -- the old name
+	if w == "" or w == "toggle" then cfg.on = not cfg.on
+	elseif w == "on" then cfg.on = true
+	elseif w == "off" then cfg.on = false
+	elseif w == "avoid" then cfg.avoid = v ~= "off"
+	elseif w == "open" then return M.open()
+	elseif w == "close" then return M.close()
+	elseif NUM[w] then
+		local n = tonumber(v)
+		if not n then return notify("Usage: grass " .. w .. " <number>") end
+		cfg[w] = math.clamp(n, NUM[w][1], NUM[w][2])
+	elseif w == "color" or w == "colour" then
+		local c = parseHex(v)
+		if not c then return notify("Usage: grass color #RRGGBB") end
+		cfg.color = c
+	else return notify("grass: on, off, size N, offset N, margin N, blade N, color #hex, avoid, open, close") end
+	M.sync(); schedule()
+end
+
+function M.open() if not M.dead then M.visible = true; win.Visible = true; M.sync() end end
+function M.close() M.visible = false; win.Visible = false end
+
+local unsubLook, unsubUnload
+if K and K.ctx and K.ctx.bus then
+	unsubLook = K.ctx.bus.on("look", function(s)
+		if type(s) ~= "table" then return end
+		themeName = s.theme == "Light" and "Light" or "Dark"
+		if typeof(s.accent) == "Color3" then ACCENT = s.accent end
+		accented()
+		win.BackgroundTransparency = 1 - (tonumber(s.opacity) or .88)
+		winScale.Scale = tonumber(s.scale) or winScale.Scale
+		applyTheme()
+	end, true)
+	unsubUnload = K.ctx.bus.on("unload", function() M.Unload() end)
+end
+
+function M.Unload()
+	if M.dead then return end
+	M.dead = true
+	cfg.on = false
+	pcall(clearAll)
+	pcall(restoreTerrain)
+	for _, c in ipairs(cons) do pcall(function() c:Disconnect() end) end
+	if unsubLook then pcall(unsubLook) end
+	if unsubUnload then pcall(unsubUnload) end
+	pcall(function() gui:Destroy() end)
+	if env.KLGrass == M then env.KLGrass = nil end
+end
+
+-- ===== self-check of the pure logic ==========================================
+local okT, errT = pcall(function()
+	assert(hex(parseHex("#73E775")) == "#73E775" and not parseHex("red") and not parseHex("#12"), "hex")
+	local r = subtract({ { -10, -10, 10, 10 } }, { -2, -2, 2, 2 })
+	local area = 0
+	for _, q in ipairs(r) do area = area + (q[3] - q[1]) * (q[4] - q[2]) end
+	assert(math.abs(area - 384) < 1e-6, "a 4x4 build cut out of 20x20 leaves 384")
+	assert(#subtract({ { 0, 0, 4, 4 } }, { 10, 10, 12, 12 }) == 1, "a far build changes nothing")
+	assert(#subtract({ { 0, 0, 4, 4 } }, { -1, -1, 5, 5 }) == 0, "a build covering the plate leaves nothing")
+end)
+if not okT then warn("[KLGrass] self-test failed: " .. tostring(errT)) end
+
+applyTheme()
+cfg.on = true
+M.open()
+apply()
