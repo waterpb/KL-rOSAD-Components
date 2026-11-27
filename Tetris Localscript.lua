@@ -1,17 +1,17 @@
 -- NAV INDEX (tags are truth; line ranges auto-synced by apply_patch.py)
 -- [DATA] constants, piece shapes, kick tables, scoring (PTS, PCX), fmt/clock, practice drills | SHAPE, KJ, KI, K180, PTS, PCX, fmt(), DRILLS, PCDRILLS, PCL, PRACN, drillPool() | deps: none | L31-263
--- [GAME] pure rules, no Roblox APIs | newGame(): press/release/update/ghost/reset/waiting/goal/progress, lock, spinKind, kicked, minKeys/finesse, loadPuzzle (spin / finesse / perfect-clear practice), fnote, modes, perfect clear | deps: DATA | L265-763
--- [SELFTEST] load-time logic asserts | selfTest() | deps: DATA, GAME | L765-834
--- [STATE] services, cfg, keys, best (records), lb (local top 10 per mode), save/load, game instance | cfg, keys, LIM, best, lb, save(), addScore(), refreshNames(), tet | deps: GAME | L837-952
--- [WINDOW] themes (colours + block look; Textured = blocks.png), window, playfield (gradient, starfield, flash), panels, layout | THEMES, TEX, loadBlocks(), applyTheme(), blockLook(), look(), layout(), setMini() | deps: STATE | L954-1188
--- [BUBBLE] minimized draggable logo | bubble | deps: WINDOW | L1190-1199
--- [DRAG] mouse release, drag, resize | reason(), dragger(), grip | deps: WINDOW | L1201-1268
--- [OPTIONS] options panel shell + Scores tab | settings, list, lbP, showLb(), setOptions(open, scores) | deps: WINDOW, STATE | L1270-1341
--- [INPUT] CAS key sink, focus, toggle | onKey(), bindSink(), setFocus(), toggle() | deps: OPTIONS | L1343-1399
--- [OPTROWS] collapsible options sections, rows, dropdowns, On/Off toggles, key capture | section(), hint(), row(), opt(), drop(), seg(), chips(), sub(), refreshGates(), numRows(), finishCapture() | deps: INPUT, STATE | L1401-1647
--- [FOCUS] click focus model | pointOf(), inside() | deps: INPUT | L1649-1670
--- [RENDER] paint cells, stats, records + leaderboard insert, overlay, frame loop | render(), paint(), stat(), RenderStepped | deps: STATE, WINDOW | L1672-1804
--- [LIFE] cleanup and startup | cleanup(), layout(), restore() | deps: all | L1806-1822
+-- [GAME] pure rules, no Roblox APIs | newGame(): press/release/update/ghost/reset/waiting/goal/progress, lock, spinKind, kicked, minKeys/finesse, loadPuzzle (spin / finesse / perfect-clear practice), fnote, modes, perfect clear | deps: DATA | L265-771
+-- [SELFTEST] load-time logic asserts | selfTest() | deps: DATA, GAME | L773-856
+-- [STATE] services, cfg, keys, best (records), lb (local top 10 per mode), save/load, game instance | cfg, keys, LIM, best, lb, save(), addScore(), refreshNames(), tet | deps: GAME | L859-974
+-- [WINDOW] themes (colours + block look; Textured = blocks.png), window, playfield (gradient, starfield, flash), panels, layout | THEMES, TEX, loadBlocks(), applyTheme(), blockLook(), look(), layout(), setMini() | deps: STATE | L976-1247
+-- [BUBBLE] minimized draggable logo | bubble | deps: WINDOW | L1249-1258
+-- [DRAG] mouse release, drag, resize | reason(), dragger(), grip | deps: WINDOW | L1260-1327
+-- [OPTIONS] options panel shell + Scores tab | settings, list, lbP, showLb(), setOptions(open, scores) | deps: WINDOW, STATE | L1329-1400
+-- [INPUT] CAS key sink, focus, toggle | onKey(), bindSink(), setFocus(), toggle() | deps: OPTIONS | L1402-1458
+-- [OPTROWS] collapsible options sections, rows, dropdowns, On/Off toggles, key capture | section(), hint(), row(), opt(), drop(), seg(), chips(), sub(), refreshGates(), numRows(), finishCapture() | deps: INPUT, STATE | L1460-1714
+-- [FOCUS] click focus model | pointOf(), inside() | deps: INPUT | L1716-1737
+-- [RENDER] paint cells, stats, records + leaderboard insert, overlay, frame loop | render(), paint(), stat(), RenderStepped | deps: STATE, WINDOW | L1739-1883
+-- [LIFE] cleanup and startup | cleanup(), layout(), restore() | deps: all | L1885-1901
 
 --[[
     TETRIS for Roblox - one self-contained client LocalScript (no modules, no assets, no server code).
@@ -265,7 +265,7 @@ function fmt(n) return (tostring(math.floor(n)):reverse():gsub("(%d%d%d)", "%1,"
 -- [GAME]
 -- cfg (read live, so setting changes apply instantly): das/arr/lock/clear in ms, sdr rows/s (0 = instant), spin 1|2|3,
 -- gmode 1 level curve|2 fixed|3 off|4 instant, grav ms/row (mode 2), start level, idle = pieces that fall before the game waits for input,
--- mode 1 Marathon|2 Sprint 40L|3 Ultra 2:00|4 Cheese 10 (read at reset), rand 1 7-bag|2 random|3 14-bag
+-- mode 1 Marathon|2 Sprint 40L|3 Ultra 2:00|4 Cheese 10|6 Zen (the only mode with adjustable gravity) (read at reset), rand 1 7-bag|2 random|3 14-bag
 function newGame(cfg, rnd)
     local g, held, pend, act = {}, {}, {}, {}
     local hdir, hT, hDone, hFresh, gAcc, lockT, resets, lowest = nil, 0, 0, false, 0, 0, 0, 0
@@ -483,6 +483,7 @@ local function kicked(t, r, x, y, d) -- first kick that fits: new rotation, x, y
         local p = {t = t, r = 0, x = t == "O" and 5 or 4, y = 19, spun = false}
         g.cur = p
         gAcc, lockT, resets = 0, 0, 0
+        g.since = 0
         if not fits(t, 0, p.x, p.y) then g.cur, g.state = nil, "over" return end -- block out
         if free(0, 1) then p.y = p.y + 1 end
         lowest = p.y
@@ -514,6 +515,8 @@ local function kicked(t, r, x, y, d) -- first kick that fits: new rotation, x, y
             g.board[r][p.x + v[1]] = TI[p.t]
         end
         g.cur, g.pieces, g.cells = nil, g.pieces + 1, g.cells + 4
+        g.cut = (cfg.dcd or 0) / 1000 -- DAS cut delay: no auto-shift for a moment after a lock
+        if cfg.dcl == 1 then hT, hDone = 0, 0 end -- cancel DAS on lock
         local rows = {}
         for r = 1, H do
             local full, gb = true, false
@@ -580,7 +583,7 @@ local function kicked(t, r, x, y, d) -- first kick that fits: new rotation, x, y
             end
         end
         g.lines = g.lines + n
-        g.level, g.canHold = cfg.start + math.floor(g.lines / 10), true
+        g.level, g.canHold = (g.mode == 6 and cfg.start or 1) + math.floor(g.lines / 10), true
         if g.mode == 2 and g.lines >= 40 or g.mode == 4 and g.garb <= 0 then -- Sprint / Cheese goal reached
             removeRows(rows)
             g.state, g.won = "over", true
@@ -602,9 +605,11 @@ local function kicked(t, r, x, y, d) -- first kick that fits: new rotation, x, y
         if not g.canHold then return end
         local old = g.hold
         g.canHold, g.hold = false, g.cur.t
+        if cfg.dch == 1 then hT, hDone = 0, 0 end -- cancel DAS on hold
         spawn(old)
     end
     act.hard = function()
+        if g.since < (cfg.hdl or 0) / 1000 then return end -- hard drop lockout after a spawn
         local n = 0
         while drop1() do n = n + 1 end
         g.score = g.score + 2 * n
@@ -615,7 +620,8 @@ local function kicked(t, r, x, y, d) -- first kick that fits: new rotation, x, y
         if g.state == "over" then return end
         if not g.started then g.started, g.p0, g.attack = true, g.pieces, 0 end -- first input starts the clock (PPS/APM count from here)
         if a == "left" or a == "right" then
-            held[a], hdir, hT, hDone = true, a, 0, 0
+            local keep = cfg.dsw == 2 and hdir and hdir ~= a and hT or 0 -- "Keep DAS charge": the new direction inherits the charge
+            held[a], hdir, hT, hDone = true, a, keep, 0
             if not g.cur then hFresh = true
             else
                 key(a == "left" and "Left" or "Right")
@@ -626,7 +632,7 @@ local function kicked(t, r, x, y, d) -- first kick that fits: new rotation, x, y
             if not held.soft and g.cur then key("Soft Drop") end
             held.soft = true
         elseif g.cur then act[a]()
-        elseif a ~= "hard" and #pend < 4 then pend[#pend + 1] = a end
+        elseif a ~= "hard" and cfg.irs ~= 0 and #pend < 4 then pend[#pend + 1] = a end
     end
     function g.release(a)
         held[a] = nil
@@ -643,9 +649,10 @@ local function kicked(t, r, x, y, d) -- first kick that fits: new rotation, x, y
             if g.mode == 3 and g.time >= 120 then g.state, g.won = "over", true return end -- Ultra: time up
         end
         g.msgT = g.msgT - dt
+        g.since, g.cut = g.since + dt, math.max(0, g.cut - dt)
         local das, arr = cfg.das / 1000, cfg.arr / 1000
         if g.state == "clear" then
-            if hdir then hT = math.min(hT + dt, das) end -- DAS keeps charging through the delay
+            if hdir and cfg.dcl ~= 1 and g.cut <= 0 then hT = math.min(hT + dt, das) end -- DAS keeps charging through the delay
             hDone = 0
             g.clearT = g.clearT - dt
             if g.clearT <= 0 then
@@ -660,7 +667,7 @@ local function kicked(t, r, x, y, d) -- first kick that fits: new rotation, x, y
             while drop1() do g.score = g.score + 1 end
             gAcc = 0
         end
-        if hdir then -- 1) horizontal DAS / ARR (bounded: at most 10 successful steps, never blocks the steps below)
+        if hdir and g.cut <= 0 then -- 1) horizontal DAS / ARR (bounded: at most 10 successful steps, never blocks the steps below)
             hT = hT + dt
             if hT >= das then
                 local dx, moved = hdir == "left" and -1 or 1, false
@@ -686,7 +693,7 @@ local function kicked(t, r, x, y, d) -- first kick that fits: new rotation, x, y
             end
         end
         local lv = math.min(g.level, 30) -- 2) gravity / soft drop (same frame as 1, so pieces never hover)
-        local m = g.mode == 5 and 3 or cfg.gmode -- 1 level curve | 2 fixed ms/row | 3 off | 4 instant
+        local m = g.mode == 5 and 3 or (g.mode == 6 and cfg.gmode or 1) -- only Zen can change gravity; every other mode stays on the standard level curve -- 1 level curve | 2 fixed ms/row | 3 off | 4 instant
         local spr = (m == 2 and cfg.grav / 1000) or (m == 3 and math.huge) or (m == 4 and 1e-4)
             or math.max((0.8 - (lv - 1) * 0.007) ^ (lv - 1), 1e-4)
         if held.soft and cfg.sdr <= 0 then
@@ -739,7 +746,7 @@ local function kicked(t, r, x, y, d) -- first kick that fits: new rotation, x, y
     function g.reset()
         g.board, g.queue, g.hold, g.cur, g.rows = {}, {}, nil, nil, nil
         for r = 1, H do g.board[r] = emptyRow() end
-        g.score, g.lines, g.level, g.pieces, g.attack, g.time = 0, 0, cfg.start, 0, 0, 0
+        g.score, g.lines, g.level, g.pieces, g.attack, g.time = 0, 0, cfg.mode == 6 and cfg.start or 1, 0, 0, 0
         g.started, g.p0, g.won, g.mode, g.cells, g.garb = false, 0, false, cfg.mode, 0, 0
         if g.mode == 4 then -- Cheese: 10 garbage rows with one hole each; clear them all
             for r = H - 9, H do
@@ -754,6 +761,7 @@ local function kicked(t, r, x, y, d) -- first kick that fits: new rotation, x, y
         g.ok, g.try, g.streak, g.dr, g.mir, g.tgt, g.keep = 0, 0, 0, nil, false, nil, nil -- practice session
         g.prpend, g.prsame = g.mode == 5, false
         pend, hT, hDone, hFresh = {}, 0, 0, false
+        g.cut, g.since = 0, 0
         refill()
         spawn()
     end
@@ -818,6 +826,20 @@ function selfTest()
         assert(SHAPE[d.p] and #d.rows >= 2, "drill piece")
         for _, row in ipairs(d.rows) do assert(#row == W and not row:find("[^X.]"), "drill row") end
     end
+    cfg0.gmode, cfg0.start = 4, 15 -- gravity is locked outside Zen: instant gravity and start level must be ignored
+    g.reset(); y0 = g.cur.y
+    g.press("left"); g.update(0.1); g.release("left")
+    assert(g.level == 1 and g.cur.y <= y0 + 1, "gravity locked outside Zen")
+    cfg0.mode = 6; g.reset(); y0 = g.cur.y
+    g.press("left"); g.update(0.1); g.release("left")
+    assert(g.level == 15 and g.cur.y > y0 + 5, "Zen takes the gravity setting")
+    cfg0.mode, cfg0.gmode, cfg0.start = 1, 1, 1
+    cfg0.dch = 1; g.reset(); g.press("left"); g.update(0.2); g.press("hold"); local hx = g.cur.x; g.update(0.05)
+    assert(g.cur.x == hx, "cancel DAS on hold")
+    cfg0.dch = nil; g.release("left")
+    cfg0.hdl = 300; g.reset(); g.press("hard")
+    assert(g.pieces == 0, "hard drop lockout")
+    cfg0.hdl = nil
     cfg0.mode, cfg0.prac = 5, 1; g.reset()
     assert(g.dr and g.cur and g.cur.t == (g.mir and MIR[g.dr.p] or g.dr.p), "practice puzzle")
     cfg0.prac = 2; g.reset()
@@ -848,12 +870,12 @@ local function on(signal, fn) conns[#conns + 1] = signal:Connect(fn) end
 
 -- Settings (read live by the game). Keys are rebindable in the Options panel.
 local cfg = {das = 167, arr = 33, sdr = 30, lock = 500, clear = 100, spin = 2, gmode = 1, grav = 1000, start = 1, idle = 4,
-    mode = 1, rand = 1, ghost = 1, nexts = 5, theme = 1, snow = 1, flash = 1, shake = 1, fin = 1, prac = 1, ln1 = 1, ln2 = 1, ln3 = 1, mini = 1, retry = 1, fbest = 1, fskip = 0, plv = 1}
+    mode = 1, rand = 1, ghost = 1, nexts = 5, theme = 1, snow = 1, flash = 1, shake = 1, fin = 1, prac = 1, ln1 = 1, ln2 = 1, ln3 = 1, mini = 1, retry = 1, fbest = 1, fskip = 0, dcl = 0, dcd = 0, dch = 0, dsw = 1, irs = 1, hdl = 0, plv = 1}
 local keys = {left = Enum.KeyCode.Left, right = Enum.KeyCode.Right, soft = Enum.KeyCode.Down, hard = Enum.KeyCode.Space,
     cw = Enum.KeyCode.Up, ccw = Enum.KeyCode.Z, r180 = Enum.KeyCode.X, hold = Enum.KeyCode.C, restart = Enum.KeyCode.R, toggle = Enum.KeyCode.RightControl}
 local LIM = {das = {0, 500}, arr = {0, 200}, sdr = {0, 500}, lock = {0, 3000}, clear = {0, 2000},
-    grav = {1, 5000}, start = {1, 30}, idle = {0, 8}, mode = {1, 5}, rand = {1, 3}, ghost = {0, 1}, nexts = {0, 5},
-    theme = {1, 4}, snow = {0, 1}, flash = {0, 1}, shake = {0, 1}, fin = {0, 1}, prac = {1, 3}, ln1 = {0, 1}, ln2 = {0, 1}, ln3 = {0, 1}, mini = {0, 1}, retry = {0, 1}, fbest = {0, 1}, fskip = {0, 1}, plv = {1, 3}}
+    grav = {1, 5000}, start = {1, 30}, idle = {0, 8}, mode = {1, 6}, rand = {1, 3}, ghost = {0, 1}, nexts = {0, 5},
+    theme = {1, 6}, snow = {0, 1}, flash = {0, 1}, shake = {0, 1}, fin = {0, 1}, prac = {1, 3}, ln1 = {0, 1}, ln2 = {0, 1}, ln3 = {0, 1}, mini = {0, 1}, retry = {0, 1}, fbest = {0, 1}, fskip = {0, 1}, dcl = {0, 1}, dcd = {0, 500}, dch = {0, 1}, dsw = {1, 2}, irs = {0, 1}, hdl = {0, 500}, plv = {1, 3}}
 for _, t in ipairs({"T", "S", "Z", "L", "J", "I", "O"}) do -- piece toggles: sp* = spin drills (T only by default), fn* = finesse trainer (all)
     if t ~= "O" then cfg["sp" .. t], LIM["sp" .. t] = t == "T" and 1 or 0, {0, 1} end
     cfg["fn" .. t], LIM["fn" .. t] = 1, {0, 1}
@@ -960,10 +982,10 @@ COL[8] = Color3.fromRGB(110, 118, 140) -- garbage
 local BLACK = Color3.new(0, 0, 0)
 -- Themes: one setting for the whole look. c = 7 piece colours (I O T S Z J L) as r,g,b triples, bg = board gradient (top, bottom).
 -- The rest shapes a block: fill = how far the body is darkened, r = corner radius, edge = outline mix (negative: outline in the
--- piece colour, 0: none), thick = outline width, gloss = top highlight band, tex = draw blocks.png tiles instead of the body.
+-- piece colour, 0: none), thick = outline width, gloss = top highlight band, file = PNG sheet in the repo drawn instead of the body (7 square tiles in a row, I O T S Z J L; tile = tile size px, ord = tile column per piece if the order differs); the drawn look is the fallback.
 -- cfg.theme is the index (keep LIM.theme in step); applyTheme() repaints the board on the next frame.
 local THEMES = {
-    { n = "Textured", tex = true, fill = 0, r = 2, edge = 0.45, thick = 1, gloss = true, bg = {18, 22, 38, 5, 6, 12},
+    { n = "Default", file = "blocks.png", fill = 0, r = 2, edge = 0.45, thick = 1, gloss = true, bg = {18, 22, 38, 5, 6, 12},
         c = {0, 229, 255, 255, 213, 0, 176, 76, 240, 80, 224, 100, 245, 64, 64, 72, 110, 255, 255, 152, 48} },
     { n = "Glossy", fill = 0, r = 3, edge = 0.45, thick = 1, gloss = true, bg = {10, 16, 20, 3, 4, 6},
         c = {34, 196, 214, 224, 176, 32, 148, 48, 196, 56, 168, 88, 200, 40, 56, 44, 72, 196, 200, 108, 32} },
@@ -971,6 +993,14 @@ local THEMES = {
         c = {132, 224, 246, 255, 232, 148, 202, 166, 255, 166, 232, 170, 255, 170, 170, 152, 186, 255, 255, 202, 152} },
     { n = "Neon", fill = 0.55, r = 4, edge = -1, thick = 2, gloss = false, bg = {22, 4, 34, 6, 2, 14},
         c = {120, 240, 255, 255, 230, 120, 255, 80, 220, 80, 255, 200, 255, 80, 130, 110, 120, 255, 255, 140, 200} },
+    -- flat blocks with a lighter top edge and a darker bottom edge (bevel), the four.lol look
+    { n = "four.lol", gap = 0, fill = 0, r = 0, edge = 0, thick = 0, gloss = false, bevel = true, bg = {10, 10, 12, 0, 0, 0},
+        -- colours I O T S Z J L, garbage (g), and the lighter strip colour per piece + garbage (top); all colours sampled from the four.lol reference pixels
+        c = {66, 175, 225, 246, 208, 60, 151, 57, 162, 81, 184, 77, 235, 79, 101, 17, 101, 181, 243, 137, 39}, g = {134, 134, 134},
+        top = {108, 234, 255, 255, 255, 127, 217, 88, 233, 132, 248, 128, 255, 127, 121, 51, 155, 255, 255, 186, 89, 221, 221, 221} },
+    -- glass bevel blocks from gems.png (replaces the old Puyo skin): row 1 = solid I O T S Z J L, row 2 = glowing ghost tiles (gh); gap 0 so blocks touch
+    { n = "Gem", file = "puyo2.png", gh = true, gap = 0, fill = 0, r = 2, edge = 0.45, thick = 1, gloss = true, bg = {10, 10, 12, 0, 0, 0},
+        c = {6, 171, 233, 233, 185, 6, 177, 6, 233, 95, 233, 6, 233, 6, 8, 6, 110, 233, 233, 106, 6} }, -- body colours sampled from the reference blocks
 }
 local LEFT = Enum.TextXAlignment.Left
 
@@ -992,11 +1022,13 @@ end
 
 local layout, restore, minimize, toggle, setFocus, bindSink, setOptions, cleanup, applyTheme -- forward declarations
 local fxX, fxY, skinDirty = 0, 0, true -- playfield home x/y (the clear shake moves it) and a repaint-every-block flag
-local TEX -- blocks.png as a local asset id; nil means every style falls back to the drawn bevel
-local function loadBlocks() -- fetch the sheet once, cache it, then repaint (needs an executor with getcustomasset)
-    if not canFile or type(getcustomasset) ~= "function" then return end
-    -- shortcut: the cached sheet never refreshes by itself; bump the _v number whenever blocks.png changes on GitHub
-    local path, url = "TetrisBlocks_v2.png", "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/blocks.png"
+local TOPC = {} -- theme's lighter top-strip colours per piece (bevel styles)
+local TEX = {} -- sheet file name -> local asset id; a sheet that is missing makes its style fall back to the drawn look
+local function loadBlocks(file) -- fetch one sheet once, cache it, then repaint (needs an executor with getcustomasset)
+    if not canFile or type(getcustomasset) ~= "function" or TEX[file .. "?"] then return end
+    TEX[file .. "?"] = true -- one attempt per sheet per run: no duplicate downloads, a missing sheet is not retried on every theme switch
+    -- shortcut: the cached sheet never refreshes by itself; bump the _v number in the path below whenever a sheet changes on GitHub
+    local path, url = (file == "blocks.png" and "TetrisBlocks_v2.png" or "Tetris_v2_" .. file), "https://raw.githubusercontent.com/waterpb/KL-rOSAD-Components/main/" .. file
     local ok, id = pcall(function()
         local okRead, cached = pcall(function() return readfile(path):sub(1, 4) == "\137PNG" end)
         if not okRead or not cached then -- no file yet, or an HTML error page was cached earlier: download again
@@ -1006,7 +1038,10 @@ local function loadBlocks() -- fetch the sheet once, cache it, then repaint (nee
         end
         return getcustomasset(path)
     end)
-    if ok and type(id) == "string" then TEX, skinDirty = id, true end
+    if ok and type(id) == "string" then
+        TEX[file] = id
+        if THEMES[cfg.theme].file == file then skinDirty = true end -- only the sheet in use repaints the board
+    end
 end
 
 local gui = mk("ScreenGui", {Name = "TetrisGui", ResetOnSpawn = false, DisplayOrder = 1000000000, IgnoreGuiInset = true,
@@ -1076,12 +1111,18 @@ local function blockLook(f) -- one block: body, outline and gloss; look() shapes
         NumberSequenceKeypoint.new(1, 1)})}, cell.g)
     cell.i = mk("ImageLabel", {Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0,
         ImageRectSize = Vector2.new(64, 64), Visible = false}, f) -- one 64x64 tile of blocks.png
+    cell.t = mk("Frame", {Position = UDim2.fromScale(0, -3 / 16), Size = UDim2.fromScale(1, 3 / 16), BorderSizePixel = 0, Visible = false}, f) -- bevel style: a lighter strip above a block whose top is exposed
+    
+    cell.h = mk("Frame", {Position = UDim2.fromScale(0.16, 0.13), Size = UDim2.fromScale(0.34, 0.2), BackgroundColor3 = WHITE, BackgroundTransparency = 0.35, BorderSizePixel = 0, Visible = false}, f) -- shine spot
+    mk("UICorner", {CornerRadius = UDim.new(0.5, 0)}, cell.h)
     return cell
 end
-local function look(cell, col, tr, n) -- shape, body, outline and gloss of one block (n = piece 1-7 for the texture tile)
+local function look(cell, col, tr, n, top) -- shape, body, outline and gloss of one block (n = piece 1-7 for the texture tile)
     local st = THEMES[cfg.theme]
-    cell.c.CornerRadius = UDim.new(0, st.r)
+    cell.c.CornerRadius = st.rs and UDim.new(st.rs, 0) or UDim.new(0, st.r) -- rs = radius as a fraction of the block
     cell.s.Thickness = st.thick
+    if cell.sw then cell.f.Size = UDim2.new(cell.sw, -(st.gap or 1), cell.sh, -(st.gap or 1)) end -- gap 0: blocks touch
+    cell.t.Position = cell.inner and UDim2.new() or UDim2.fromScale(0, -3 / 16) -- bevel strip: above the block on the board, inside it in previews
     cell.f.BackgroundColor3 = col and (st.fill > 0 and col:Lerp(BLACK, st.fill) or col) or WHITE
     cell.f.BackgroundTransparency = col and tr or 1
     if not col then cell.s.Transparency = 1
@@ -1089,10 +1130,17 @@ local function look(cell, col, tr, n) -- shape, body, outline and gloss of one b
     elseif st.edge < 0 then cell.s.Color, cell.s.Transparency = col, 0.05 -- style draws the outline in the piece colour
     else cell.s.Color, cell.s.Transparency = col:Lerp(BLACK, st.edge), st.edge == 0 and 1 or 0.2 end
     cell.g.Visible = col ~= nil and tr < 0.5 and st.gloss
-    cell.i.Visible = st.tex ~= nil and TEX ~= nil and n ~= nil and n <= 7 and col ~= nil and tr < 0.5
+    local solid = col ~= nil and tr < 0.5
+    cell.t.Visible, cell.h.Visible = solid and st.bevel == true and top == true, solid and st.shine == true
+    cell.f.ClipsDescendants = st.bevel ~= true -- the strip pokes out above the block
+    if solid then cell.t.BackgroundColor3 = n and TOPC[n] or col:Lerp(WHITE, 0.35) end
+    local sheet = st.file and TEX[st.file] -- nil until the sheet is downloaded: the drawn look shows meanwhile
+    local gh = st.gh == true and col ~= nil and tr > 0.85 -- col nil = empty cell, which comes with no tr: comparing nil with a number threw every frame -- sheet row 2 holds the ghost tiles (hold-preview dimming is 0.6, finesse target has no n)
+    cell.i.Visible = sheet ~= nil and n ~= nil and n <= 7 and col ~= nil and (tr < 0.5 or gh)
     if cell.i.Visible then -- the sheet is already shaded and coloured, so the drawn body steps aside
-        cell.i.Image, cell.i.ImageRectOffset = TEX, Vector2.new(64 * (n - 1), 0)
-        cell.f.BackgroundTransparency, cell.s.Transparency, cell.g.Visible = 1, 1, false
+        local tile = st.tile or 64
+        cell.i.Image, cell.i.ImageRectSize, cell.i.ImageRectOffset = sheet, Vector2.new(tile, tile), Vector2.new(tile * ((st.ord and st.ord[n] or n) - 1), gh and tile or 0)
+        cell.f.BackgroundTransparency, cell.s.Transparency, cell.g.Visible, cell.t.Visible, cell.h.Visible = 1, 1, false, false, false
     end
 end
 local cells = {} -- 200 pooled cells; only repainted when their code changes
@@ -1100,7 +1148,9 @@ for r = 1, VIS do
     for c = 1, W do
         local f = mk("Frame", {Size = UDim2.new(0.1, -1, 0.05, -1), BorderSizePixel = 0, BackgroundTransparency = 1,
             ClipsDescendants = true, Position = UDim2.fromScale((c - 1) / W, (r - 1) / VIS), ZIndex = 3}, field)
-        cells[(r - 1) * W + c] = blockLook(f)
+        local k = blockLook(f)
+        k.sw, k.sh = 0.1, 0.05 -- base size as a fraction of the board; look() subtracts the style's gap
+        cells[(r - 1) * W + c] = k
     end
 end
 local msgLabel = txt("TextLabel", {Font = Enum.Font.GothamBold, Text = "", TextWrapped = true, Size = UDim2.fromScale(1, 0.12),
@@ -1124,7 +1174,9 @@ local function mini(parent, order) -- small piece preview: 4 pooled blocks
     local f = mk("Frame", {BackgroundTransparency = 1, LayoutOrder = order, ZIndex = 3}, parent)
     local m = {frame = f, key = false, cells = {}}
     for i = 1, 4 do
-        m.cells[i] = blockLook(mk("Frame", {BorderSizePixel = 0, Visible = false, ClipsDescendants = true, ZIndex = 4}, f))
+        local k = blockLook(mk("Frame", {BorderSizePixel = 0, Visible = false, ClipsDescendants = true, ZIndex = 4}, f))
+        k.sw, k.sh, k.inner = 0.25, 0.5, true -- preview block: its strip stays inside it, so it never pokes into the next preview
+        m.cells[i] = k
     end
     minis[#minis + 1] = m
     return m
@@ -1140,9 +1192,11 @@ local function setMini(m, t, dim)
     local off = (4 - (maxc - minc + 1)) / 2
     for i, v in ipairs(SHAPE[t][0]) do
         local c = m.cells[i]
-        c.f.Position, c.f.Size = UDim2.fromScale((v[1] - minc + off) / 4, (v[2] - minr) / 2), UDim2.new(0.25, -1, 0.5, -1)
+        c.f.Position = UDim2.fromScale((v[1] - minc + off) / 4, (v[2] - minr) / 2) -- size comes from look()
         c.f.Visible = true
-        look(c, COL[TI[t]], dim and 0.6 or 0, TI[t])
+        local top = true -- bevel strip only where no other cell of the piece sits above
+        for _, w in ipairs(SHAPE[t][0]) do if w[1] == v[1] and w[2] == v[2] - 1 then top = false end end
+        look(c, COL[TI[t]], dim and 0.6 or 0, TI[t], top)
     end
 end
 title(leftP, "HOLD", 1)
@@ -1168,7 +1222,8 @@ function layout() -- sizes scale with the window; cells use scale positions so o
     field.Position, field.Size = UDim2.fromOffset(fxX, fxY), UDim2.fromOffset(fw, fh)
     barTrack.Position, barTrack.Size = UDim2.fromOffset(fxX - 7, fxY), UDim2.fromOffset(5, fh)
     rightP.Position, rightP.Size = UDim2.fromOffset(x0 + pw + fw + 2 * gap, y0), UDim2.fromOffset(pw, fh)
-    for _, m in ipairs(minis) do m.frame.Size = UDim2.fromOffset(pw - 8, (pw - 8) / 2) end
+    local q = math.floor((pw - 8) / 4) -- whole-pixel preview blocks, so touching blocks leave no hairline
+    for _, m in ipairs(minis) do m.frame.Size = UDim2.fromOffset(q * 4, q * 2) end
     stats.TextSize = math.clamp(math.floor(s * 0.55), 10, 20)
     msgLabel.TextSize = math.clamp(math.floor(s * 0.8), 12, 26)
     finBox.TextSize = math.clamp(math.floor(s * 0.45), 9, 15)
@@ -1177,14 +1232,18 @@ end
 function applyTheme(n) -- colours, board gradient and block look of one theme; the render loop does the repaint
     n = THEMES[n] and n or 1 -- a saved theme that no longer exists falls back to the first
     cfg.theme, skinDirty = n, true
+    if THEMES[n].file then task.spawn(loadBlocks, THEMES[n].file) end -- sheets load on demand: only the selected theme's, no startup downloads for skins nobody uses
     local s, b = THEMES[n], THEMES[n].bg
     for i = 1, 7 do COL[i] = Color3.fromRGB(s.c[i * 3 - 2], s.c[i * 3 - 1], s.c[i * 3]) end
+    COL[8] = s.g and Color3.fromRGB(s.g[1], s.g[2], s.g[3]) or Color3.fromRGB(110, 118, 140) -- garbage / Cheese rows
+    TOPC = {}
+    for i = 1, 8 do if s.top then TOPC[i] = Color3.fromRGB(s.top[i * 3 - 2], s.top[i * 3 - 1], s.top[i * 3]) end end
     fbg.Color = ColorSequence.new(Color3.fromRGB(b[1], b[2], b[3]), Color3.fromRGB(b[4], b[5], b[6]))
     fieldStroke.Color, fieldStroke.Transparency = COL[1], 0.55
     accentLine.BackgroundColor3, accentLine.BackgroundTransparency = COL[1], 0.35
 end
 applyTheme(cfg.theme)
-task.spawn(loadBlocks) -- async: the texture repaint lands once the sheet is cached (or never, and the bevel stays)
+
 -- [/WINDOW]
 
 -- [BUBBLE]
@@ -1546,10 +1605,11 @@ end
 local function inPractice() return cfg.mode == 5 end
 local function inSpin() return cfg.mode == 5 and cfg.prac == 1 end
 local function inFinesse() return cfg.mode == 5 and cfg.prac == 2 end
+local function inZen() return cfg.mode == 6 end
 local function inPC() return cfg.mode == 5 and cfg.prac == 3 end
 local function restartPractice() if cfg.mode == 5 then tet.reset() end end
 section("Game")
-seg("Game mode", "mode", {"Marathon", "40 Lines", "Blitz", "Cheese", "Practice"}, 1, function() tet.reset(); refreshGates() end)
+seg("Game mode", "mode", {"Marathon", "40 Lines", "Blitz", "Cheese", "Practice", "Zen"}, 1, function() tet.reset(); refreshGates() end)
 -- Practice options open right under the mode selector, and only while Practice is picked
 local cnt
 local function recount()
@@ -1583,9 +1643,10 @@ opt("Finesse suggestions", "fbest")
 opt("Skip finesse on spins", "fskip")
 section("Handling")
 hint("Values are validated and applied instantly; the game pauses while Options is open.")
-local function numRows(defs)
+local function numRows(defs, gate)
     for _, d in ipairs(defs) do
     local box = row(d[2], "TextBox", tostring(cfg[d[1]]), {ClearTextOnFocus = false})
+    gates[box.Parent] = gate
     on(box.FocusLost, function()
         local n = tonumber(box.Text)
         if n then cfg[d[1]] = math.clamp(math.floor(n + 0.5), LIM[d[1]][1], LIM[d[1]][2]) end
@@ -1596,12 +1657,18 @@ local function numRows(defs)
 end
 numRows({{"das", "DAS (ms)"}, {"arr", "ARR (ms, 0 = instant)"}, {"sdr", "Soft drop (rows/s, 0 = instant)"},
     {"lock", "Lock delay (ms)"}, {"clear", "Line clear delay (ms)"}})
+numRows({{"dcd", "DAS cut delay (ms)"}, {"hdl", "Hard drop lockout (ms)"}})
+opt("Cancel DAS on lock", "dcl")
+opt("Cancel DAS on hold", "dch")
+opt("Initial rotate / hold (IRS)", "irs")
+seg("Direction switch", "dsw", {"Restart DAS", "Keep DAS charge"})
+hint("Cancel DAS on lock / hold restarts the DAS charge when a piece locks or you hold. DAS cut delay pauses auto-shift for that long after a lock. Hard drop lockout ignores hard drop for that long after a piece appears. IRS buffers rotate and hold pressed before the next piece appears. Keep DAS charge: pressing the other direction carries the charge over instead of restarting it.")
 section("Spins")
 hint("T-Spin: 3-corner rule (mini if one front corner, full if kick 5). Others: immobile rule.")
 seg("Spin detection (Practice always detects every spin)", "spin", {"T-Spin only", "All-Spin", "All-Mini"})
 
 section("Visuals")
-hint("One theme sets the colours and the block look. Textured draws blocks.png tiles; the others are drawn in Roblox.")
+hint("One theme sets the colours and the block look. Default, four.lol and Gem use the PNG sheets blocks.png, fourlol.png and puyo2.png from the GitHub repo (a drawn look shows until a sheet downloads, or if it is missing); Glossy, Flat and Neon are drawn in Roblox.")
 local themeNames = {}
 for i, t in ipairs(THEMES) do themeNames[i] = t.n end
 seg("Theme", "theme", themeNames, 1, function() applyTheme(cfg.theme) end)
@@ -1610,9 +1677,9 @@ opt("Snow / stars", "snow")
 opt("Clear flash", "flash")
 opt("Screen shake", "shake")
 section("Gravity")
-hint("Start level applies at the next lock or restart; idle pieces fall by themselves, then the game waits for a key.")
-seg("Gravity mode", "gmode", {"Level curve", "Fixed speed", "Off (zen)", "Instant (20G)"})
-numRows({{"grav", "Fixed speed (ms per row)"}, {"start", "Start level"}})
+hint("Gravity follows the standard level curve (start level 1) in every mode except Zen. Speed mode, fixed speed and start level only show and apply in Zen. Idle pieces fall by themselves, then the game waits for a key.")
+seg("Gravity mode (Zen only)", "gmode", {"Level curve", "Fixed speed", "Off", "Instant (20G)"}, 1, nil, inZen)
+numRows({{"grav", "Fixed speed (ms per row)"}, {"start", "Start level"}}, inZen)
 drop("Idle pieces before waiting", "idle", {"0", "1", "2", "3", "4", "5", "6", "7", "8"}, 0)
 section("Controls")
 hint("Click a key, then press the new one; Esc cancels; a used key swaps.")
@@ -1675,15 +1742,17 @@ local buf, shown, statT, lastOv, pauseT, overTxt, lastLines, fxT, fxN = {}, {}, 
 local snowOn = cfg.snow
 for i = 1, VIS * W do shown[i] = -1 end
 local function paint(cell, code)
+    local top = code > 30 -- bevel style: nothing solid above this block (see render)
+    if top then code = code - 30 end
     if code == 0 then look(cell)
     elseif code == 20 then look(cell, WHITE, 0.28)
     elseif code == 21 then look(cell, WHITE, 0.8) -- finesse target
-    elseif code > 10 then look(cell, COL[code - 10], 0.86) -- ghost: outline only, so the stack reads through it
-    else look(cell, COL[code], 0, code) end
+    elseif code > 10 then look(cell, COL[code - 10], 0.86, code - 10) -- ghost: outline only, so the stack reads through it
+    else look(cell, COL[code], 0, code, top) end
 end
 local LBL = '<font color="#8f98b3">%s</font>'
-local MODEN = {"MARATHON", "40 LINES", "BLITZ", "CHEESE", "PRACTICE"}
-local MODEC = {Color3.fromRGB(176, 76, 240), Color3.fromRGB(0, 229, 255), Color3.fromRGB(255, 213, 0), Color3.fromRGB(255, 152, 48), Color3.fromRGB(80, 224, 100)}
+local MODEN = {"MARATHON", "40 LINES", "BLITZ", "CHEESE", "PRACTICE", "ZEN"}
+local MODEC = {Color3.fromRGB(176, 76, 240), Color3.fromRGB(0, 229, 255), Color3.fromRGB(255, 213, 0), Color3.fromRGB(255, 152, 48), Color3.fromRGB(80, 224, 100), Color3.fromRGB(90, 200, 255)}
 local barV = 0 -- displayed progress, eased toward tet.progress()
 local function stat(n, v) return string.format(LBL, n) .. "  " .. tostring(v) end
 local function render(dt)
@@ -1710,6 +1779,15 @@ local function render(dt)
         for _, v in ipairs(tet.tgt.cells) do
             local i = (math.floor(v / 100) - base - 1) * W + v % 100
             if buf[i] == 0 then buf[i] = 21 end
+        end
+    end
+    if THEMES[cfg.theme].bevel then -- a block with nothing solid above it gets the lighter top strip: mark it +30 so it repaints when its neighbour changes
+        for i = 1, VIS * W do
+            local v = buf[i]
+            if v >= 1 and v <= 8 then
+                local a = i > W and buf[i - W] or 0
+                if not (a >= 1 and a <= 8 or a >= 31 and a <= 38) then buf[i] = v + 30 end
+            end
         end
     end
     if skinDirty then -- skin changed: repaint every block and preview
@@ -1760,7 +1838,7 @@ local function render(dt)
         elseif m == 5 then bl, bg = cfg.prac == 2 and "PERFECT" or "SOLVED", tet.ok .. " / " .. tet.try end
         local r = {'<font color="#' .. MODEC[m]:ToHex() .. '"><b>' .. MODEN[m] .. "</b></font>",
             string.format(LBL, bl) .. '\n<font size="18" color="#ffffff"><b>' .. bg .. "</b></font>", stat("TIME", clock(tet.time))}
-        if m ~= 1 then r[#r + 1] = stat("SCORE", fmt(tet.score)) end
+        if m ~= 1 and m ~= 6 then r[#r + 1] = stat("SCORE", fmt(tet.score)) end
         if m ~= 2 then r[#r + 1] = stat("LINES", tet.lines) end
         r[#r + 1] = stat("LEVEL", tet.level)
         r[#r + 1] = stat("BEST", bv and (timed and clock(bv) or fmt(bv)) or "-")
@@ -1781,6 +1859,7 @@ local function render(dt)
     elseif not overTxt then -- once per finished run: records + result text
         local timed, bk = tet.mode == 2 or tet.mode == 4, "m" .. tet.mode
         local v = timed and tet.won and tet.time or (not timed and tet.score) or nil
+        if tet.mode > 4 then v = nil end -- Practice and Zen keep no records
         local isBest = v and v > 0 and (not best[bk] or (timed and v < best[bk] or not timed and v > best[bk]))
         if isBest then best[bk] = v; save() end
         if v and v > 0 and tet.mode <= 4 then addScore(tet.mode, v, timed) end
