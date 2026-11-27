@@ -5841,13 +5841,13 @@ def({ "avatars", "avatar" }, "[refresh|close]", "Avatar discovery: filter player
 		if a == "refresh" then M.open(); M.refreshAll() elseif a == "close" then M.close() else M.toggle() end
 	end)
 end)
-ctx.owned = { avatars = true, grass = true }
 local MICUP = { [15546218972] = true, [6884319169] = true } -- Mic Up 18+ and the normal game; keep in step with Mic Up Grass
 def({ "grass" }, "[on|off|size N|offset N|margin N|blade N|color #hex|avoid|open|close]", "Mic Up only: client-side terrain grass on the baseplates (;kill grass removes it)", "mic up grass terrain baseplate lawn nature blades", function(a)
 	if not MICUP[game.PlaceId] then return ctx.notify("Grass only works in Mic Up", 4) end
 	a = a or ""
 	ext("grass", "KLGrass", a, function(M) M.cmd(a) end)
 end)
+ctx.owned = { avatars = true, grass = true } -- must come after both defs above: register() refuses owned names
 def({ "workwellpf", "wwapf" }, "", "Load WorkWell for Phantom Forces (;kill wwapf closes it)", "aim assist phantom forces pf", function() openTool("wwapf") end)
 def({ "properties", "tooleditor" }, "", "Load the Tool Properties Editor (;kill tooleditor closes it)", "tool properties edit inventory", function() openTool("tooleditor") end)
 def({ "klpfxp", "pfxp" }, "", "Load KL PF XP, Half-Life / GoldSrc movement in Phantom Forces (;kill klpfxp closes it)", "movement phantom forces pf half life", function() openTool("klpfxp") end)
