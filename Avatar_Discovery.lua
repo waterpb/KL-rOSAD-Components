@@ -2,17 +2,17 @@
 -- [BOOT] header, env, services, M table, conn | env, M, K, conn() | deps: none | L16-47
 -- [THEME] rOSAD palette, paint registry, small helpers | col(), paint(), applyTheme(), fs(), thumb() | deps: BOOT | L48-107
 -- [PURE] name classify, filter match, skin brightness | classifyNames(), filterMatch(), bodyLum() | deps: THEME | L108-185
--- [CACHE] avatar cache, lazy catalog names, per-player analyze | reclassify(), pump(), analyze(), watchPlayer() | deps: PURE | L186-316
--- [UI] window and widget builders | frame(), label(), button(), input(), scroller(), slider() | deps: THEME | L317-538
--- [HEADER] title bar, close/drag | deps: UI | L539-574
--- [FILTERS] filter chips and player list panel | paintChip() | deps: UI | L575-680
--- [RIGHT] 3D preview, details, actions, worn items panels | deps: UI | L681-786
--- [LIST] apply filters, render player rows | schedule(), tagLine(), renderList() | deps: CACHE, FILTERS | L787-865
--- [DETAILS] preview model, details, worn items | buildPreview(), showDetails(), renderItems() | deps: RIGHT, CACHE | L866-1008
--- [ACTIONS] view/listen/hide/ESP and rOSAD commands | refreshActions(), espToggle(), M.action(), selectPlayer(), M.refreshAll() | deps: DETAILS | L1009-1193
--- [LIFE] search box wiring, rOSAD hooks, open/close/toggle/Unload | M.open(), M.close(), M.toggle(), M.Unload() | deps: all | L1194-1303
--- [SELFTEST] assert self-check of pure logic | M.selftest() | deps: PURE | L1304-1332
--- [ENTRY] run selftest, open window | deps: all | L1333-1338
+-- [CACHE] avatar cache, lazy catalog names, per-player analyze | reclassify(), pump(), analyze(), watchPlayer() | deps: PURE | L186-378
+-- [UI] window and widget builders | frame(), label(), button(), input(), scroller(), slider() | deps: THEME | L379-600
+-- [HEADER] title bar, close/drag | deps: UI | L601-636
+-- [FILTERS] filter chips and player list panel | paintChip() | deps: UI | L637-742
+-- [RIGHT] 3D preview, details, actions, worn items panels | deps: UI | L743-860
+-- [LIST] apply filters, render player rows | schedule(), tagLine(), renderList() | deps: CACHE, FILTERS | L861-939
+-- [DETAILS] preview model, details, worn items | buildPreview(), showDetails(), renderItems() | deps: RIGHT, CACHE | L940-1103
+-- [ACTIONS] view/listen/hide/ESP and rOSAD commands | refreshActions(), espToggle(), M.action(), selectPlayer(), M.refreshAll() | deps: DETAILS | L1104-1289
+-- [LIFE] search box wiring, rOSAD hooks, open/close/toggle/Unload | M.open(), M.close(), M.toggle(), M.Unload() | deps: all | L1290-1399
+-- [SELFTEST] assert self-check of pure logic | M.selftest() | deps: PURE | L1400-1428
+-- [ENTRY] run selftest, open window | deps: all | L1429-1434
 -- [BOOT]
 -- ===== AVATAR DISCOVERY 1.0 ==================================================
 -- Player discovery for KL rOSAD: filter players by worn items (Headless, Korblox,
@@ -212,27 +212,79 @@ local function reclassify(e)
 	e.tags, e.words, e.namesList, e.idset = tags, list, names, set
 end
 
-local function pump()
-	if M.dead or workers >= 2 then return end
-	local id = table.remove(queue, 1)
-	if not id then return end
-	workers = workers + 1
-	task.spawn(function()
-		local ok, info = pcall(function() return MarketplaceService:GetProductInfo(id, Enum.InfoType.Asset) end)
-		product[id] = (ok and type(info) == "table" and type(info.Name) == "string") and info.Name or false
-		limitedOf[id] = (ok and type(info) == "table" and (info.IsLimited == true or info.IsLimitedUnique == true)) and true or false
-		pending[id] = nil
-		workers = workers - 1
-		for _, e in pairs(cache) do
-			if e.idset and e.idset[id] then reclassify(e) end
+local batchOK, csrf = true, nil -- batch = one catalog request for up to 120 assets; falls back to GetProductInfo one by one if the executor / endpoint refuses
+local function batchNames(ids)
+	local rq = (syn and syn.request) or request or http_request or (http and http.request)
+	if not rq then return nil end
+	local HS = game:GetService("HttpService")
+	local items = {}
+	for _, id in ipairs(ids) do items[#items + 1] = { itemType = "Asset", id = id } end
+	local body = HS:JSONEncode({ items = items })
+	for _ = 1, 2 do -- the first try may only fetch the csrf token
+		local ok, r = pcall(rq, { Url = "https://catalog.roblox.com/v1/catalog/items/details", Method = "POST",
+			Headers = { ["Content-Type"] = "application/json", ["x-csrf-token"] = csrf or "" }, Body = body })
+		if not (ok and type(r) == "table") then return nil end
+		if r.StatusCode == 403 then
+			for k, v in pairs(r.Headers or {}) do if tostring(k):lower() == "x-csrf-token" then csrf = v end end
+			if not csrf then return nil end
+		elseif r.StatusCode == 200 then
+			local okJ, j = pcall(HS.JSONDecode, HS, r.Body)
+			if not (okJ and type(j) == "table" and type(j.data) == "table") then return nil end
+			local out = {}
+			for _, d in ipairs(j.data) do
+				if type(d) == "table" and tonumber(d.id) and type(d.name) == "string" then
+					local lim = false
+					for _, rs in ipairs(type(d.itemRestrictions) == "table" and d.itemRestrictions or {}) do
+						if rs == "Limited" or rs == "LimitedUnique" then lim = true end
+					end
+					out[tonumber(d.id)] = { name = d.name, limited = lim }
+				end
+			end
+			return out
+		else
+			return nil
 		end
+	end
+	return nil
+end
+
+local function pump()
+	if M.dead or #queue == 0 or workers >= (batchOK and 3 or 8) then return end
+	workers = workers + 1
+	local batch = {}
+	for _ = 1, batchOK and 120 or 1 do
+		local id = table.remove(queue, 1)
+		if not id then break end
+		batch[#batch + 1] = id
+	end
+	task.spawn(function()
+		local got = batchOK and batchNames(batch) or nil
+		if batchOK and not (got and next(got)) then -- no batch here: put them back and go one by one with more workers
+			batchOK = false
+			for i = #batch, 1, -1 do table.insert(queue, 1, batch[i]) end
+			workers = workers - 1
+			for _ = 1, 8 do pump() end
+			return
+		end
+		for _, id in ipairs(batch) do
+			local g = got and got[id]
+			if g then
+				product[id], limitedOf[id] = g.name, g.limited
+			else
+				local ok, info = pcall(function() return MarketplaceService:GetProductInfo(id, Enum.InfoType.Asset) end)
+				product[id] = (ok and type(info) == "table" and type(info.Name) == "string") and info.Name or false
+				limitedOf[id] = (ok and type(info) == "table" and (info.IsLimited == true or info.IsLimitedUnique == true)) and true or false
+			end
+			pending[id] = nil
+		end
+		workers = workers - 1
+		for _, e in pairs(cache) do reclassify(e) end
 		if M.dead then return end
 		if selected then
 			showDetails(selected)
 			if #queue == 0 then renderItems(selected) end -- one rebuild once the names are in
 		end
 		schedule()
-		task.wait(0.1)
 		pump()
 	end)
 end
@@ -243,6 +295,15 @@ local function queueName(id)
 	pending[id] = true
 	queue[#queue + 1] = id
 	pump()
+end
+
+-- the player you are looking at jumps the queue: their names come first
+local function prioritize(ids)
+	for i = #(ids or {}), 1, -1 do
+		local id = ids[i]
+		local at = pending[id] and table.find(queue, id)
+		if at then table.remove(queue, at); table.insert(queue, 1, id) end
+	end
 end
 
 local BODY_FIELDS = { "Head", "Torso", "LeftArm", "RightArm", "LeftLeg", "RightLeg", "Face", "Shirt", "Pants", "GraphicTShirt" }
@@ -291,6 +352,7 @@ local function analyze(p, force)
 		e.lum = bodyLum(desc)
 		reclassify(e)
 		for _, id in ipairs(ids) do queueName(id) end
+		if selected == p then prioritize(ids) end
 		e.busy = false
 		if M.dead then return end
 		if selected == p then
@@ -709,23 +771,38 @@ function U.pvReset()
 	P3.yaw, P3.pitch, P3.pan, P3.dist = 0, 0, Vector3.zero, P3.d0
 	U.pvUpdate()
 end
-vp.Active = true -- sinks the wheel and clicks so the game camera does not zoom behind the window
-local pvDrag -- "orbit" | "pan" while a button is held that started on the preview
-vp.InputBegan:Connect(function(i)
+local pvHit = Instance.new("TextButton") -- invisible overlay: always receives clicks and the wheel, and sinks them so the game camera does not zoom behind the window
+pvHit.Size = UDim2.fromScale(1, 1)
+pvHit.BackgroundTransparency = 1
+pvHit.Text = ""
+pvHit.AutoButtonColor = false
+pvHit.ZIndex = 20
+pvHit.Parent = pvWrap
+local RunService = game:GetService("RunService")
+local pvDrag, pvLast -- "orbit" | "pan" while a button is held that started on the preview; pvLast = mouse position at the last frame
+local function pvStart(mode) pvDrag, pvLast = mode, UserInputService:GetMouseLocation() end
+pvHit.MouseButton1Down:Connect(function() pvStart("orbit") end)
+pvHit.InputBegan:Connect(function(i)
 	local t = i.UserInputType
-	if t == Enum.UserInputType.MouseButton1 then pvDrag = "orbit"
-	elseif t == Enum.UserInputType.MouseButton3 then pvDrag = "pan"
+	if t == Enum.UserInputType.MouseButton1 then pvStart("orbit")
+	elseif t == Enum.UserInputType.MouseButton3 then pvStart("pan")
 	elseif t == Enum.UserInputType.MouseButton2 then U.pvReset() end
 end)
-vp.InputChanged:Connect(function(i)
+pvHit.InputChanged:Connect(function(i)
 	if i.UserInputType == Enum.UserInputType.MouseWheel then
 		P3.dist = math.clamp(P3.dist * (1 - i.Position.Z * .1), P3.d0 * .25, P3.d0 * 3)
 		U.pvUpdate()
 	end
 end)
-conn(UserInputService.InputChanged, function(i)
-	if not pvDrag or i.UserInputType ~= Enum.UserInputType.MouseMovement then return end
-	local d = i.Delta
+-- the drag is read from the mouse position every frame (not from InputChanged.Delta, which is 0 on some executors) and ends when the button is up
+conn(RunService.RenderStepped, function()
+	if not pvDrag then return end
+	local btn = pvDrag == "pan" and Enum.UserInputType.MouseButton3 or Enum.UserInputType.MouseButton1
+	if not UserInputService:IsMouseButtonPressed(btn) then pvDrag = nil return end
+	local now = UserInputService:GetMouseLocation()
+	local d = now - pvLast
+	pvLast = now
+	if d.X == 0 and d.Y == 0 then return end
 	if pvDrag == "orbit" then
 		P3.yaw = P3.yaw - d.X * .01
 		P3.pitch = math.clamp(P3.pitch + d.Y * .01, -1.4, 1.4)
@@ -734,9 +811,6 @@ conn(UserInputService.InputChanged, function(i)
 		P3.pan = P3.pan - cf.RightVector * d.X * k + cf.UpVector * d.Y * k
 	end
 	U.pvUpdate()
-end)
-conn(UserInputService.InputEnded, function(i)
-	if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.MouseButton3 then pvDrag = nil end
 end)
 U.pvImg = Instance.new("ImageLabel")
 U.pvImg.Size = UDim2.fromScale(1, 1)
@@ -869,6 +943,36 @@ local function clearPreview()
 	for _, c in ipairs(world:GetChildren()) do c:Destroy() end
 end
 
+local function cloneChar(p) -- the avatar as it is in the server right now: instant, no downloads
+	local ch = p.Character
+	if not (ch and ch:FindFirstChild("HumanoidRootPart")) then return nil end
+	local was = ch.Archivable
+	pcall(function() ch.Archivable = true end)
+	local ok, m = pcall(function() return ch:Clone() end)
+	pcall(function() ch.Archivable = was end)
+	if not (ok and m) then return nil end
+	for _, d in ipairs(m:GetDescendants()) do
+		if d:IsA("BaseScript") or d:IsA("Sound") or d:IsA("BillboardGui") then d:Destroy()
+		elseif d:IsA("BasePart") then d.Anchored = true end
+	end
+	return m
+end
+
+local function showModel(p, model)
+	clearPreview()
+	model:PivotTo(CFrame.new())
+	model.Parent = world
+	U.pvImg.Visible = false
+	U.pvNote.Text = "drag: rotate · middle: pan · wheel: zoom · right click: reset"
+	local okB, cf, size = pcall(function() return model:GetBoundingBox() end)
+	if not okB or not size then return end
+	local dist = math.max(size.Y * 1.35, size.X * 2.15, size.Z * 2.15, 6)
+	local target = cf.Position + Vector3.new(0, size.Y * .02, 0)
+	local same = U.pv3.uid == p.UserId -- the same player rebuilt: keep the view you set
+	U.pv3.uid, U.pv3.target, U.pv3.d0 = p.UserId, target, dist
+	if same then U.pvUpdate() else U.pvReset() end
+end
+
 function buildPreview(p, e)
 	if not p then
 		clearPreview()
@@ -876,35 +980,26 @@ function buildPreview(p, e)
 		U.pvNote.Text = ""
 		return
 	end
-	U.pvNote.Text = ""
+	local tok = (U.pvTok or 0) + 1
+	U.pvTok = tok
+	local model = cloneChar(p)
+	if model then return showModel(p, model) end
+	-- not in range / not loaded: show the flat picture right away, build the 3D model from the description in the background
+	clearPreview()
+	U.pvImg.Image = thumb("Avatar", p.UserId, 420)
+	U.pvImg.Visible = true
 	if not (e and e.desc) then
-		clearPreview()
-		U.pvImg.Image = thumb("Avatar", p.UserId, 420)
-		U.pvImg.Visible = true
 		U.pvNote.Text = e and e.status or "loading avatar…"
 		return
 	end
-	local ok, model = pcall(function()
-		return Players:CreateHumanoidModelFromDescription(e.desc, e.rig or Enum.HumanoidRigType.R15)
+	U.pvNote.Text = "loading 3D…"
+	task.spawn(function()
+		local ok, m = pcall(function()
+			return Players:CreateHumanoidModelFromDescription(e.desc, e.rig or Enum.HumanoidRigType.R15)
+		end)
+		if M.dead or U.pvTok ~= tok then if ok and m then m:Destroy() end return end -- another player was picked meanwhile
+		if ok and m then showModel(p, m) else U.pvNote.Text = "3D preview unavailable" end
 	end)
-	if not (ok and model) then
-		clearPreview()
-		U.pvImg.Image = thumb("Avatar", p.UserId, 420)
-		U.pvImg.Visible = true
-		U.pvNote.Text = "3D preview unavailable"
-		return
-	end
-	clearPreview()
-	model:PivotTo(CFrame.new())
-	model.Parent = world
-	U.pvImg.Visible = false
-	local okB, cf, size = pcall(function() return model:GetBoundingBox() end)
-	if not okB or not size then return end
-	local dist = math.max(size.Y * 1.35, size.X * 2.15, size.Z * 2.15, 6)
-	local target = cf.Position + Vector3.new(0, size.Y * .02, 0)
-	local same = P3.uid == p.UserId -- the same player rebuilt (avatar finished loading): keep the view you set
-	P3.uid, P3.target, P3.d0 = p.UserId, target, dist
-	if same then U.pvUpdate() else U.pvReset() end
 end
 
 local function playerDistance(p)
@@ -1168,6 +1263,7 @@ end
 
 function selectPlayer(p)
 	selected = p
+	prioritize((cache[p.UserId] or {}).ids)
 	showDetails(p)
 	local e = cache[p.UserId]
 	if e and e.desc then
